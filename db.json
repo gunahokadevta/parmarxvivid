@@ -3,7 +3,10 @@
     {
       "name": "PARMAR 4.0 GK",
       "teacher": "PARMAR SIR",
-      "subjects": []
+      "subjects": [
+        { "name": "BIOLOGY", "CHAPTERS": [], "WEEKLY TESTS": [] },
+        { "name": "ECONOMICS", "CHAPTERS": [], "WEEKLY TESTS": [] }
+      ]
     },
     {
       "name": "REASONING SPL 58",
