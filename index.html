@@ -27,7 +27,7 @@
         <div id="search-container" class="mb-6">
             <div class="search-box flex items-center px-4 py-3">
                 <i class="fas fa-search text-blue-400 mr-3"></i>
-                <input type="text" id="courseSearch" placeholder="Search your course..." 
+                <input type="text" id="courseSearch" placeholder="Search course or teacher..." 
                     class="bg-transparent border-none outline-none w-full text-white placeholder-gray-500 text-sm"
                     onkeyup="filterCourses()">
             </div>
@@ -38,7 +38,7 @@
         <div id="course-list" class="grid gap-4"></div>
         
         <div id="no-results" class="hidden text-center py-10 text-gray-500 italic">
-            No course found with that name.
+            No course or teacher found.
         </div>
 
         <div id="subject-section" class="hidden grid gap-4">
@@ -79,6 +79,7 @@
                 list.innerHTML += `<div onclick="${clickAction}" class="glass-card p-6 text-center cursor-pointer course-item">
                     <div class="text-blue-400 text-2xl mb-2"><i class="fas fa-graduation-cap"></i></div>
                     <div class="font-bold text-lg">${c.name}</div>
+                    <div class="teacher-name text-blue-300/60 text-[11px] mt-1 font-medium tracking-wide uppercase italic">${c.teacher || 'Vivid Academy'}</div>
                 </div>`; 
             }); 
             toggle('course-list'); 
@@ -90,7 +91,8 @@
             let found = false;
             for (let i = 0; i < items.length; i++) {
                 let name = items[i].getElementsByClassName('font-bold')[0].innerText;
-                if (name.toUpperCase().indexOf(input) > -1) {
+                let teacher = items[i].getElementsByClassName('teacher-name')[0].innerText;
+                if (name.toUpperCase().indexOf(input) > -1 || teacher.toUpperCase().indexOf(input) > -1) {
                     items[i].style.display = "";
                     found = true;
                 } else {

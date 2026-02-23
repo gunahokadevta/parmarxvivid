@@ -20,26 +20,27 @@ function addNewOrUpdate(db) {
 
     if (cIndex === courseNames.length - 1) {
         let newCourseName = readline.question('Enter New Course Name: ').toUpperCase();
+        let teacherName = readline.question('Enter Teacher Name: ').toUpperCase();
         const subOptions = ['ADD SUB (Regular System)', 'ADD LINK (Direct Redirect)'];
         let subChoice = readline.keyInSelect(subOptions, 'Mode for ' + newCourseName + ':');
         
-        if (subChoice === 0) { // Regular
+        if (subChoice === 0) { 
             let subName = readline.question('Enter First Subject Name: ').toUpperCase();
-            db.courses.push({ name: newCourseName, subjects: [{ name: subName, CHAPTERS: [], "WEEKLY TESTS": [] }] });
+            db.courses.push({ name: newCourseName, teacher: teacherName, subjects: [{ name: subName, CHAPTERS: [], "WEEKLY TESTS": [] }] });
             saveDB(db);
-            console.log('✅ Course with Subject added!');
-        } else if (subChoice === 1) { // Direct Link
+            console.log('✅ Course with Subject & Teacher added!');
+        } else if (subChoice === 1) { 
             let directLink = readline.question('Enter Redirect Link: ');
-            db.courses.push({ name: newCourseName, directLink: directLink, subjects: [] });
+            db.courses.push({ name: newCourseName, teacher: teacherName, directLink: directLink, subjects: [] });
             saveDB(db);
-            console.log('✅ Course with Direct Redirect added!');
+            console.log('✅ Course with Redirect & Teacher added!');
         }
         return;
     }
 
     let course = db.courses[cIndex];
     if (course.directLink) {
-        console.log("⚠️ This is a direct redirect course. To update link, delete and re-add.");
+        console.log("⚠️ This is a direct redirect course.");
         return;
     }
 
@@ -71,7 +72,7 @@ function addNewOrUpdate(db) {
     if (itemIndex === list.length - 1) title = readline.question('Enter Title: ');
     else { existing = sub[cat][itemIndex]; title = existing.title; }
 
-    let link = readline.question('Lecture Link (Blank to hide): ', {defaultInput: existing ? existing.url : ''});
+    let link = readline.question('Lecture Link: ', {defaultInput: existing ? existing.url : ''});
     let nEn = readline.question('Eng Notes: ', {defaultInput: existing ? existing.notes_en : ''});
     let nHi = readline.question('Hindi Notes: ', {defaultInput: existing ? existing.notes_hi : ''});
     let quiz = readline.question('Quiz: ', {defaultInput: existing ? existing.quiz : ''});
@@ -87,14 +88,12 @@ function addNewOrUpdate(db) {
 function manageData(db) {
     let cIndex = readline.keyInSelect(db.courses.map(c => c.name), 'Select Course:');
     if (cIndex === -1) return;
-    
-    if (readline.keyInYN('Do you want to delete the WHOLE COURSE "' + db.courses[cIndex].name + '"?')) {
+    if (readline.keyInYN('Delete WHOLE COURSE "' + db.courses[cIndex].name + '"?')) {
         db.courses.splice(cIndex, 1);
         saveDB(db);
         console.log('🗑️ Course Deleted!');
         return;
     }
-
     let sIndex = readline.keyInSelect(db.courses[cIndex].subjects.map(s => s.name), 'Select Subject:');
     if (sIndex === -1) return;
     let sub = db.courses[cIndex].subjects[sIndex];
@@ -105,7 +104,7 @@ function manageData(db) {
     if (itemIndex !== -1 && readline.keyInYN('Delete it?')) {
         sub[cat].splice(itemIndex, 1);
         saveDB(db);
-        console.log('🗑️ Item Deleted!');
+        console.log('🗑️ Deleted!');
     }
 }
 main();
