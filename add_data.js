@@ -87,23 +87,28 @@ function manageData(db) {
     let cIndex = readline.keyInSelect(db.courses.map(c => c.name), 'Select Course:');
     if (cIndex === -1) return;
 
-    if (readline.keyInYN('Delete FULL Course "' + db.courses[cIndex].name + '"?')) {
-        db.courses.splice(cIndex, 1);
-        saveDB(db);
-        console.log('🗑️ Course Deleted!');
-        return;
+    // --- DOUBLE CHECK FOR COURSE ---
+    if (readline.keyInYN('Delete FULL Course "' + db.courses[cIndex].name + '"? (Confirm 1/2)')) {
+        if (readline.keyInYN('WARNING: This will delete ALL subjects and lectures. Are you sure? (Confirm 2/2)')) {
+            db.courses.splice(cIndex, 1);
+            saveDB(db);
+            console.log('🗑️ Course Deleted!');
+            return;
+        }
     }
 
-    // Agar course delete nahi kiya, toh subject/chapter pe jao
     let sIndex = readline.keyInSelect(db.courses[cIndex].subjects.map(s => s.name), 'Select Subject to manage:');
     if (sIndex === -1) return;
 
     let sub = db.courses[cIndex].subjects[sIndex];
-    if (readline.keyInYN('Delete this Subject "' + sub.name + '"?')) {
-        db.courses[cIndex].subjects.splice(sIndex, 1);
-        saveDB(db);
-        console.log('🗑️ Subject Deleted!');
-        return;
+    // --- DOUBLE CHECK FOR SUBJECT ---
+    if (readline.keyInYN('Delete Subject "' + sub.name + '"? (Confirm 1/2)')) {
+        if (readline.keyInYN('Are you really sure? (Confirm 2/2)')) {
+            db.courses[cIndex].subjects.splice(sIndex, 1);
+            saveDB(db);
+            console.log('🗑️ Subject Deleted!');
+            return;
+        }
     }
 
     let catIndex = readline.keyInSelect(['CHAPTERS', 'WEEKLY TESTS'], 'Select Category:');
@@ -112,10 +117,13 @@ function manageData(db) {
 
     let itemIndex = readline.keyInSelect(sub[cat].map(i => i.title), 'Delete specific item?');
     if (itemIndex !== -1) {
-        if (readline.keyInYN('Are you sure you want to delete this item?')) {
-            sub[cat].splice(itemIndex, 1);
-            saveDB(db);
-            console.log('🗑️ Item Deleted!');
+        // --- DOUBLE CHECK FOR ITEM ---
+        if (readline.keyInYN('Delete this item? (Confirm 1/2)')) {
+            if (readline.keyInYN('FINAL CONFIRMATION: Delete? (Confirm 2/2)')) {
+                sub[cat].splice(itemIndex, 1);
+                saveDB(db);
+                console.log('🗑️ Item Deleted!');
+            }
         }
     }
 }
