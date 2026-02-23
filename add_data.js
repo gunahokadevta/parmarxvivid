@@ -21,10 +21,23 @@ function addNewOrUpdate(db) {
     if (cIndex === courseNames.length - 1) {
         let newCourseName = readline.question('Enter New Course Name: ').toUpperCase();
         let teacherName = readline.question('Enter Teacher Name: ').toUpperCase();
-        db.courses.push({ name: newCourseName, teacher: teacherName, subjects: [] });
-        saveDB(db);
-        console.log('✅ Course Added!');
-        return;
+        
+        // --- YAHAN FIX KIYA HAI ---
+        const modeOptions = ['Regular Course (with Subjects/Chapters)', 'Direct Link (Redirect to URL)'];
+        let modeIndex = readline.keyInSelect(modeOptions, 'Select Mode for ' + newCourseName + ':');
+        
+        if (modeIndex === 1) {
+            let directLink = readline.question('Enter Direct Redirect Link: ');
+            db.courses.push({ name: newCourseName, teacher: teacherName, directLink: directLink, subjects: [] });
+            saveDB(db);
+            console.log('✅ Redirect Course Added!');
+            return;
+        } else {
+            db.courses.push({ name: newCourseName, teacher: teacherName, subjects: [] });
+            saveDB(db);
+            console.log('✅ Regular Course Added!');
+            return;
+        }
     }
 
     let course = db.courses[cIndex];
@@ -69,7 +82,7 @@ function addNewOrUpdate(db) {
 
     let dLink = existing ? existing.download_url : null;
     if (link && link.includes('<')) {
-        dLink = readline.question('Lecture Download Link: ', {defaultInput: existing ? existing.download_url : ''});
+        dLink = readline.question('Lecture Download Link: ');
     }
 
     let nEn = readline.question('Eng Notes: ', {defaultInput: existing ? existing.notes_en : ''});
@@ -87,9 +100,8 @@ function manageData(db) {
     let cIndex = readline.keyInSelect(db.courses.map(c => c.name), 'Select Course:');
     if (cIndex === -1) return;
 
-    // --- DOUBLE CHECK FOR COURSE ---
     if (readline.keyInYN('Delete FULL Course "' + db.courses[cIndex].name + '"? (Confirm 1/2)')) {
-        if (readline.keyInYN('WARNING: This will delete ALL subjects and lectures. Are you sure? (Confirm 2/2)')) {
+        if (readline.keyInYN('WARNING: Final Confirmation. Confirm? (Confirm 2/2)')) {
             db.courses.splice(cIndex, 1);
             saveDB(db);
             console.log('🗑️ Course Deleted!');
@@ -97,13 +109,14 @@ function manageData(db) {
         }
     }
 
-    let sIndex = readline.keyInSelect(db.courses[cIndex].subjects.map(s => s.name), 'Select Subject to manage:');
+    if (db.courses[cIndex].subjects.length === 0) return;
+
+    let sIndex = readline.keyInSelect(db.courses[cIndex].subjects.map(s => s.name), 'Select Subject:');
     if (sIndex === -1) return;
 
     let sub = db.courses[cIndex].subjects[sIndex];
-    // --- DOUBLE CHECK FOR SUBJECT ---
     if (readline.keyInYN('Delete Subject "' + sub.name + '"? (Confirm 1/2)')) {
-        if (readline.keyInYN('Are you really sure? (Confirm 2/2)')) {
+        if (readline.keyInYN('Confirm Deletion? (Confirm 2/2)')) {
             db.courses[cIndex].subjects.splice(sIndex, 1);
             saveDB(db);
             console.log('🗑️ Subject Deleted!');
@@ -115,11 +128,10 @@ function manageData(db) {
     if (catIndex === -1) return;
     let cat = catIndex === 0 ? 'CHAPTERS' : 'WEEKLY TESTS';
 
-    let itemIndex = readline.keyInSelect(sub[cat].map(i => i.title), 'Delete specific item?');
+    let itemIndex = readline.keyInSelect(sub[cat].map(i => i.title), 'Delete item?');
     if (itemIndex !== -1) {
-        // --- DOUBLE CHECK FOR ITEM ---
-        if (readline.keyInYN('Delete this item? (Confirm 1/2)')) {
-            if (readline.keyInYN('FINAL CONFIRMATION: Delete? (Confirm 2/2)')) {
+        if (readline.keyInYN('Confirm 1/2?')) {
+            if (readline.keyInYN('Final Confirm 2/2?')) {
                 sub[cat].splice(itemIndex, 1);
                 saveDB(db);
                 console.log('🗑️ Item Deleted!');
