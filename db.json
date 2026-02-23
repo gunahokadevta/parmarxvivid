@@ -6,7 +6,80 @@
       "subjects": [
         {
           "name": "BIOLOGY",
-          "CHAPTERS": [],
+          "CHAPTERS": [
+            {
+              "title": "CELL - LEC 1",
+              "url": "https://www.youtube.com/live/PSoL_URbbrk?si=kCd4EL3VrMtnikHM",
+              "notes_en": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=69999d56d59ec0ed1c8eae19",
+              "notes_hi": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=69999dacd59ec0ed1c8eae1b",
+              "quiz": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=69999ec4d59ec0ed1c8eae1f",
+              "handwritten": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=69999de0d59ec0ed1c8eae1d"
+            },
+            {
+              "title": "PLANT TISSUES - LEC 2",
+              "url": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?watch=69999f92d59ec0ed1c8eae21",
+              "notes_en": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a0b3d59ec0ed1c8eae23",
+              "notes_hi": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a0bad59ec0ed1c8eae25",
+              "quiz": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a10cd59ec0ed1c8eae29",
+              "handwritten": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a0c5d59ec0ed1c8eae27"
+            },
+            {
+              "title": "ANIMAL TISSUES - LEC 3",
+              "url": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?watch=6999a2e3d59ec0ed1c8eae2c",
+              "notes_en": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a301d59ec0ed1c8eae2e",
+              "notes_hi": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a30bd59ec0ed1c8eae30",
+              "quiz": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a3b7d59ec0ed1c8eae34",
+              "handwritten": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a314d59ec0ed1c8eae32"
+            },
+            {
+              "title": "PLANT KINGDOM - LEC 4",
+              "url": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?watch=6999a4acd59ec0ed1c8eae36",
+              "notes_en": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a4b2d59ec0ed1c8eae38",
+              "notes_hi": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a4b9d59ec0ed1c8eae3a",
+              "quiz": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a4d1d59ec0ed1c8eae3e",
+              "handwritten": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a4bfd59ec0ed1c8eae3c"
+            },
+            {
+              "title": "ANIMAL KINGDOM - LEC 5",
+              "url": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?watch=6999a5a7d59ec0ed1c8eae40",
+              "notes_en": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a5add59ec0ed1c8eae42",
+              "notes_hi": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a5b4d59ec0ed1c8eae44",
+              "quiz": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a5c6d59ec0ed1c8eae48",
+              "handwritten": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a5bad59ec0ed1c8eae46"
+            },
+            {
+              "title": "NERVOUS SYSTEM - LEC 6",
+              "url": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?watch=6999a803d59ec0ed1c8eae4a",
+              "notes_en": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a81dd59ec0ed1c8eae4c",
+              "notes_hi": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a833d59ec0ed1c8eae4e",
+              "quiz": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a843d59ec0ed1c8eae50",
+              "handwritten": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a84ed59ec0ed1c8eae52"
+            },
+            {
+              "title": "HORMONES & PLANT MOVEMENTS - LEC 7",
+              "url": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?watch=6999a92ad59ec0ed1c8eae54",
+              "notes_en": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=699ad4c48400b2ce4be1d924",
+              "notes_hi": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=699ad4d48400b2ce4be1d926",
+              "quiz": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=699ad3ea8400b2ce4be1d922",
+              "handwritten": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=6999a931d59ec0ed1c8eae56"
+            },
+            {
+              "title": "REPRODUCTION - LEC 8",
+              "url": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?watch=6999a9ccd59ec0ed1c8eae58",
+              "notes_en": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=699c1a0c079b6e6aba672f02",
+              "notes_hi": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?dl=699c1a2f079b6e6aba672f04",
+              "quiz": null,
+              "handwritten": null
+            },
+            {
+              "title": "DIGESTIVE AND RESPIRATORY SYSTEM - LEC 9",
+              "url": "https://publicbotshub.blogspot.com/p/file-stream-bot.html?watch=699bee92079b6e6aba672ec3",
+              "notes_en": null,
+              "notes_hi": null,
+              "quiz": null,
+              "handwritten": null
+            }
+          ],
           "WEEKLY TESTS": []
         },
         {
