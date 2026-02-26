@@ -21,16 +21,14 @@ function main() {
     else if (index === 3) deleteNotification(db);
 }
 
-// --- Updated Notification Functions ---
+// --- NOTIFICATION LOGIC (Updated to show Title on Website) ---
 
 function addNotification(db) {
     console.log("\n--- ADD NEW NOTIFICATION ---");
     
-    // 1. Pehle Title puchenge
-    let title = readline.question('Enter Notification Title (e.g., IMPORTANT UPDATE, TESTING): ');
-    if (!title) title = "UPDATE"; // Default agar khali chhoda toh
+    let title = readline.question('Enter Notification Title (e.g., IMP UPDATE, HOLIDAY): ');
+    if (!title) title = "UPDATE"; 
 
-    // 2. Fir Message puchenge
     let msg = readline.question('Enter Notification Message: ');
     if (!msg) {
         console.log("❌ Message cannot be empty!");
@@ -39,14 +37,18 @@ function addNotification(db) {
 
     if (!db.notifications) db.notifications = [];
     
+    // Website pe Title dikhane ke liye hum Message ke andar hi Title daal rahe hain
+    let combinedMessage = `[${title.toUpperCase()}] ${msg}`;
+
     db.notifications.push({
         title: title.toUpperCase(),
-        message: msg,
+        message: combinedMessage, // Ab website pe Title + Message dono dikhega
         date: new Date().toLocaleString()
     });
     
     saveDB(db);
-    console.log('✅ Notification Added Successfully!');
+    console.log('\n✅ Notification Added Successfully!');
+    console.log(`Preview: ${combinedMessage}`);
 }
 
 function deleteNotification(db) {
@@ -55,8 +57,7 @@ function deleteNotification(db) {
         return;
     }
 
-    // List dikhate waqt Title aur Message dono dikhenge
-    let notifList = db.notifications.map(n => `[${n.title}] ${n.message}`);
+    let notifList = db.notifications.map(n => n.message);
     let index = readline.keyInSelect(notifList, 'Select Notification to Delete:');
     
     if (index !== -1) {
@@ -66,7 +67,7 @@ function deleteNotification(db) {
     }
 }
 
-// --- Baki Code Same Hai ---
+// --- ORIGINAL CONTENT LOGIC (Unchanged) ---
 
 function addNewOrUpdate(db) {
     let courseNames = db.courses.map(c => c.name);
@@ -196,4 +197,3 @@ function manageData(db) {
 }
 
 main();
-
