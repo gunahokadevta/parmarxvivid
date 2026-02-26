@@ -272,9 +272,11 @@
   ],
   "notifications": [
     {
+      "type": "TESTING",
+      "category": "TESTING",
       "title": "TESTING",
-      "message": "[TESTING] hello! hello!",
-      "date": "2/26/2026, 11:26:57 PM"
+      "message": "hello! hello!",
+      "date": "2/26/2026, 11:31:04 PM"
     }
   ]
 }
