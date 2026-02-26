@@ -269,5 +269,12 @@
       "directLink": "https://vividxcomputerspl29.edgeone.app/",
       "subjects": []
     }
+  ],
+  "notifications": [
+    {
+      "tag": "HELLO",
+      "message": "TESTING...",
+      "date": "26 Feb"
+    }
   ]
 }
