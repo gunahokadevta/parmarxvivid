@@ -21,7 +21,7 @@ function main() {
     else if (index === 3) deleteNotification(db);
 }
 
-// --- NOTIFICATION LOGIC (Fixed for Tag) ---
+// --- NOTIFICATION LOGIC (Fixed for Long Messages with DONE) ---
 
 function addNotification(db) {
     console.log("\n--- ADD NEW NOTIFICATION ---");
@@ -29,7 +29,20 @@ function addNotification(db) {
     let titleInput = readline.question('Enter Notification Title (e.g., TESTING, ALERT): ');
     if (!titleInput) titleInput = "UPDATE"; 
 
-    let msg = readline.question('Enter Notification Message: ');
+    console.log("\n[ENTER NOTIFICATION MESSAGE]");
+    console.log("Write your message, press ENTER for new lines.");
+    console.log("Type 'DONE' on a new line and press ENTER to save.");
+    
+    let lines = [];
+    while (true) {
+        let line = readline.question('>');
+        if (line.trim().toUpperCase() === 'DONE') break;
+        lines.push(line);
+    }
+    
+    // Join lines with space and clean up
+    let msg = lines.join(" ").replace(/(\r\n|\n|\r)/gm, " ").trim();
+
     if (!msg) {
         console.log("❌ Message cannot be empty!");
         return;
@@ -37,9 +50,8 @@ function addNotification(db) {
 
     if (!db.notifications) db.notifications = [];
     
-    // Website ke frontend (index.html) ke n.tag se match karne ke liye 'tag' key use ki hai
     db.notifications.push({
-        tag: titleInput.toUpperCase(),       // Ye ab website pe label ban kar dikhega
+        tag: titleInput.toUpperCase(),       
         message: msg,
         date: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
     });
@@ -66,7 +78,7 @@ function deleteNotification(db) {
     }
 }
 
-// --- ORIGINAL CONTENT LOGIC (Exactly Same) ---
+// --- ORIGINAL CONTENT LOGIC (Exactly Same to Same) ---
 
 function addNewOrUpdate(db) {
     let courseNames = db.courses.map(c => c.name);
