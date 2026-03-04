@@ -103,22 +103,32 @@
               "title": "NUTRITION - LEC 12",
               "url": "<video width=\"100%\" controls controlsList=\"nodownload\"> <source src=\"https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/699fe54f42ba9673f171cb91\"> Your browser does not support the video tag. </video>",
               "download_url": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/699fe54f42ba9673f171cb91",
-              "notes_en": null,
-              "notes_hi": null,
-              "quiz": null,
-              "handwritten": null
+              "notes_en": "https://file-to-link-7zyro-1d402ae4f299.herokuapp.com/dl/69a7a5ceee2f698c35e43769",
+              "notes_hi": "https://file-to-link-7zyro-1d402ae4f299.herokuapp.com/dl/69a7a5f2ee2f698c35e4376a",
+              "quiz": "https://vividxnutrition.edgeone.app/",
+              "handwritten": "https://file-to-link-7zyro-1d402ae4f299.herokuapp.com/dl/69a7a5fcee2f698c35e4376b"
             },
             {
               "title": "GENETICS AND SKELETAL SYSTEM - LEC 13",
               "url": "<video width=\"100%\" controls controlsList=\"nodownload\"> <source src=\"https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69a137c4dcb55ad542e194c3\"> Your browser does not support the video tag. </video>",
               "download_url": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69a137c4dcb55ad542e194c3",
-              "notes_en": null,
-              "notes_hi": null,
-              "quiz": null,
-              "handwritten": null
+              "notes_en": "https://file-to-link-7zyro-1d402ae4f299.herokuapp.com/dl/69a7a897ee2f698c35e4377b",
+              "notes_hi": "https://file-to-link-7zyro-1d402ae4f299.herokuapp.com/dl/69a7a8a1ee2f698c35e4377c",
+              "quiz": "https://vividxgenetics.edgeone.app/",
+              "handwritten": "https://file-to-link-7zyro-1d402ae4f299.herokuapp.com/dl/69a7a8b9ee2f698c35e4377d"
             }
           ],
-          "WEEKLY TESTS": []
+          "WEEKLY TESTS": [
+            {
+              "title": "BIOLOGY FULL TEST",
+              "url": null,
+              "download_url": null,
+              "notes_en": null,
+              "notes_hi": null,
+              "quiz": "https://vividxbiofulltest.edgeone.app/",
+              "handwritten": null
+            }
+          ]
         },
         {
           "name": "ECONOMICS",
@@ -238,6 +248,15 @@
               "notes_hi": null,
               "quiz": "https://vividecotest1.edgeone.app/",
               "handwritten": null
+            },
+            {
+              "title": "FULL ECONOMICS TEST",
+              "url": null,
+              "download_url": null,
+              "notes_en": null,
+              "notes_hi": null,
+              "quiz": "https://vividxecofulltest.edgeone.app/",
+              "handwritten": null
             }
           ]
         }
@@ -287,24 +306,14 @@
       "date": "26 Feb 2026, 11:56 pm"
     },
     {
-      "tag": "UPDATE..",
-      "message": "Mein abhi holi pe ghar aaya hua hu toh abhi courses add nhi kar paunga regularly jese krta tha...Thoda delay ho skta hai toh adjust kr lena aaplog. Hope you understand. ~ BY VIVID 🖤✨",
-      "date": "27 Feb 2026, 1:20 am"
-    },
-    {
-      "tag": "UPDATE",
-      "message": "Eco lec 2 nhi chal rha tha toh update kar diya hu ab chalega and diseases full update kar diya hu.",
-      "date": "27 Feb 2026, 7:18 pm"
-    },
-    {
       "tag": "🚨 IMPORTANT NOTICE 🚨",
       "message": "A new SIM binding rule is coming in India. All our social media handles have been updated on the website. Please make sure to follow us everywhere to stay updated and avoid missing any important information. ~ Vivid 🤍",
       "date": "28 Feb 2026, 11:26 am"
     },
     {
-      "tag": "UPDATE",
-      "message": "*My Telegram channel (https://t.me/vividx_03) received a copyright strike even though I didn’t upload anything. Anyway, I won’t be posting on Telegram anymore due to frequent fake copyright issues.*  *All updates will now be available on WhatsApp, Instagram, and the website — stay connected everywhere.*",
-      "date": "1 Mar 2026, 9:29 pm"
+      "tag": "UPDATE..",
+      "message": "BIO AND ECO FULLY UPDATED...",
+      "date": "4 Mar 2026, 9:11 am"
     }
   ]
 }
