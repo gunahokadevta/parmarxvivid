@@ -271,6 +271,24 @@
               "notes_hi": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69a872ae26779a7245d7aa87",
               "quiz": "https://vividxclassicalddance.edgeone.app/",
               "handwritten": null
+            },
+            {
+              "title": "FOLK DANCES PART 1 - LEC 2",
+              "url": "<video width=\"100%\" controls controlsList=\"nodownload\"> <source src=\"https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69a9726449368302c8f16503\"> Your browser does not support the video tag. </video>",
+              "download_url": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69a9726449368302c8f16503",
+              "notes_en": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69a9726b49368302c8f16505",
+              "notes_hi": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69a9727249368302c8f16507",
+              "quiz": "https://vividxfolkdances.edgeone.app/",
+              "handwritten": null
+            },
+            {
+              "title": "FOLK DANCES PART 2 - LEC 3",
+              "url": "<video width=\"100%\" controls controlsList=\"nodownload\"> <source src=\"https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69a9727949368302c8f16509\"> Your browser does not support the video tag. </video>",
+              "download_url": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69a9727949368302c8f16509",
+              "notes_en": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69a9728449368302c8f1650b",
+              "notes_hi": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69a9729049368302c8f1650d",
+              "quiz": null,
+              "handwritten": null
             }
           ],
           "WEEKLY TESTS": []
@@ -347,14 +365,9 @@
       "date": "28 Feb 2026, 11:26 am"
     },
     {
-      "tag": "UPDATE..",
-      "message": "BIO AND ECO FULLY UPDATED...",
-      "date": "4 Mar 2026, 9:11 am"
-    },
-    {
-      "tag": "UPDATE..",
-      "message": "STATIC G.K(PARMAR 4.0) LEC 1 ADDED..",
-      "date": "4 Mar 2026, 11:36 pm"
+      "tag": "UPDATE",
+      "message": "STATIC G.K UPDATED..",
+      "date": "5 Mar 2026, 5:47 pm"
     }
   ]
 }
