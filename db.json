@@ -297,13 +297,31 @@
           "name": "CHEMISTRY",
           "CHAPTERS": [
             {
-              "title": "MATTERS - LEC 1",
-              "url": "https://www.youtube.com/live/jMYO5GMZRJM?si=-mS-xWnMYGAqilYY",
+              "title": "STATES OF MATTER - LEC 1",
+              "url": "https://www.youtube.com/live/jMYO5GMZRJM?si=wJ7Zf-9-J1HyYzqR",
               "download_url": null,
+              "notes_en": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69ad0ab2522131182bea2e28",
+              "notes_hi": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69ad0abb522131182bea2e2a",
+              "quiz": "https://vividxmatters.edgeone.app/",
+              "handwritten": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69ad0ac5522131182bea2e2c"
+            },
+            {
+              "title": "ISS MATTER PURE? - LEC 2",
+              "url": "<video width=\"100%\" controls controlsList=\"nodownload\"> <source src=\"https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69ad0aea522131182bea2e2e\"> Your browser does not support the video tag. </video>",
+              "download_url": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69ad0aea522131182bea2e2e",
+              "notes_en": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69ad0af1522131182bea2e30",
+              "notes_hi": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69ad0af8522131182bea2e32",
+              "quiz": "https://issmatterpurexvivid.edgeone.app/",
+              "handwritten": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69ad0b00522131182bea2e34"
+            },
+            {
+              "title": "ATOM & ITS STRUCTURE - LEC 3",
+              "url": "<video width=\"100%\" controls controlsList=\"nodownload\"> <source src=\"https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69ad0b06522131182bea2e36\"> Your browser does not support the video tag. </video>",
+              "download_url": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69ad0b06522131182bea2e36",
               "notes_en": null,
               "notes_hi": null,
-              "quiz": null,
-              "handwritten": null
+              "quiz": "https://vividxatom.edgeone.app/",
+              "handwritten": "https://hell-fs1-oot-c9eb9b92ba45.herokuapp.com/dl/69ad0b0d522131182bea2e38"
             }
           ],
           "WEEKLY TESTS": []
@@ -366,8 +384,8 @@
     },
     {
       "tag": "UPDATE",
-      "message": "STATIC G.K UPDATED..",
-      "date": "5 Mar 2026, 5:47 pm"
+      "message": "CHEMISTRY UPDATED...",
+      "date": "8 Mar 2026, 11:20 am"
     }
   ]
 }
