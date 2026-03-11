@@ -101,26 +101,27 @@
             border: 2px solid #020617;
         }
 
-        /* Custom style for iframe with your crop logic */
+        /* FIX: Container size match for your crop logic */
         #video-player-container {
             width: 100% !important;
             max-width: 900px;
             margin: auto;
             overflow: hidden;
-            height: 220px; /* Non-fullscreen height */
+            height: 220px; 
             position: relative;
             background: black;
         }
 
+        /* Applying your specific crop and scale */
         #video-player-container iframe {
             width: 100% !important;
-            height: 600px !important; /* Fixed height to hide menus */
+            height: 600px !important; 
             border: none;
-            transform: translateY(-60px) scale(1.15); /* Your exact transform */
+            transform: translateY(-60px) scale(1.15); 
             transform-origin: center;
         }
 
-        /* Logic for when the container goes Fullscreen */
+        /* Fullscreen behaviour adjustment */
         #video-player-container:fullscreen {
             width: 100vw !important;
             height: 100vh !important;
@@ -130,7 +131,7 @@
         }
 
         #video-player-container:fullscreen iframe {
-            height: 120vh !important; /* Fullscreen height adjustment */
+            height: 120vh !important; 
             transform: translateY(-10vh) scale(1.2);
         }
     </style>
@@ -380,7 +381,7 @@
             document.body.style.overflow = 'auto';
         }
 
-        // FULL FIX: Fullscreen mode pe aapka crop wala logic apply hoga
+        // FULL FIX: Fullscreen mode pe aapka crop wala logic container ke through apply hoga
         function makeFullScreen() {
             const container = document.getElementById('video-player-container');
             if (container) {
@@ -392,7 +393,7 @@
                     container.msRequestFullscreen();
                 }
                 
-                // Force Landscape
+                // Force Landscape on Mobile
                 if (screen.orientation && screen.orientation.lock) {
                     screen.orientation.lock('landscape').catch(e => console.log("Orientation lock failed"));
                 }
