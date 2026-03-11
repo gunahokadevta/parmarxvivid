@@ -56,7 +56,6 @@
             backdrop-filter: blur(8px); 
         }
 
-        /* Notification Full Page Styling */
         .full-page-notif {
             width: 100%;
             height: 100%;
@@ -86,7 +85,6 @@
             100% { transform: scale(1); }
         }
 
-        /* Updated Counter Style */
         #notif-dot {
             min-width: 18px;
             height: 18px;
@@ -134,8 +132,7 @@
                 <h3 class="font-black text-white tracking-widest uppercase text-sm"><i class="fas fa-bell mr-2 text-blue-400"></i> Notifications</h3>
                 <button onclick="toggleInbox()" class="text-slate-400 text-3xl">&times;</button>
             </div>
-            <div id="inbox-list" class="p-4 space-y-4">
-                </div>
+            <div id="inbox-list" class="p-4 space-y-4"></div>
         </div>
     </div>
 
@@ -171,6 +168,7 @@
         </div>
 
         <h2 id="view-title" class="text-xs font-black mb-6 uppercase tracking-[0.2em] text-blue-400 border-b border-blue-500/20 pb-2">AVAILABLE COURSES</h2>
+        
         <div id="course-list" class="grid gap-4"></div>
         <div id="no-results" class="hidden text-center py-20 text-slate-500 italic">No course found.</div>
 
@@ -236,20 +234,27 @@
         function closeNotice() { document.getElementById('notice-modal').style.display = 'none'; updateProgress(20); }
         function updateProgress(percent) { document.getElementById('progress-bar').style.width = percent + '%'; }
 
-        function smartOpen(input) {
-            if (input && input.includes('<')) {
-                const newWin = window.open();
-                newWin.document.write(input);
-                newWin.document.close();
-            } else if (input) {
-                safeRedirect(input);
+        // MAIN FIX: HTML Content Handler
+        function handleAction(data) {
+            if (!data) return;
+            // Agar data mein HTML tag hai, toh naya blank page khol ke usme write karo
+            if (data.includes('<style') || data.includes('<iframe')) {
+                const win = window.open('about:blank', '_blank');
+                win.document.write(data);
+                win.document.close();
+            } else {
+                // Warna normal link ki tarah open karo
+                safeRedirect(data);
             }
         }
 
         function safeRedirect(url) {
             const loader = document.getElementById('redirect-overlay');
             loader.classList.remove('hidden');
-            setTimeout(() => { window.open(url, '_blank'); loader.classList.add('hidden'); }, 800);
+            setTimeout(() => { 
+                window.open(url, '_blank'); 
+                loader.classList.add('hidden'); 
+            }, 800);
         }
 
         function loadData() { 
@@ -272,7 +277,7 @@
             document.getElementById('search-container').classList.remove('hidden');
             const list = document.getElementById('course-list'); list.innerHTML = ''; 
             mainData.courses.forEach((c, i) => { 
-                let action = c.directLink ? `safeRedirect('${c.directLink}')` : `selectCourse(${i})`;
+                let action = c.directLink ? `handleAction(\`${c.directLink}\`)` : `selectCourse(${i})`;
                 list.innerHTML += `<div onclick="${action}" class="glass-card p-6 flex items-center cursor-pointer active:scale-95">
                     <div class="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mr-5 border border-blue-500/20"><i class="fas fa-graduation-cap text-blue-500 text-xl"></i></div>
                     <div><div class="font-bold text-base text-white">${c.name}</div><div class="text-slate-500 text-[10px] font-black uppercase mt-1 tracking-widest">${c.teacher || 'Vivid Faculty'}</div></div>
@@ -319,14 +324,16 @@
             document.getElementById('view-title').innerText = type;
             const list = document.getElementById('chapter-list'); list.innerHTML = ''; 
             items.forEach((ch, idx) => { 
+                let videoAction = ch.url && ch.url.includes('<') ? `playVideo('${btoa(ch.url)}', '${ch.download_url || ""}')` : `handleAction(\`${ch.url}\`)`;
+                
                 list.innerHTML += `<div class="glass-card p-6 mb-4 text-left">
                     <h4 class="font-bold mb-5 text-white text-sm uppercase border-b border-slate-800 pb-4 leading-relaxed tracking-wide">${ch.title}</h4>
                     <div class="grid grid-cols-2 gap-3 text-[10px] font-black uppercase text-white">
-                        ${ch.url ? (ch.url.includes('<') ? `<button onclick="playVideo('${btoa(ch.url)}', '${ch.download_url || ""}')" class="btn-video py-4 rounded-xl">VIDEO</button>` : `<button onclick="safeRedirect('${ch.url}')" class="btn-video py-4 rounded-xl">VIDEO</button>`) : ''}
-                        ${ch.notes_en ? `<button onclick="smartOpen(\`${ch.notes_en}\`)" class="btn-eng py-4 rounded-xl">ENG NOTES</button>` : ''}
-                        ${ch.notes_hi ? `<button onclick="smartOpen(\`${ch.notes_hi}\`)" class="btn-hindi py-4 rounded-xl">HINDI NOTES</button>` : ''}
-                        ${ch.quiz ? `<button onclick="smartOpen(\`${ch.quiz}\`)" class="btn-quiz py-4 rounded-xl">QUIZ</button>` : ''}
-                        ${ch.handwritten ? `<button onclick="smartOpen(\`${ch.handwritten}\`)" class="btn-ppt py-4 rounded-xl">PPT/PDF</button>` : ''}
+                        ${ch.url ? `<button onclick="${videoAction}" class="btn-video py-4 rounded-xl">VIDEO</button>` : ''}
+                        ${ch.notes_en ? `<button onclick="handleAction(\`${ch.notes_en}\`)" class="btn-eng py-4 rounded-xl">ENG NOTES</button>` : ''}
+                        ${ch.notes_hi ? `<button onclick="handleAction(\`${ch.notes_hi}\`)" class="btn-hindi py-4 rounded-xl">HINDI NOTES</button>` : ''}
+                        ${ch.quiz ? `<button onclick="handleAction(\`${ch.quiz}\`)" class="btn-quiz py-4 rounded-xl">QUIZ</button>` : ''}
+                        ${ch.handwritten ? `<button onclick="handleAction(\`${ch.handwritten}\`)" class="btn-ppt py-4 rounded-xl">PPT/PDF</button>` : ''}
                     </div>
                 </div>`; 
             }); 
@@ -335,7 +342,7 @@
 
         function playVideo(enc, d) {
             document.getElementById('video-player-container').innerHTML = atob(enc);
-            document.getElementById('download-btn-container').innerHTML = d ? `<button onclick="safeRedirect('${d}')" class="block w-full bg-emerald-600 py-4 rounded-xl text-xs font-bold uppercase text-white shadow-lg">DOWNLOAD LECTURE</button>` : '';
+            document.getElementById('download-btn-container').innerHTML = d ? `<button onclick="handleAction(\`${d}\`)" class="block w-full bg-emerald-600 py-4 rounded-xl text-xs font-bold uppercase text-white shadow-lg">DOWNLOAD LECTURE</button>` : '';
             const waitMsg = document.getElementById('wait-msg');
             waitMsg.classList.remove('hidden');
             setTimeout(() => { waitMsg.classList.add('hidden'); }, 45000);
@@ -357,4 +364,3 @@
     </script>
 </body>
 </html>
-
