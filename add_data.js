@@ -78,7 +78,7 @@ function deleteNotification(db) {
     }
 }
 
-// --- ORIGINAL CONTENT LOGIC (With PDF Multiline Fix) ---
+// --- ORIGINAL CONTENT LOGIC (Exactly Same to Same with Multiline Support) ---
 
 function addNewOrUpdate(db) {
     let courseNames = db.courses.map(c => c.name);
@@ -136,14 +136,14 @@ function addNewOrUpdate(db) {
     if (itemIndex === list.length - 1) title = readline.question('Enter Title: ');
     else { existing = sub[cat][itemIndex]; title = existing.title; }
 
-    // Smart Multiline Function for Link/Code
-    function getSmartInput(label, existingVal) {
+    // --- HELPER FOR LINK OR CODE (WITH DONE) ---
+    function getMultiline(label, existingVal) {
         console.log(`\n[${label}]`);
-        console.log("Paste link/code. If it's code, type 'DONE' on new line to save.");
+        console.log("Paste link/code. If it's code/HTML, type 'DONE' on new line to save.");
         let firstLine = readline.question('>');
-        if (!firstLine && existingVal) return existingVal;
-        if (!firstLine) return null;
+        if (!firstLine) return existingVal || null;
 
+        // Agar code hai (HTML tag hai) toh DONE mangega
         if (firstLine.includes('<')) {
             let lines = [firstLine];
             while (true) {
@@ -153,20 +153,21 @@ function addNewOrUpdate(db) {
             }
             return lines.join(" ").replace(/(\r\n|\n|\r)/gm, " ").trim();
         }
+        // Agar normal link hai toh ENTER se hi aage badh jayega
         return firstLine.trim();
     }
 
-    let link = getSmartInput("LECTURE LINK / HTML CODE", existing ? existing.url : null);
+    let link = getMultiline("LECTURE LINK / HTML CODE", existing ? existing.url : null);
 
     let dLink = existing ? existing.download_url : null;
     if (link && link.includes('<')) {
         dLink = readline.question('Lecture Download Link: ');
     }
 
-    let nEn = getSmartInput("Eng Notes", existing ? existing.notes_en : null);
-    let nHi = getSmartInput("Hindi Notes", existing ? existing.notes_hi : null);
+    let nEn = getMultiline("Eng Notes", existing ? existing.notes_en : null);
+    let nHi = getMultiline("Hindi Notes", existing ? existing.notes_hi : null);
     let quiz = readline.question('Quiz: ', {defaultInput: existing ? existing.quiz : ''});
-    let ppt = getSmartInput("PPT/Other", existing ? existing.handwritten : null);
+    let ppt = getMultiline("PPT/Other", existing ? existing.handwritten : null);
 
     let newData = { title, url: link || null, download_url: dLink || null, notes_en: nEn || null, notes_hi: nHi || null, quiz: quiz || null, handwritten: ppt || null };
     if (existing) sub[cat][itemIndex] = newData; else sub[cat].push(newData);
