@@ -352,12 +352,21 @@
             },
             {
               "title": "METALS AND NON-METALS - LEC 6",
-              "url": "https://vividxmetalnonmetal.edgeone.app/",
+              "url": "https://vividxmetalandnon-metal.edgeone.app/",
+              "download_url": null,
+              "notes_en": "https://vividxmetalnonmetaleng.edgeone.app/",
+              "notes_hi": "https://vividxmetalnonmetalhindi.edgeone.app/",
+              "quiz": "https://vividxmetalquiz.edgeone.app/",
+              "handwritten": "https://vividxmetalnonmetalppt.edgeone.app/"
+            },
+            {
+              "title": "ACID, BASE & SALTS - LEC 7",
+              "url": "https://vividxacidbasesandsalts.edgeone.app/",
               "download_url": null,
               "notes_en": null,
               "notes_hi": null,
-              "quiz": "https://vividxmetalquiz.edgeone.app/",
-              "handwritten": "https://vividxmetalnonmetalppt.edgeone.app/"
+              "quiz": "https://vividxacidbasesandsaltsquiz.edgeone.app/",
+              "handwritten": "https://vividxacidbasesandsaltsppt.edgeone.app/"
             }
           ],
           "WEEKLY TESTS": []
@@ -417,6 +426,11 @@
       "tag": "🚨 IMPORTANT NOTICE 🚨",
       "message": "A new SIM binding rule is coming in India. All our social media handles have been updated on the website. Please make sure to follow us everywhere to stay updated and avoid missing any important information. ~ Vivid 🤍",
       "date": "28 Feb 2026, 11:26 am"
+    },
+    {
+      "tag": "UPDATE...",
+      "message": "CHEMISTRY (PARMAR 4.0) UPDATED TILL NOW...",
+      "date": "14 Mar 2026, 10:02 am"
     }
   ]
 }
