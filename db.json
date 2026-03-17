@@ -388,6 +388,21 @@
             }
           ],
           "WEEKLY TESTS": []
+        },
+        {
+          "name": "PHYSICS",
+          "CHAPTERS": [
+            {
+              "title": "MOTION - LEC 1",
+              "url": "https://www.youtube.com/live/QrJPCY6GxlM?si=G0rHDjlcAdLQY_FC",
+              "download_url": null,
+              "notes_en": null,
+              "notes_hi": null,
+              "quiz": null,
+              "handwritten": null
+            }
+          ],
+          "WEEKLY TESTS": []
         }
       ]
     },
