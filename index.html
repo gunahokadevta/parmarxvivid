@@ -239,6 +239,17 @@
             setTimeout(() => { window.open(url, '_blank'); loader.classList.add('hidden'); }, 800);
         }
 
+        function handleOpen(content) {
+            if (!content) return;
+            if (content.includes('<') && content.includes('>')) {
+                const newWindow = window.open('', '_blank');
+                newWindow.document.write(content);
+                newWindow.document.close();
+            } else {
+                safeRedirect(content);
+            }
+        }
+
         function loadData() { 
             fetch('db.json?v=' + Date.now())
             .then(res => res.json())
@@ -259,7 +270,7 @@
             document.getElementById('search-container').classList.remove('hidden');
             const list = document.getElementById('course-list'); list.innerHTML = ''; 
             mainData.courses.forEach((c, i) => { 
-                let action = c.directLink ? `safeRedirect('${c.directLink}')` : `selectCourse(${i})`;
+                let action = c.directLink ? `handleOpen('${c.directLink}')` : `selectCourse(${i})`;
                 list.innerHTML += `<div onclick="${action}" class="glass-card p-6 flex items-center cursor-pointer active:scale-95">
                     <div class="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mr-5 border border-blue-500/20"><i class="fas fa-graduation-cap text-blue-500 text-xl"></i></div>
                     <div><div class="font-bold text-base text-white">${c.name}</div><div class="text-slate-500 text-[10px] font-black uppercase mt-1 tracking-widest">${c.teacher || 'Vivid Faculty'}</div></div>
@@ -306,27 +317,18 @@
             document.getElementById('view-title').innerText = type;
             const list = document.getElementById('chapter-list'); list.innerHTML = ''; 
             items.forEach((ch, idx) => { 
-                let isHTML = ch.url && ch.url.includes('<');
                 list.innerHTML += `<div class="glass-card p-6 mb-4 text-left">
                     <h4 class="font-bold mb-5 text-white text-sm uppercase border-b border-slate-800 pb-4 leading-relaxed tracking-wide">${ch.title}</h4>
                     <div class="grid grid-cols-2 gap-3 text-[10px] font-black uppercase text-white">
-                        ${isHTML ? `<button onclick="playVideo('${btoa(ch.url)}', '${ch.download_url || ""}')" class="btn-video py-4 rounded-xl">VIDEO</button>` : (ch.url ? `<button onclick="safeRedirect('${ch.url}')" class="btn-video py-4 rounded-xl">VIDEO</button>` : '')}
-                        ${ch.notes_en ? `<button onclick="safeRedirect('${ch.notes_en}')" class="btn-eng py-4 rounded-xl">ENG NOTES</button>` : ''}
-                        ${ch.notes_hi ? `<button onclick="safeRedirect('${ch.notes_hi}')" class="btn-hindi py-4 rounded-xl">HINDI NOTES</button>` : ''}
-                        ${ch.quiz ? `<button onclick="safeRedirect('${ch.quiz}')" class="btn-quiz py-4 rounded-xl">QUIZ</button>` : ''}
-                        ${ch.handwritten ? `<button onclick="safeRedirect('${ch.handwritten}')" class="btn-ppt py-4 rounded-xl">PPT/PDF</button>` : ''}
+                        ${ch.url ? `<button onclick="handleOpen(atob('${btoa(ch.url)}'))" class="btn-video py-4 rounded-xl">VIDEO</button>` : ''}
+                        ${ch.notes_en ? `<button onclick="handleOpen(atob('${btoa(ch.notes_en)}'))" class="btn-eng py-4 rounded-xl">ENG NOTES</button>` : ''}
+                        ${ch.notes_hi ? `<button onclick="handleOpen(atob('${btoa(ch.notes_hi)}'))" class="btn-hindi py-4 rounded-xl">HINDI NOTES</button>` : ''}
+                        ${ch.quiz ? `<button onclick="handleOpen(atob('${btoa(ch.quiz)}'))" class="btn-quiz py-4 rounded-xl">QUIZ</button>` : ''}
+                        ${ch.handwritten ? `<button onclick="handleOpen(atob('${btoa(ch.handwritten)}'))" class="btn-ppt py-4 rounded-xl">PPT/PDF</button>` : ''}
                     </div>
                 </div>`; 
             }); 
             toggle('content-section'); 
-        }
-
-        function playVideo(enc, d) {
-            const htmlCode = atob(enc);
-            // Fix: Agar HTML code hai toh naye tab mein poora open hoga
-            const newWindow = window.open('', '_blank');
-            newWindow.document.write(htmlCode);
-            newWindow.document.close();
         }
 
         function closeVideo() { 
