@@ -44,7 +44,7 @@ function addNotification(db) {
     let msg = lines.join(" ").replace(/(\r\n|\n|\r)/gm, " ").trim();
 
     if (!msg) {
-        console.log("❌ Message cannot be empty!");
+        console.log("âŒ Message cannot be empty!");
         return;
     }
 
@@ -57,14 +57,14 @@ function addNotification(db) {
     });
     
     saveDB(db);
-    console.log('\n✅ Notification Added Successfully!');
+    console.log('\nâœ… Notification Added Successfully!');
     console.log(`Label (Tag): ${titleInput.toUpperCase()}`);
     console.log(`Message: ${msg}`);
 }
 
 function deleteNotification(db) {
     if (!db.notifications || db.notifications.length === 0) {
-        console.log("❌ No notifications found.");
+        console.log("âŒ No notifications found.");
         return;
     }
 
@@ -74,11 +74,11 @@ function deleteNotification(db) {
     if (index !== -1) {
         db.notifications.splice(index, 1);
         saveDB(db);
-        console.log('🗑️ Notification Deleted!');
+        console.log('ðŸ--'ï¸ Notification Deleted!');
     }
 }
 
-// --- ORIGINAL CONTENT LOGIC (With Multi-line DONE for all fields) ---
+// --- ORIGINAL CONTENT LOGIC (Exactly Same to Same) ---
 
 function addNewOrUpdate(db) {
     let courseNames = db.courses.map(c => c.name);
@@ -97,12 +97,12 @@ function addNewOrUpdate(db) {
             let directLink = readline.question('Enter Direct Redirect Link: ');
             db.courses.push({ name: newCourseName, teacher: teacherName, directLink: directLink, subjects: [] });
             saveDB(db);
-            console.log('✅ Redirect Course Added!');
+            console.log('âœ… Redirect Course Added!');
             return;
         } else {
             db.courses.push({ name: newCourseName, teacher: teacherName, subjects: [] });
             saveDB(db);
-            console.log('✅ Regular Course Added!');
+            console.log('âœ… Regular Course Added!');
             return;
         }
     }
@@ -117,7 +117,7 @@ function addNewOrUpdate(db) {
         let newSubName = readline.question('Enter New Subject Name: ').toUpperCase();
         course.subjects.push({ name: newSubName, CHAPTERS: [], "WEEKLY TESTS": [] });
         saveDB(db);
-        console.log('✅ Subject added!');
+        console.log('âœ… Subject added!');
         return;
     }
 
@@ -136,36 +136,31 @@ function addNewOrUpdate(db) {
     if (itemIndex === list.length - 1) title = readline.question('Enter Title: ');
     else { existing = sub[cat][itemIndex]; title = existing.title; }
 
-    // --- GENERIC FUNCTION FOR MULTI-LINE INPUT ---
-    const getMultiLine = (label, oldVal) => {
-        console.log(`\n[${label}]`);
-        console.log("Paste link/code, press ENTER, type 'DONE' and press ENTER.");
-        let lines = [];
-        while (true) {
-            let line = readline.question('>');
-            if (line.trim().toUpperCase() === 'DONE') break;
-            lines.push(line);
-        }
-        let res = lines.join(" ").replace(/(\r\n|\n|\r)/gm, " ").trim();
-        return res || (existing ? oldVal : null);
-    };
-
-    let link = getMultiLine("LECTURE LINK / HTML CODE", existing ? existing.url : null);
+    console.log("\n[LECTURE LINK / HTML CODE]");
+    console.log("Paste code, press ENTER, type 'DONE' and press ENTER.");
+    let lines = [];
+    while (true) {
+        let line = readline.question('>');
+        if (line.trim().toUpperCase() === 'DONE') break;
+        lines.push(line);
+    }
+    let link = lines.join(" ").replace(/(\r\n|\n|\r)/gm, " ").trim();
+    if (!link && existing) link = existing.url;
 
     let dLink = existing ? existing.download_url : null;
     if (link && link.includes('<')) {
         dLink = readline.question('Lecture Download Link: ');
     }
 
-    let nEn = getMultiLine("Eng Notes", existing ? existing.notes_en : null);
-    let nHi = getMultiLine("Hindi Notes", existing ? existing.notes_hi : null);
-    let quiz = getMultiLine("Quiz", existing ? existing.quiz : null);
-    let ppt = getMultiLine("PPT/Other", existing ? existing.handwritten : null);
+    let nEn = readline.question('Eng Notes: ', {defaultInput: existing ? existing.notes_en : ''});
+    let nHi = readline.question('Hindi Notes: ', {defaultInput: existing ? existing.notes_hi : ''});
+    let quiz = readline.question('Quiz: ', {defaultInput: existing ? existing.quiz : ''});
+    let ppt = readline.question('PPT/Other: ', {defaultInput: existing ? existing.handwritten : ''});
 
-    let newData = { title, url: link, download_url: dLink, notes_en: nEn, notes_hi: nHi, quiz: quiz, handwritten: ppt };
+    let newData = { title, url: link || null, download_url: dLink || null, notes_en: nEn || null, notes_hi: nHi || null, quiz: quiz || null, handwritten: ppt || null };
     if (existing) sub[cat][itemIndex] = newData; else sub[cat].push(newData);
     saveDB(db);
-    console.log('\n✅ Saved Successfully!');
+    console.log('\nâœ… Saved Successfully!');
 }
 
 function manageData(db) {
@@ -176,7 +171,7 @@ function manageData(db) {
         if (readline.keyInYN('WARNING: Final Confirmation. Confirm? (Confirm 2/2)')) {
             db.courses.splice(cIndex, 1);
             saveDB(db);
-            console.log('🗑️ Course Deleted!');
+            console.log('ðŸ--'ï¸ Course Deleted!');
             return;
         }
     }
@@ -191,7 +186,7 @@ function manageData(db) {
         if (readline.keyInYN('Confirm Deletion? (Confirm 2/2)')) {
             db.courses[cIndex].subjects.splice(sIndex, 1);
             saveDB(db);
-            console.log('🗑️ Subject Deleted!');
+            console.log('ðŸ--'ï¸ Subject Deleted!');
             return;
         }
     }
@@ -206,7 +201,7 @@ function manageData(db) {
             if (readline.keyInYN('Final Confirm 2/2?')) {
                 sub[cat].splice(itemIndex, 1);
                 saveDB(db);
-                console.log('🗑️ Item Deleted!');
+                console.log('ðŸ--'ï¸ Item Deleted!');
             }
         }
     }
