@@ -230,13 +230,14 @@
         .file-input-label {
             cursor: pointer;
             background: rgba(255,255,255,0.05);
-            padding: 10px 14px;
+            padding: 10px 12px;
             border-radius: 28px;
             font-size: 14px;
             transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            flex-shrink: 0;
         }
         .file-input-label:hover {
             background: rgba(59,130,246,0.3);
@@ -251,12 +252,16 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            width: 100%;
         }
-        .chat-input-container input {
+        .chat-input-container input[type="text"] {
             flex: 1;
+            min-width: 0;
         }
         .chat-input-container button {
             flex-shrink: 0;
+            width: 44px;
+            height: 44px;
         }
     </style>
 </head>
@@ -430,7 +435,7 @@
                     <label class="file-input-label"><i class="fas fa-image"></i></label>
                     <input type="file" id="liveImageInput" accept="image/*" class="hidden">
                     <input type="text" id="liveChatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500">
-                    <button onclick="sendLiveQuery()" class="btn-video w-12 h-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                    <button onclick="sendLiveQuery()" class="btn-video rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
                 </div>
                 <div id="liveImagePreview" class="p-2 hidden"></div>
             </div>
@@ -447,7 +452,7 @@
                 <label class="file-input-label"><i class="fas fa-image"></i></label>
                 <input type="file" id="chatImageInput" accept="image/*" class="hidden">
                 <input type="text" id="chatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500">
-                <button onclick="sendUserQuery()" class="btn-video w-12 h-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                <button onclick="sendUserQuery()" class="btn-video rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
             </div>
             <div id="chatImagePreview" class="p-2 hidden"></div>
         </div>
@@ -493,11 +498,8 @@
                     updateNotificationBadge();
                 })
                 .catch(err => { 
-                    if(retryCount < 2) {
-                        setTimeout(() => loadData(retryCount + 1), 1500);
-                    } else {
-                        document.getElementById("course-list").innerHTML = `<div class="glass-card p-10 text-center text-red-400 text-xs">⚠️ Failed to load courses. Please refresh.</div>`;
-                    }
+                    if(retryCount < 2) setTimeout(() => loadData(retryCount + 1), 1500);
+                    else document.getElementById("course-list").innerHTML = `<div class="glass-card p-10 text-center text-red-400 text-xs">⚠️ Failed to load courses. Please refresh.</div>`;
                 });
         }
         
@@ -518,24 +520,24 @@
         
         // User Management with strict username uniqueness
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_final");
+            let users = localStorage.getItem("vivid_users_final2");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_final");
+            let chats = localStorage.getItem("vivid_chats_final2");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_final");
+            let token = localStorage.getItem("vivid_token_final2");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_final", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_final", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_final2", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_final2", JSON.stringify(userChats)); }
         
         function isValidUsername(username) { return /^[A-Za-z0-9]{3,12}$/.test(username); }
         
         function isUsernameTaken(username, excludeEmail = null) {
             for(let key in window.allUsers) {
                 if(excludeEmail && key === excludeEmail) continue;
-                if(window.allUsers[key].username === username) return true;
+                if(window.allUsers[key] && window.allUsers[key].username === username) return true;
             }
             return false;
         }
@@ -556,7 +558,7 @@
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_final", email);
+            localStorage.setItem("vivid_token_final2", email);
             showApp();
         }
         
@@ -574,7 +576,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_final", currentUser.email);
+            localStorage.setItem("vivid_token_final2", currentUser.email);
             showApp();
         }
         
@@ -598,7 +600,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_final"); 
+            localStorage.removeItem("vivid_token_final2"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -615,6 +617,23 @@
             startPollingForAdminReplies();
         }
         
+        // Navigation
+        function updateNavigationButtons(isHomePage) {
+            const menuBtn = document.getElementById('menuButton');
+            const backBtn = document.getElementById('backButton');
+            if(isHomePage) {
+                menuBtn.classList.remove('hidden');
+                backBtn.classList.add('hidden');
+            } else {
+                menuBtn.classList.add('hidden');
+                backBtn.classList.remove('hidden');
+            }
+        }
+        
+        function goBackToHome() { renderCourses(); }
+        function closeMenu() { document.getElementById("side-menu").classList.remove("active"); if(document.getElementById('search-container').style.display !== 'none') document.getElementById('menuButton').classList.remove('hidden'); }
+        function closeInboxModal() { document.getElementById("inbox-modal").classList.add("hidden"); document.body.style.overflow = 'auto'; }
+        
         // Image handling
         function previewChatImage(input) {
             const preview = document.getElementById('chatImagePreview');
@@ -623,9 +642,9 @@
                 reader.onload = function(e) {
                     preview.innerHTML = `<img src="${e.target.result}" class="image-preview"><button onclick="clearChatImage()" class="text-xs text-red-400 ml-2">Remove</button>`;
                     preview.classList.remove('hidden');
-                    currentImageFile = input.files[0];
                 };
                 reader.readAsDataURL(input.files[0]);
+                currentImageFile = input.files[0];
             }
         }
         
@@ -636,9 +655,9 @@
                 reader.onload = function(e) {
                     preview.innerHTML = `<img src="${e.target.result}" class="image-preview"><button onclick="clearLiveImage()" class="text-xs text-red-400 ml-2">Remove</button>`;
                     preview.classList.remove('hidden');
-                    currentLiveImageFile = input.files[0];
                 };
                 reader.readAsDataURL(input.files[0]);
+                currentLiveImageFile = input.files[0];
             }
         }
         
@@ -659,23 +678,6 @@
         // File input listeners
         document.getElementById('chatImageInput')?.addEventListener('change', function(e) { previewChatImage(this); });
         document.getElementById('liveImageInput')?.addEventListener('change', function(e) { previewLiveImage(this); });
-        
-        // Navigation
-        function updateNavigationButtons(isHomePage) {
-            const menuBtn = document.getElementById('menuButton');
-            const backBtn = document.getElementById('backButton');
-            if(isHomePage) {
-                menuBtn.classList.remove('hidden');
-                backBtn.classList.add('hidden');
-            } else {
-                menuBtn.classList.add('hidden');
-                backBtn.classList.remove('hidden');
-            }
-        }
-        
-        function goBackToHome() { renderCourses(); }
-        function closeMenu() { document.getElementById("side-menu").classList.remove("active"); const currentPageIsHome = document.getElementById('search-container').style.display !== 'none'; if(currentPageIsHome) document.getElementById('menuButton').classList.remove('hidden'); }
-        function closeInboxModal() { document.getElementById("inbox-modal").classList.add("hidden"); document.body.style.overflow = 'auto'; }
         
         // Course Navigation
         function renderCourses() { 
@@ -858,14 +860,20 @@
             let msg = inp.value.trim();
             if(!msg && !currentImageFile) return;
             let timestamp = new Date().toLocaleTimeString();
-            let userMsg = { text: msg || "📷 Image shared", sender: 'user', timestamp: timestamp };
-            let imageToSend = currentImageFile;
-            if(imageToSend) {
+            let imageData = null;
+            let imageFile = currentImageFile;
+            
+            if(imageFile) {
                 const reader = new FileReader();
-                reader.readAsDataURL(imageToSend);
-                await new Promise(resolve => { reader.onload = resolve; });
-                userMsg.image = reader.result;
+                const dataUrl = await new Promise(resolve => {
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(imageFile);
+                });
+                imageData = dataUrl;
             }
+            
+            let userMsg = { text: msg || "📷 Image shared", sender: 'user', timestamp: timestamp };
+            if(imageData) userMsg.image = imageData;
             userChats[currentUser.email].push(userMsg);
             saveChats();
             refreshChatBox();
@@ -880,10 +888,10 @@
                 let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${(msg || "Image shared").substring(0, 300)}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
                 
-                if(imageToSend) {
+                if(imageFile) {
                     const formData = new FormData();
                     formData.append('chat_id', ADMIN_CHAT_ID);
-                    formData.append('photo', imageToSend);
+                    formData.append('photo', imageFile);
                     formData.append('caption', `📷 Image from @${userTag}`);
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
                 }
@@ -897,14 +905,20 @@
             let msg = inp.value.trim();
             if(!msg && !currentLiveImageFile) return;
             let timestamp = new Date().toLocaleTimeString();
-            let userMsg = { text: msg || "📷 Image shared", sender: 'user', timestamp: timestamp };
-            let imageToSend = currentLiveImageFile;
-            if(imageToSend) {
+            let imageData = null;
+            let imageFile = currentLiveImageFile;
+            
+            if(imageFile) {
                 const reader = new FileReader();
-                reader.readAsDataURL(imageToSend);
-                await new Promise(resolve => { reader.onload = resolve; });
-                userMsg.image = reader.result;
+                const dataUrl = await new Promise(resolve => {
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(imageFile);
+                });
+                imageData = dataUrl;
             }
+            
+            let userMsg = { text: msg || "📷 Image shared", sender: 'user', timestamp: timestamp };
+            if(imageData) userMsg.image = imageData;
             userChats[currentUser.email].push(userMsg);
             saveChats();
             refreshChatBox();
@@ -919,10 +933,10 @@
                 let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${(msg || "Image shared").substring(0, 300)}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
                 
-                if(imageToSend) {
+                if(imageFile) {
                     const formData = new FormData();
                     formData.append('chat_id', ADMIN_CHAT_ID);
-                    formData.append('photo', imageToSend);
+                    formData.append('photo', imageFile);
                     formData.append('caption', `📷 Image from @${userTag}`);
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
                 }
@@ -1009,7 +1023,7 @@
             if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0, fire: 0 };
             notifReactions[nid][type] += 1;
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
-            localStorage.setItem("vivid_reactions_final", JSON.stringify(notifReactions));
+            localStorage.setItem("vivid_reactions_final2", JSON.stringify(notifReactions));
         }
         
         function navAction(type) { 
@@ -1024,10 +1038,10 @@
             const menu = document.getElementById("side-menu");
             menu.classList.toggle("active");
             if(menu.classList.contains("active")) document.getElementById('menuButton').classList.add('hidden');
-            else { const currentPageIsHome = document.getElementById('search-container').style.display !== 'none'; if(currentPageIsHome) document.getElementById('menuButton').classList.remove('hidden'); }
+            else { if(document.getElementById('search-container').style.display !== 'none') document.getElementById('menuButton').classList.remove('hidden'); }
         }
         
-        let storedReactions = localStorage.getItem("vivid_reactions_final");
+        let storedReactions = localStorage.getItem("vivid_reactions_final2");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
