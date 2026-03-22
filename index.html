@@ -114,25 +114,25 @@
             100% { opacity: 0; transform: translateY(-10px); display: none; }
         }
         
-        /* Hamburger Menu Icon - Positioned Top Right */
-        .menu-btn {
-            position: absolute;
+        /* Top Right Menu Button - Absolute at very top */
+        .top-menu-btn {
+            position: fixed;
+            top: 16px;
             right: 16px;
-            top: 24px;
             width: 44px;
             height: 44px;
-            background: rgba(15, 23, 42, 0.7);
+            background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            z-index: 10;
+            z-index: 10005;
         }
-        .menu-btn:active { transform: scale(0.95); }
+        .top-menu-btn:active { transform: scale(0.95); }
         .menu-icon {
             width: 24px;
             height: 18px;
@@ -146,6 +146,50 @@
             background: white;
             border-radius: 2px;
             transition: 0.2s;
+        }
+        
+        /* Professional Notification Bell with Badge */
+        .notification-bell {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 10005;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(16px);
+            width: 44px;
+            height: 44px;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .notification-bell:active { transform: scale(0.95); }
+        .notification-bell i {
+            font-size: 20px;
+            color: #94a3b8;
+            transition: color 0.2s;
+        }
+        .notification-bell:hover i { color: #3b82f6; }
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            border: 2px solid #020617;
+            box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
         }
         
         /* Professional Notification Card */
@@ -162,29 +206,6 @@
             color: #3b82f6 !important;
         }
         
-        /* Notification Bell */
-        .notification-bell {
-            position: relative;
-            cursor: pointer;
-        }
-        .notification-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ef4444;
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            min-width: 18px;
-            height: 18px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 5px;
-            border: 2px solid #020617;
-        }
-        
         /* Bottom Nav Icons */
         .bottom-nav-icon {
             transition: all 0.2s ease;
@@ -195,6 +216,17 @@
 <body>
 
     <div id="progress-container"><div id="progress-bar"></div></div>
+
+    <!-- TOP RIGHT MENU BUTTON - Fixed at very top -->
+    <div class="top-menu-btn" onclick="toggleMenu()">
+        <div class="menu-icon"><span></span><span></span><span></span></div>
+    </div>
+
+    <!-- TOP LEFT NOTIFICATION BELL - Fixed at very top -->
+    <div class="notification-bell" onclick="toggleInbox()">
+        <i class="fas fa-bell"></i>
+        <span id="notif-badge" class="notification-badge hidden">0</span>
+    </div>
 
     <!-- SIDE MENU -->
     <div id="side-menu">
@@ -210,7 +242,8 @@
         </div>
         <nav class="space-y-2">
             <button onclick="navAction('HOME')" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-home w-5 text-blue-500"></i><span class="text-sm">Dashboard</span></button>
-            <button onclick="navAction('COMMUNITY')" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-users w-5 text-emerald-500"></i><span class="text-sm">Community</span></button>
+            <button onclick="navAction('LIVE_SUPPORT')" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-headset w-5 text-emerald-500"></i><span class="text-sm">Live Support</span></button>
+            <button onclick="navAction('COMMUNITY')" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-users w-5 text-purple-500"></i><span class="text-sm">Community</span></button>
             <button onclick="toggleInbox()" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-bell w-5 text-pink-500"></i><span class="text-sm">Notifications</span></button>
         </nav>
         <div class="pt-6 mt-auto border-t border-white/10">
@@ -280,16 +313,7 @@
 
     <!-- MAIN APP -->
     <div id="app-container" class="max-w-md mx-auto p-4 pb-28 hidden">
-        <header class="text-center pt-10 pb-6 relative">
-            <!-- 3-Line Menu Button - Top Right, Separate from Header -->
-            <div class="menu-btn" onclick="toggleMenu()">
-                <div class="menu-icon"><span></span><span></span><span></span></div>
-            </div>
-            <!-- Notification Bell - Top Left -->
-            <div class="absolute left-4 top-6 notification-bell" onclick="toggleInbox()">
-                <i class="fas fa-bell text-xl text-slate-300 hover:text-blue-400 transition"></i>
-                <span id="notif-badge" class="notification-badge hidden">0</span>
-            </div>
+        <header class="text-center pt-12 pb-6">
             <h1 class="text-4xl font-black tracking-tighter text-white">VIVID <span class="text-blue-500">ACADEMY</span></h1>
             <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.4em] mt-2">Excellence in Learning</p>
         </header>
@@ -334,7 +358,25 @@
             <button onclick="renderCourses()" class="mt-6 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase">← BACK TO HOME</button>
         </div>
         
-        <!-- Chat Window -->
+        <!-- Live Support Section -->
+        <div id="live-support-section" class="hidden">
+            <div class="mb-4">
+                <button onclick="renderCourses()" class="p-3 glass-card inline-flex items-center gap-2 text-sm font-semibold"><i class="fas fa-arrow-left"></i> Back to Home</button>
+            </div>
+            <div class="glass-card overflow-hidden">
+                <div class="p-4 bg-blue-600/10 border-b border-white/10 flex justify-between items-center">
+                    <div class="flex items-center gap-2"><span class="online-dot"></span><span class="text-[11px] font-bold">💬 Live Support</span></div>
+                    <span class="text-[8px] text-slate-500">Admin replies appear here</span>
+                </div>
+                <div id="live-chat-box" class="h-96 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
+                <div class="p-4 bg-slate-900/60 flex gap-2">
+                    <input type="text" id="liveChatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white flex-1 outline-none focus:border-blue-500">
+                    <button onclick="sendLiveQuery()" class="btn-video w-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Window (main page) -->
         <div class="glass-card mt-6 mb-20 overflow-hidden">
             <div class="p-4 bg-blue-600/10 border-b border-white/10 flex justify-between items-center">
                 <div class="flex items-center gap-2"><span class="online-dot"></span><span class="text-[11px] font-bold">💬 Live Support</span></div>
@@ -347,11 +389,11 @@
             </div>
         </div>
         
-        <!-- Bottom Nav with WhatsApp Channel Button -->
+        <!-- Bottom Nav -->
         <footer class="fixed bottom-0 left-0 w-full p-3 bg-slate-950/90 backdrop-blur-2xl border-t border-white/10 z-[9998]">
             <div class="flex justify-around items-center max-w-md mx-auto">
                 <button onclick="navAction('HOME')" class="flex flex-col items-center text-blue-400 transition bottom-nav-icon"><i class="fas fa-home text-xl"></i><span class="text-[8px]">Home</span></button>
-                <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="flex flex-col items-center text-green-400 transition bottom-nav-icon"><i class="fab fa-whatsapp text-2xl"></i><span class="text-[8px]">Channel</span></a>
+                <button onclick="navAction('LIVE_SUPPORT')" class="flex flex-col items-center text-slate-400 hover:text-emerald-400 transition bottom-nav-icon"><i class="fas fa-headset text-xl"></i><span class="text-[8px]">Support</span></button>
                 <button onclick="navAction('COMMUNITY')" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition bottom-nav-icon"><i class="fas fa-users text-xl"></i><span class="text-[8px]">Community</span></button>
                 <button onclick="toggleMenu()" class="flex flex-col items-center text-slate-400 hover:text-white transition bottom-nav-icon"><i class="fas fa-user text-xl"></i><span class="text-[8px]">Profile</span></button>
             </div>
@@ -592,7 +634,7 @@
         }
         
         function toggleSection(id) { 
-            const sections = ['course-list', 'subject-section', 'category-section', 'content-section', 'community-section'];
+            const sections = ['course-list', 'subject-section', 'category-section', 'content-section', 'community-section', 'live-support-section'];
             sections.forEach(d => {
                 const el = document.getElementById(d);
                 if(el) el.classList.add('hidden');
@@ -625,12 +667,38 @@
             box.scrollTop = box.scrollHeight;
         }
         
+        function refreshLiveChatBox() {
+            const box = document.getElementById("live-chat-box");
+            if(box) {
+                box.innerHTML = "";
+                const chats = userChats[currentUser.email] || [];
+                if(chats.length === 0) {
+                    let w = document.createElement("div"); 
+                    w.className = "chat-msg msg-vivid p-3"; 
+                    w.innerHTML = "👋 Ask your doubts! Admin will reply with @yourusername and it will appear here automatically."; 
+                    box.appendChild(w);
+                } else {
+                    chats.forEach(chat => {
+                        if(chat.isTemp) return;
+                        let div = document.createElement("div");
+                        let msgClass = chat.sender === 'user' ? 'msg-user' : (chat.sender === 'admin' ? 'msg-admin' : 'msg-vivid');
+                        div.className = `chat-msg ${msgClass} p-3`;
+                        let senderName = chat.sender === 'user' ? 'You' : (chat.sender === 'admin' ? '✨ Vivid Admin' : '🤖 Vivid Bot');
+                        div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${chat.text}`;
+                        box.appendChild(div);
+                    });
+                }
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+        
         function addAutoDeleteMessage(text, sender) {
             const timestamp = new Date().toLocaleTimeString();
             const tempMsg = { text: text, sender: sender, timestamp: timestamp, isTemp: true };
             userChats[currentUser.email].push(tempMsg);
             saveChats();
             refreshChatBox();
+            refreshLiveChatBox();
             setTimeout(() => {
                 const chats = userChats[currentUser.email];
                 const index = chats.findIndex(c => c.text === text && c.timestamp === timestamp && c.isTemp);
@@ -638,6 +706,7 @@
                     chats.splice(index, 1);
                     saveChats();
                     refreshChatBox();
+                    refreshLiveChatBox();
                 }
             }, 3500);
         }
@@ -689,6 +758,7 @@
                                     userChats[currentUser.email].push(adminMsg);
                                     saveChats();
                                     refreshChatBox();
+                                    refreshLiveChatBox();
                                 }
                             }
                         }
@@ -707,6 +777,29 @@
             userChats[currentUser.email].push(userMsg);
             saveChats();
             refreshChatBox();
+            refreshLiveChatBox();
+            inp.value = "";
+            
+            addAutoDeleteMessage("✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", "vivid");
+            
+            try {
+                let userName = currentUser.name.substring(0, 20);
+                let userTag = currentUser.username;
+                let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${msg.substring(0, 300)}%0A🕒 *Time:* ${new Date().toLocaleString()}%0A%0A━━━━━━━━━━━━━━━━%0A💡 *TO REPLY:* Send message starting with @${userTag} and your reply will appear instantly in user's chat!`;
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
+            } catch(e) { console.error("TG send fail"); }
+        }
+        
+        async function sendLiveQuery() {
+            let inp = document.getElementById("liveChatInput");
+            let msg = inp.value.trim();
+            if(!msg) return;
+            let timestamp = new Date().toLocaleTimeString();
+            let userMsg = { text: msg, sender: 'user', timestamp };
+            userChats[currentUser.email].push(userMsg);
+            saveChats();
+            refreshChatBox();
+            refreshLiveChatBox();
             inp.value = "";
             
             addAutoDeleteMessage("✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", "vivid");
@@ -772,6 +865,7 @@
             if(type !== 'HOME') toggleMenu(); 
             if(type === 'HOME') renderCourses(); 
             if(type === 'COMMUNITY') { toggleSection('community-section'); document.getElementById('view-title').innerText = "🌍 COMMUNITY HUB"; document.getElementById('search-container').classList.add('hidden'); }
+            if(type === 'LIVE_SUPPORT') { toggleSection('live-support-section'); document.getElementById('view-title').innerText = "💬 LIVE SUPPORT"; document.getElementById('search-container').classList.add('hidden'); refreshLiveChatBox(); }
         }
         
         function toggleMenu() { document.getElementById("side-menu").classList.toggle("active"); }
@@ -782,4 +876,4 @@
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-</html>
+            </html>
