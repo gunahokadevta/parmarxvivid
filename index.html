@@ -230,7 +230,7 @@
 
     <div id="progress-container"><div id="progress-bar"></div></div>
 
-    <!-- TOP RIGHT MENU BUTTON - Fixed and Sticky -->
+    <!-- TOP RIGHT MENU BUTTON - Fixed and Sticky (Always visible on Home) -->
     <div id="menuButton" class="top-menu-btn" onclick="toggleMenu()">
         <div class="menu-icon"><span></span><span></span><span></span></div>
     </div>
@@ -240,7 +240,7 @@
         <i class="fas fa-arrow-left"></i>
     </div>
 
-    <!-- SIDE MENU -->
+    <!-- SIDE MENU (Notifications removed from here) -->
     <div id="side-menu">
         <div class="flex justify-between items-center mb-8">
             <div><h3 class="font-black text-blue-500 text-base">VIVID</h3><p id="menuUserName" class="text-[9px] text-slate-500 mt-0.5">learner</p></div>
@@ -277,7 +277,7 @@
         </div>
     </div>
 
-    <!-- NOTIFICATIONS MODAL - Professional Design -->
+    <!-- NOTIFICATIONS MODAL - Professional Design (No back button needed) -->
     <div id="inbox-modal" class="fixed inset-0 modal-overlay hidden flex flex-col z-[10003]">
         <div class="bg-gradient-to-r from-slate-900 to-slate-950 backdrop-blur-xl p-5 flex justify-between items-center border-b border-white/10">
             <div>
@@ -434,6 +434,7 @@
         let userChats = {};
         let notifReactions = {};
         let notifViewed = false;
+        let lastNotificationCount = 0;
         let pollingInterval = null;
         let lastUpdateId = 0;
         let lastProcessedMsgIds = new Set();
@@ -465,12 +466,37 @@
         
         function updateNotificationBadge() {
             const navBadge = document.getElementById('nav-notif-badge');
-            if(mainData && mainData.notifications && mainData.notifications.length > 0 && !notifViewed) {
-                navBadge.innerText = mainData.notifications.length;
+            const currentCount = mainData?.notifications?.length || 0;
+            
+            if(currentCount > 0 && !notifViewed) {
+                navBadge.innerText = currentCount;
                 navBadge.classList.remove('hidden');
             } else {
                 navBadge.classList.add('hidden');
             }
+        }
+        
+        // Check for new notifications periodically
+        function checkForNewNotifications() {
+            if(!mainData) return;
+            const currentCount = mainData.notifications?.length || 0;
+            if(currentCount > lastNotificationCount && notifViewed) {
+                // New notification arrived after user viewed
+                notifViewed = false;
+                lastNotificationCount = currentCount;
+                updateNotificationBadge();
+            } else {
+                lastNotificationCount = currentCount;
+            }
+        }
+        
+        // Start polling for new notifications
+        function startNotificationPolling() {
+            setInterval(() => {
+                if(mainData) {
+                    checkForNewNotifications();
+                }
+            }, 10000);
         }
         
         function updateProgress(percent) { document.getElementById('progress-bar').style.width = percent + '%'; }
@@ -478,17 +504,17 @@
         
         // User Management
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_v15");
+            let users = localStorage.getItem("vivid_users_v16");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_v15");
+            let chats = localStorage.getItem("vivid_chats_v16");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_v15");
+            let token = localStorage.getItem("vivid_token_v16");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_v15", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_v15", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_v16", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_v16", JSON.stringify(userChats)); }
         
         function isValidUsername(username) { return /^[A-Za-z0-9]{3,12}$/.test(username); }
         
@@ -509,7 +535,7 @@
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v15", email);
+            localStorage.setItem("vivid_token_v16", email);
             showApp();
         }
         
@@ -527,7 +553,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v15", currentUser.email);
+            localStorage.setItem("vivid_token_v16", currentUser.email);
             showApp();
         }
         
@@ -551,7 +577,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_v15"); 
+            localStorage.removeItem("vivid_token_v16"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -566,6 +592,7 @@
             loadData();
             refreshChatBox();
             startPollingForAdminReplies();
+            startNotificationPolling();
         }
         
         // Navigation UI - Show/hide menu/back buttons
@@ -912,7 +939,7 @@
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
             const btn = event.currentTarget;
             btn.classList.add('reaction-active');
-            localStorage.setItem("vivid_reactions_v15", JSON.stringify(notifReactions));
+            localStorage.setItem("vivid_reactions_v16", JSON.stringify(notifReactions));
         }
         
         function navAction(type) { 
@@ -930,10 +957,10 @@
             document.getElementById("side-menu").classList.toggle("active"); 
         }
         
-        let storedReactions = localStorage.getItem("vivid_reactions_v15");
+        let storedReactions = localStorage.getItem("vivid_reactions_v16");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-    </html>
+                                                                                                                                                                                                </html>
