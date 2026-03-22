@@ -224,6 +224,25 @@
         .wa-pulse {
             animation: wa-pulse 1.8s infinite;
         }
+        
+        /* Image preview styling */
+        .image-preview {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+        .file-input-label {
+            cursor: pointer;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            transition: all 0.2s;
+        }
+        .file-input-label:hover {
+            background: rgba(59,130,246,0.3);
+        }
     </style>
 </head>
 <body>
@@ -278,14 +297,16 @@
         </div>
     </div>
 
-    <!-- NOTIFICATIONS MODAL -->
+    <!-- NOTIFICATIONS MODAL - With Back Button -->
     <div id="inbox-modal" class="fixed inset-0 modal-overlay hidden flex flex-col z-[10003]">
         <div class="bg-gradient-to-r from-slate-900 to-slate-950 backdrop-blur-xl p-5 flex justify-between items-center border-b border-white/10">
-            <div>
-                <h3 class="font-black text-xl"><i class="fas fa-bell text-blue-500 mr-2"></i> Announcements</h3>
-                <p class="text-[9px] text-slate-500 mt-1">Stay updated with latest news</p>
+            <div class="flex items-center gap-3">
+                <button onclick="closeInboxModal()" class="w-10 h-10 rounded-full bg-white/10 text-slate-400 text-xl hover:bg-white/20 transition"><i class="fas fa-arrow-left"></i></button>
+                <div>
+                    <h3 class="font-black text-xl"><i class="fas fa-bell text-blue-500 mr-2"></i> Announcements</h3>
+                    <p class="text-[9px] text-slate-500 mt-1">Stay updated with latest news</p>
+                </div>
             </div>
-            <button onclick="closeInboxModal()" class="w-10 h-10 rounded-full bg-white/10 text-slate-400 text-2xl hover:bg-white/20 transition">&times;</button>
         </div>
         <div id="inbox-list" class="flex-1 overflow-y-auto p-6 space-y-5 max-w-3xl w-full mx-auto"></div>
     </div>
@@ -392,8 +413,11 @@
                 <div id="live-chat-box" class="h-96 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
                 <div class="p-4 bg-slate-900/60 flex gap-2">
                     <input type="text" id="liveChatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white flex-1 outline-none focus:border-blue-500">
-                    <button onclick="sendLiveQuery()" class="btn-video w-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                    <label class="file-input-label"><i class="fas fa-image mr-1"></i> Image</label>
+                    <input type="file" id="liveImageInput" accept="image/*" class="hidden" onchange="previewLiveImage(this)">
+                    <button onclick="sendLiveQueryWithImage()" class="btn-video w-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
                 </div>
+                <div id="liveImagePreview" class="p-2 hidden"></div>
             </div>
         </div>
         
@@ -406,8 +430,11 @@
             <div id="chat-box" class="h-80 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
             <div class="p-4 bg-slate-900/60 flex gap-2">
                 <input type="text" id="chatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white flex-1 outline-none focus:border-blue-500">
-                <button onclick="sendUserQuery()" class="btn-video w-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                <label class="file-input-label"><i class="fas fa-image mr-1"></i></label>
+                <input type="file" id="chatImageInput" accept="image/*" class="hidden" onchange="previewChatImage(this)">
+                <button onclick="sendUserQueryWithImage()" class="btn-video w-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
             </div>
+            <div id="chatImagePreview" class="p-2 hidden"></div>
         </div>
         
         <!-- Bottom Nav -->
@@ -434,11 +461,11 @@
         let currentUser = null;
         let userChats = {};
         let notifReactions = {};
-        let notifViewed = false;
-        let lastNotificationCount = 0;
         let pollingInterval = null;
         let lastUpdateId = 0;
         let lastProcessedMsgIds = new Set();
+        let currentImageData = null;
+        let currentLiveImageData = null;
         
         // Load from GitHub db.json
         function loadData(retryCount = 0) {
@@ -467,9 +494,11 @@
         
         function updateNotificationBadge() {
             const navBadge = document.getElementById('nav-notif-badge');
+            // Check if user has viewed notifications - stored per user
+            const userNotifViewed = currentUser ? (currentUser.notifViewed || false) : false;
             const currentCount = mainData?.notifications?.length || 0;
             
-            if(currentCount > 0 && !notifViewed) {
+            if(currentCount > 0 && !userNotifViewed) {
                 navBadge.innerText = currentCount;
                 navBadge.classList.remove('hidden');
             } else {
@@ -482,17 +511,17 @@
         
         // User Management
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_v17");
+            let users = localStorage.getItem("vivid_users_v18");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_v17");
+            let chats = localStorage.getItem("vivid_chats_v18");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_v17");
+            let token = localStorage.getItem("vivid_token_v18");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_v17", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_v17", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_v18", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_v18", JSON.stringify(userChats)); }
         
         function isValidUsername(username) { return /^[A-Za-z0-9]{3,12}$/.test(username); }
         
@@ -508,12 +537,12 @@
                 if(window.allUsers[key].username === username) { alert("Username already taken!"); return; }
                 if(window.allUsers[key].email === email) { alert("Email already registered."); return; }
             }
-            window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd };
+            window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd, notifViewed: false };
             saveUsers();
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v17", email);
+            localStorage.setItem("vivid_token_v18", email);
             showApp();
         }
         
@@ -531,7 +560,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v17", currentUser.email);
+            localStorage.setItem("vivid_token_v18", currentUser.email);
             showApp();
         }
         
@@ -555,7 +584,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_v17"); 
+            localStorage.removeItem("vivid_token_v18"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -591,7 +620,6 @@
         
         function closeMenu() {
             document.getElementById("side-menu").classList.remove("active");
-            // Show menu button again when menu closes
             const menuBtn = document.getElementById('menuButton');
             const currentPageIsHome = document.getElementById('search-container').style.display !== 'none';
             if(currentPageIsHome) {
@@ -602,6 +630,47 @@
         function closeInboxModal() {
             document.getElementById("inbox-modal").classList.add("hidden");
             document.body.style.overflow = 'auto';
+        }
+        
+        // Image preview functions
+        function previewChatImage(input) {
+            const preview = document.getElementById('chatImagePreview');
+            if(input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" class="image-preview"><button onclick="clearChatImage()" class="text-xs text-red-400 ml-2">Remove</button>`;
+                    preview.classList.remove('hidden');
+                    currentImageData = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function previewLiveImage(input) {
+            const preview = document.getElementById('liveImagePreview');
+            if(input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" class="image-preview"><button onclick="clearLiveImage()" class="text-xs text-red-400 ml-2">Remove</button>`;
+                    preview.classList.remove('hidden');
+                    currentLiveImageData = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function clearChatImage() {
+            currentImageData = null;
+            document.getElementById('chatImagePreview').innerHTML = '';
+            document.getElementById('chatImagePreview').classList.add('hidden');
+            document.getElementById('chatImageInput').value = '';
+        }
+        
+        function clearLiveImage() {
+            currentLiveImageData = null;
+            document.getElementById('liveImagePreview').innerHTML = '';
+            document.getElementById('liveImagePreview').classList.add('hidden');
+            document.getElementById('liveImageInput').value = '';
         }
         
         // ========== COURSE NAVIGATION ==========
@@ -707,7 +776,7 @@
             window.scrollTo({top: 0, behavior: 'smooth'}); 
         }
         
-        // ========== CHAT FUNCTIONS ==========
+        // ========== CHAT FUNCTIONS with Image Support ==========
         function refreshChatBox() {
             const box = document.getElementById("chat-box");
             box.innerHTML = "";
@@ -724,7 +793,11 @@
                     let msgClass = chat.sender === 'user' ? 'msg-user' : (chat.sender === 'admin' ? 'msg-admin' : 'msg-vivid');
                     div.className = `chat-msg ${msgClass} p-3`;
                     let senderName = chat.sender === 'user' ? 'You' : (chat.sender === 'admin' ? '✨ Vivid Admin' : '🤖 Vivid Bot');
-                    div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${chat.text}`;
+                    let content = chat.text;
+                    if(chat.image) {
+                        content += `<br><img src="${chat.image}" class="image-preview" style="max-width:120px; border-radius:8px; margin-top:5px;">`;
+                    }
+                    div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${content}`;
                     box.appendChild(div);
                 });
             }
@@ -748,7 +821,11 @@
                         let msgClass = chat.sender === 'user' ? 'msg-user' : (chat.sender === 'admin' ? 'msg-admin' : 'msg-vivid');
                         div.className = `chat-msg ${msgClass} p-3`;
                         let senderName = chat.sender === 'user' ? 'You' : (chat.sender === 'admin' ? '✨ Vivid Admin' : '🤖 Vivid Bot');
-                        div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${chat.text}`;
+                        let content = chat.text;
+                        if(chat.image) {
+                            content += `<br><img src="${chat.image}" class="image-preview" style="max-width:120px; border-radius:8px; margin-top:5px;">`;
+                        }
+                        div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${content}`;
                         box.appendChild(div);
                     });
                 }
@@ -773,6 +850,69 @@
                     refreshLiveChatBox();
                 }
             }, 3500);
+        }
+        
+        async function sendUserQueryWithImage() {
+            let inp = document.getElementById("chatInput");
+            let msg = inp.value.trim();
+            if(!msg && !currentImageData) return;
+            let timestamp = new Date().toLocaleTimeString();
+            let userMsg = { text: msg || "📷 Image shared", sender: 'user', timestamp: timestamp };
+            if(currentImageData) {
+                userMsg.image = currentImageData;
+            }
+            userChats[currentUser.email].push(userMsg);
+            saveChats();
+            refreshChatBox();
+            refreshLiveChatBox();
+            inp.value = "";
+            clearChatImage();
+            
+            addAutoDeleteMessage("✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", "vivid");
+            
+            try {
+                let userName = currentUser.name.substring(0, 20);
+                let userTag = currentUser.username;
+                let imagePart = currentImageData ? `%0A📷 *Image attached*` : '';
+                let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${(msg || "Image shared").substring(0, 300)}${imagePart}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
+                if(currentImageData) {
+                    // Send image as separate message
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?chat_id=${ADMIN_CHAT_ID}&caption=📷 Image from @${userTag}&photo=${encodeURIComponent(currentImageData)}`);
+                }
+            } catch(e) { console.error("TG send fail"); }
+            currentImageData = null;
+        }
+        
+        async function sendLiveQueryWithImage() {
+            let inp = document.getElementById("liveChatInput");
+            let msg = inp.value.trim();
+            if(!msg && !currentLiveImageData) return;
+            let timestamp = new Date().toLocaleTimeString();
+            let userMsg = { text: msg || "📷 Image shared", sender: 'user', timestamp: timestamp };
+            if(currentLiveImageData) {
+                userMsg.image = currentLiveImageData;
+            }
+            userChats[currentUser.email].push(userMsg);
+            saveChats();
+            refreshChatBox();
+            refreshLiveChatBox();
+            inp.value = "";
+            clearLiveImage();
+            
+            addAutoDeleteMessage("✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", "vivid");
+            
+            try {
+                let userName = currentUser.name.substring(0, 20);
+                let userTag = currentUser.username;
+                let imagePart = currentLiveImageData ? `%0A📷 *Image attached*` : '';
+                let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${(msg || "Image shared").substring(0, 300)}${imagePart}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
+                if(currentLiveImageData) {
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?chat_id=${ADMIN_CHAT_ID}&caption=📷 Image from @${userTag}&photo=${encodeURIComponent(currentLiveImageData)}`);
+                }
+            } catch(e) { console.error("TG send fail"); }
+            currentLiveImageData = null;
         }
         
         function startPollingForAdminReplies() {
@@ -832,57 +972,17 @@
             } catch(e) { console.log("Polling error:", e); }
         }
         
-        async function sendUserQuery() {
-            let inp = document.getElementById("chatInput");
-            let msg = inp.value.trim();
-            if(!msg) return;
-            let timestamp = new Date().toLocaleTimeString();
-            let userMsg = { text: msg, sender: 'user', timestamp };
-            userChats[currentUser.email].push(userMsg);
-            saveChats();
-            refreshChatBox();
-            refreshLiveChatBox();
-            inp.value = "";
-            
-            addAutoDeleteMessage("✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", "vivid");
-            
-            try {
-                let userName = currentUser.name.substring(0, 20);
-                let userTag = currentUser.username;
-                let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${msg.substring(0, 300)}%0A🕒 *Time:* ${new Date().toLocaleString()}%0A%0A━━━━━━━━━━━━━━━━%0A💡 *TO REPLY:* Send message starting with @${userTag} and your reply will appear instantly in user's chat!`;
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
-            } catch(e) { console.error("TG send fail"); }
-        }
-        
-        async function sendLiveQuery() {
-            let inp = document.getElementById("liveChatInput");
-            let msg = inp.value.trim();
-            if(!msg) return;
-            let timestamp = new Date().toLocaleTimeString();
-            let userMsg = { text: msg, sender: 'user', timestamp };
-            userChats[currentUser.email].push(userMsg);
-            saveChats();
-            refreshChatBox();
-            refreshLiveChatBox();
-            inp.value = "";
-            
-            addAutoDeleteMessage("✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", "vivid");
-            
-            try {
-                let userName = currentUser.name.substring(0, 20);
-                let userTag = currentUser.username;
-                let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${msg.substring(0, 300)}%0A🕒 *Time:* ${new Date().toLocaleString()}%0A%0A━━━━━━━━━━━━━━━━%0A💡 *TO REPLY:* Send message starting with @${userTag} and your reply will appear instantly in user's chat!`;
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
-            } catch(e) { console.error("TG send fail"); }
-        }
-        
         // Notifications
         function toggleInbox() {
             const modal = document.getElementById('inbox-modal');
             modal.classList.toggle('hidden');
             if(!modal.classList.contains('hidden')) {
                 renderNotifications();
-                notifViewed = true;
+                // Mark notifications as viewed for this user
+                if(currentUser) {
+                    currentUser.notifViewed = true;
+                    saveUsers();
+                }
                 document.getElementById('nav-notif-badge').classList.add('hidden');
                 document.body.style.overflow = 'hidden'; 
             } else {
@@ -922,14 +1022,13 @@
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
             const btn = event.currentTarget;
             btn.classList.add('reaction-active');
-            localStorage.setItem("vivid_reactions_v17", JSON.stringify(notifReactions));
+            localStorage.setItem("vivid_reactions_v18", JSON.stringify(notifReactions));
         }
         
         function navAction(type) { 
             const menu = document.getElementById("side-menu");
             if(menu.classList.contains("active")) {
                 menu.classList.remove("active");
-                // Show menu button again when menu closes
                 const currentPageIsHome = document.getElementById('search-container').style.display !== 'none';
                 if(currentPageIsHome) {
                     document.getElementById('menuButton').classList.remove('hidden');
@@ -944,11 +1043,9 @@
         function toggleMenu() { 
             const menu = document.getElementById("side-menu");
             menu.classList.toggle("active");
-            // When menu opens, hide the menu button
             if(menu.classList.contains("active")) {
                 document.getElementById('menuButton').classList.add('hidden');
             } else {
-                // When menu closes, show menu button only if on home page
                 const currentPageIsHome = document.getElementById('search-container').style.display !== 'none';
                 if(currentPageIsHome) {
                     document.getElementById('menuButton').classList.remove('hidden');
@@ -956,7 +1053,15 @@
             }
         }
         
-        let storedReactions = localStorage.getItem("vivid_reactions_v17");
+        // Add event listeners for file input buttons
+        document.querySelectorAll('.file-input-label').forEach((label, index) => {
+            label.addEventListener('click', () => {
+                if(index === 0) document.getElementById('liveImageInput').click();
+                else document.getElementById('chatImageInput').click();
+            });
+        });
+        
+        let storedReactions = localStorage.getItem("vivid_reactions_v18");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
