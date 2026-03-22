@@ -33,7 +33,7 @@
             border-radius: 28px; 
             transition: all 0.2s ease;
         }
-        .glass-card:hover { border-color: rgba(59, 130, 246, 0.4); transform: translateY(-2px); }
+        .glass-card:active { transform: scale(0.98); }
 
         .btn-video { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
         .btn-eng { background: linear-gradient(135deg, #6366f1, #4f46e5); }
@@ -62,7 +62,6 @@
             width: 100%;
             color: white;
             font-size: 14px;
-            transition: all 0.2s;
         }
         .auth-input:focus { outline: none; border-color: #3b82f6; background: rgba(59,130,246,0.1); }
         .auth-btn {
@@ -73,49 +72,47 @@
             font-size: 15px;
             width: 100%;
             cursor: pointer;
-            transition: 0.1s;
         }
         .auth-btn:active { transform: scale(0.97); }
-        
-        .reaction-btn { transition: all 0.1s; cursor: pointer; }
-        .reaction-btn:active { transform: scale(0.9); }
         
         .loader-spinner { width: 40px; height: 40px; border: 3px solid rgba(59,130,246,0.2); border-top: 3px solid #3b82f6; border-radius: 50%; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
         #notif-dot { min-width: 20px; height: 20px; font-size: 10px; font-weight: bold; top: -4px; right: -6px; border: 2px solid #020617; }
         
-        /* WhatsApp subtle */
-        .wa-icon { transition: all 0.2s; }
-        .wa-icon:hover { transform: scale(1.08); }
+        .reaction-btn { transition: all 0.1s; cursor: pointer; }
+        .reaction-btn:active { transform: scale(0.9); }
+        
+        .course-card, .subject-card, .category-card { cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="progress-bar-fixed"><div id="progress-fill"></div></div>
 
-    <!-- SIDE MENU (Professional) -->
+    <!-- SIDE MENU -->
     <div id="side-menu">
         <div class="flex justify-between items-center mb-8">
-            <div><h3 class="font-black text-blue-500 text-base">VIVID<span class="text-white text-xs ml-1">●</span></h3><p id="menuUserName" class="text-[9px] text-slate-500 mt-0.5">learner</p></div>
+            <div><h3 class="font-black text-blue-500 text-base">VIVID</h3><p id="menuUserName" class="text-[9px] text-slate-500 mt-0.5">learner</p></div>
             <button onclick="toggleMenu()" class="w-9 h-9 rounded-full bg-white/5 text-slate-400 text-xl">&times;</button>
         </div>
         <div class="glass-card p-5 mb-7 text-center">
             <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-full flex items-center justify-center mb-3"><i class="fas fa-user-astronaut text-3xl text-blue-300"></i></div>
             <h4 id="sideUserName" class="font-bold text-white text-base">Student</h4>
-            <p id="sideUserEmail" class="text-[9px] text-slate-400 mt-1 break-all truncate max-w-full">user@vivid.com</p>
-            <button onclick="logoutUser()" class="mt-4 text-[11px] bg-red-500/20 text-red-400 px-4 py-2 rounded-full w-full font-semibold hover:bg-red-500/30">Logout</button>
+            <p id="sideUserEmail" class="text-[9px] text-slate-400 mt-1 break-all">user@vivid.com</p>
+            <button onclick="logoutUser()" class="mt-4 text-[11px] bg-red-500/20 text-red-400 px-4 py-2 rounded-full w-full font-semibold">Logout</button>
         </div>
         <nav class="space-y-2">
             <button onclick="navAction('HOME')" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-home w-5 text-blue-500"></i><span class="text-sm">Dashboard</span></button>
             <button onclick="navAction('CHAT_HISTORY')" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-comment-dots w-5 text-emerald-500"></i><span class="text-sm">My Chat History</span></button>
+            <button onclick="toggleInbox()" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-bell w-5 text-pink-500"></i><span class="text-sm">Notifications</span></button>
         </nav>
         <div class="pt-6 mt-auto border-t border-white/10">
-            <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="flex items-center gap-3 bg-[#25D366]/10 p-3 rounded-xl wa-icon"><i class="fab fa-whatsapp text-green-400 text-xl"></i><span class="text-[10px] font-bold uppercase tracking-wide">Join Official WhatsApp</span></a>
+            <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="flex items-center gap-3 bg-[#25D366]/10 p-3 rounded-xl"><i class="fab fa-whatsapp text-green-400 text-xl"></i><span class="text-[10px] font-bold uppercase">Join WhatsApp Channel</span></a>
         </div>
     </div>
 
-    <!-- NOTICE MODAL (Full message) -->
+    <!-- NOTICE MODAL -->
     <div id="notice-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-5 z-[10002]">
         <div class="glass-card p-7 text-center max-w-sm w-full border-t-4 border-blue-500 animate-fade">
             <i class="fas fa-shield-heart text-blue-500 text-5xl mb-3"></i>
@@ -123,7 +120,7 @@
             <div class="text-[13px] text-slate-300 space-y-3 leading-relaxed mb-6 text-left bg-blue-500/5 p-4 rounded-2xl">
                 <p>🔒 <span class="text-blue-400 font-bold">VIVID ACADEMY</span> is 100% FREE educational platform.</p>
                 <p>🚫 We never charge any fees. No paid batches, no premium access.</p>
-                <p>💰 If anyone demands money using our name — <span class="text-red-400 font-bold">it's a SCAM</span>. Report immediately.</p>
+                <p>💰 If anyone demands money using our name -- <span class="text-red-400 font-bold">it's a SCAM</span>. Report immediately.</p>
                 <p>📢 Only official channel: <span class="text-green-400">WhatsApp / Telegram</span> linked below.</p>
             </div>
             <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="btn-video block py-3 rounded-xl text-sm font-bold uppercase mb-2">✅ VERIFIED WHATSAPP CHANNEL</a>
@@ -131,7 +128,7 @@
         </div>
     </div>
 
-    <!-- NOTIFICATIONS MODAL (with reaction system) -->
+    <!-- NOTIFICATIONS MODAL -->
     <div id="inbox-modal" class="fixed inset-0 modal-overlay hidden flex flex-col z-[10003]">
         <div class="bg-slate-950/90 backdrop-blur-xl p-5 flex justify-between items-center border-b border-white/10">
             <h3 class="font-black text-lg"><i class="fas fa-bell text-blue-500 mr-2"></i> Announcements</h3>
@@ -146,18 +143,16 @@
         <p class="text-blue-400 text-sm font-medium">Loading secure content...</p>
     </div>
 
-    <!-- AUTH MODAL (Instagram style - username/email + password) -->
+    <!-- AUTH MODAL -->
     <div id="auth-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-5 z-[20000]">
         <div class="glass-card p-7 w-full max-w-md animate-fade">
             <div class="text-center mb-6"><h1 class="text-4xl font-black tracking-tighter bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">VIVID</h1><p class="text-[10px] text-slate-500 mt-1">Elite Learning Hub</p></div>
-            <!-- Login Form -->
             <div id="login-form">
                 <input type="text" id="loginIdentifier" placeholder="Username or Email" class="auth-input mb-3">
                 <input type="password" id="loginPassword" placeholder="Password" class="auth-input mb-4">
                 <button onclick="handleLogin()" class="auth-btn mb-3 text-white">Log In</button>
                 <div class="flex justify-between text-[11px] text-slate-400 px-1"><span onclick="showForgot()" class="cursor-pointer hover:text-blue-400">Forgot password?</span><span onclick="switchToSignup()" class="cursor-pointer hover:text-blue-400">Don't have an account? <b class="text-blue-500">Sign up</b></span></div>
             </div>
-            <!-- Signup Form -->
             <div id="signup-form" class="hidden">
                 <input type="text" id="signupFullname" placeholder="Full Name" maxlength="25" class="auth-input mb-3">
                 <input type="text" id="signupUsername" placeholder="Username (unique)" maxlength="15" class="auth-input mb-3">
@@ -166,18 +161,17 @@
                 <button onclick="handleSignup()" class="auth-btn mb-3">Sign Up</button>
                 <div class="text-center text-[11px]"><span onclick="switchToLogin()" class="cursor-pointer text-blue-400">← Already have account? Log in</span></div>
             </div>
-            <!-- Forgot Password (without OTP, just reset prompt) -->
             <div id="forgot-form" class="hidden">
                 <p class="text-xs text-slate-400 mb-4 text-center">Enter your registered email to reset password</p>
                 <input type="email" id="forgotEmail" placeholder="Email address" class="auth-input mb-4">
-                <button onclick="resetPasswordHandler()" class="auth-btn mb-2">Send Reset Link</button>
+                <button onclick="resetPasswordHandler()" class="auth-btn mb-2">Reset Password</button>
                 <div class="text-center"><span onclick="switchToLogin()" class="cursor-pointer text-blue-400 text-xs">← Back to Login</span></div>
             </div>
         </div>
     </div>
 
     <!-- MAIN APP -->
-    <div id="app-container" class="max-w-md mx-auto p-4 pb-32 hidden">
+    <div id="app-container" class="max-w-md mx-auto p-4 pb-28 hidden">
         <header class="text-center py-6 relative">
             <button onclick="toggleMenu()" class="absolute right-0 top-6 w-11 h-11 glass-card flex items-center justify-center text-blue-500"><i class="fas fa-user-circle text-xl"></i></button>
             <h1 class="text-3xl font-black tracking-tighter">VIVID <span class="text-blue-500">ACADEMY</span></h1>
@@ -196,14 +190,14 @@
         <div id="content-section" class="hidden grid gap-4"></div>
         <div id="chat-history-section" class="hidden grid gap-4"></div>
         
-        <!-- Persistent Chat Window with Telegram Integration -->
+        <!-- Persistent Chat Window -->
         <div class="glass-card mt-6 mb-20 overflow-hidden">
-            <div class="p-4 bg-blue-600/10 border-b border-white/10 flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-[11px] font-bold">💬 Vivid Support Desk</span></div><span class="text-[8px] text-slate-500">Your chats are saved</span></div>
+            <div class="p-4 bg-blue-600/10 border-b border-white/10 flex justify-between items-center"><div class="flex items-center gap-2"><div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-[11px] font-bold">💬 Vivid Support Desk</span></div><span class="text-[8px] text-slate-500">Your chats saved</span></div>
             <div id="chat-box" class="h-80 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
             <div class="p-4 bg-slate-900/60 flex gap-2"><input type="text" id="chatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white flex-1 outline-none focus:border-blue-500"><button onclick="sendUserQuery()" class="btn-video w-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button></div>
         </div>
         
-        <!-- Bottom Nav: Home | WhatsApp | Chat History | Profile -->
+        <!-- Bottom Nav: Home | WhatsApp | Chats | Profile -->
         <footer class="fixed bottom-0 left-0 w-full p-3 bg-slate-950/90 backdrop-blur-2xl border-t border-white/10 z-[9998]">
             <div class="flex justify-around items-center max-w-md mx-auto">
                 <button onclick="navAction('HOME')" class="flex flex-col items-center text-slate-400 hover:text-blue-400"><i class="fas fa-home text-xl"></i><span class="text-[8px] mt-0.5">Home</span></button>
@@ -215,32 +209,51 @@
     </div>
 
     <script>
-        // ========== TELEGRAM CONFIG (Hidden, no github exposure) ==========
+        // Telegram Config
         const BOT_TOKEN = "8670403460:AAGyJQnVT62Sg0bhqGm0vUTE6id66PF1t5I";
         const ADMIN_CHAT_ID = "8305282917";
         
-        // ========== DATA LOADING FROM GITHUB DB (Your original db.json) ==========
+        // ========== ORIGINAL COURSE DATA FROM YOUR PURANA CODE (with directLink support) ==========
         let mainData = null;
         let currentUser = null;
-        let userChats = {};      // { email: [{text, sender, timestamp}] }
-        let notifReactions = {}; // store reaction counts per notification id (dynamic)
+        let userChats = {};
+        let notifReactions = {};
         let activeCourseIdx = 0, activeSubIdx = 0;
         
-        // Load users and chats
+        // Load from GitHub db.json
+        function loadCoursesFromDB() {
+            updateProgress(30);
+            fetch('https://raw.githubusercontent.com/gunahokadevta/parmarxvivid/main/db.json?v=' + Date.now())
+                .then(res => res.json())
+                .then(data => { 
+                    mainData = data; 
+                    updateProgress(100); 
+                    renderCourseGrid(); 
+                    loadNotifications();
+                })
+                .catch(err => { 
+                    console.error("DB error", err); 
+                    document.getElementById("course-list").innerHTML = `<div class="glass-card p-10 text-center text-red-400 text-xs">⚠️ Failed to load courses. Check internet.</div>`;
+                });
+        }
+        
+        function updateProgress(p) { document.getElementById("progress-fill").style.width = p + "%"; }
+        function closeNotice() { document.getElementById("notice-modal").style.display = "none"; }
+        
+        // User Management
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_v2");
+            let users = localStorage.getItem("vivid_users_v3");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_v2");
+            let chats = localStorage.getItem("vivid_chats_v3");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_v2");
+            let token = localStorage.getItem("vivid_token_v3");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_v2", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_v2", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_v3", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_v3", JSON.stringify(userChats)); }
         
-        // Auth functions (username length limited)
         function handleSignup() {
             let fullname = document.getElementById("signupFullname").value.trim().slice(0, 25);
             let username = document.getElementById("signupUsername").value.trim().slice(0, 15);
@@ -248,13 +261,13 @@
             let pwd = document.getElementById("signupPassword").value.trim();
             if(!fullname || !username || !email || !pwd) { alert("All fields required"); return; }
             if(pwd.length < 5) { alert("Password min 5 characters"); return; }
-            if(window.allUsers[email]) { alert("Email already registered. Login instead."); return; }
+            if(window.allUsers[email]) { alert("Email already registered."); return; }
             window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd };
             saveUsers();
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v2", email);
+            localStorage.setItem("vivid_token_v3", email);
             showApp();
         }
         
@@ -268,11 +281,11 @@
                     break;
                 }
             }
-            if(!user) { alert("Invalid username/email or password."); return; }
+            if(!user) { alert("Invalid credentials."); return; }
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v2", currentUser.email);
+            localStorage.setItem("vivid_token_v3", currentUser.email);
             showApp();
         }
         
@@ -283,39 +296,29 @@
                 if(newPwd && newPwd.length >=5) {
                     window.allUsers[email].password = newPwd;
                     saveUsers();
-                    alert("Password changed successfully! Please login.");
+                    alert("Password changed! Please login.");
                     switchToLogin();
-                } else alert("Password must be at least 5 characters.");
+                }
             } else alert("Email not registered.");
         }
         
         function showForgot() { document.getElementById("login-form").classList.add("hidden"); document.getElementById("signup-form").classList.add("hidden"); document.getElementById("forgot-form").classList.remove("hidden"); }
         function switchToSignup() { document.getElementById("login-form").classList.add("hidden"); document.getElementById("forgot-form").classList.add("hidden"); document.getElementById("signup-form").classList.remove("hidden"); }
         function switchToLogin() { document.getElementById("signup-form").classList.add("hidden"); document.getElementById("forgot-form").classList.add("hidden"); document.getElementById("login-form").classList.remove("hidden"); }
-        function logoutUser() { currentUser = null; localStorage.removeItem("vivid_token_v2"); document.getElementById("app-container").classList.add("hidden"); document.getElementById("auth-modal").classList.remove("hidden"); }
+        function logoutUser() { currentUser = null; localStorage.removeItem("vivid_token_v3"); document.getElementById("app-container").classList.add("hidden"); document.getElementById("auth-modal").classList.remove("hidden"); }
         
         function showApp() {
             document.getElementById("auth-modal").classList.add("hidden");
             document.getElementById("app-container").classList.remove("hidden");
-            document.getElementById("menuUserName").innerHTML = `@${(currentUser.username || currentUser.name).substring(0,12)}`;
+            let displayName = currentUser.username || currentUser.name;
+            document.getElementById("menuUserName").innerHTML = `@${displayName.substring(0,12)}`;
             document.getElementById("sideUserName").innerText = currentUser.name.substring(0,18);
             document.getElementById("sideUserEmail").innerText = currentUser.email.substring(0,22);
             loadCoursesFromDB();
+            refreshChatBox();
         }
         
-        // Load from GitHub db.json (your existing database)
-        function loadCoursesFromDB() {
-            updateProgress(30);
-            fetch('https://raw.githubusercontent.com/gunahokadevta/parmarxvivid/main/db.json?v=' + Date.now())
-                .then(res => res.json())
-                .then(data => { mainData = data; updateProgress(100); renderCourseGrid(); loadNotifications(); })
-                .catch(err => { console.error("DB error", err); document.getElementById("course-list").innerHTML = `<div class="glass-card p-10 text-center text-red-400 text-xs">⚠️ Failed to load courses. Check internet.</div>`; });
-        }
-        
-        function updateProgress(p) { document.getElementById("progress-fill").style.width = p + "%"; }
-        function closeNotice() { document.getElementById("notice-modal").style.display = "none"; }
-        
-        // Render courses exactly as in your original database
+        // Course Navigation (Original pattern with directLink support)
         function renderCourseGrid() {
             if(!mainData || !mainData.courses) return;
             setViewTitle("📚 AVAILABLE COURSES", true);
@@ -323,8 +326,13 @@
             container.innerHTML = "";
             mainData.courses.forEach((c, idx) => {
                 let card = document.createElement("div");
-                card.className = "glass-card p-5 flex items-center justify-between cursor-pointer active:scale-95 transition";
-                card.onclick = () => loadSubjects(idx);
+                card.className = "glass-card p-5 flex items-center justify-between cursor-pointer active:scale-95 transition course-card";
+                // Check for directLink first
+                if(c.directLink) {
+                    card.onclick = () => safeRedirect(c.directLink);
+                } else {
+                    card.onclick = () => loadSubjects(idx);
+                }
                 card.innerHTML = `<div class="flex gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center"><i class="fas fa-graduation-cap text-blue-500"></i></div><div><h4 class="font-bold text-white text-sm">${c.name}</h4><span class="text-[9px] text-slate-400">${c.subjects?.length || 0} subjects</span></div></div><i class="fas fa-chevron-right text-slate-500"></i>`;
                 container.appendChild(card);
             });
@@ -340,7 +348,7 @@
             subDiv.innerHTML = "";
             course.subjects.forEach((sub, sidx) => {
                 let card = document.createElement("div");
-                card.className = "glass-card p-5 flex justify-between items-center cursor-pointer";
+                card.className = "glass-card p-5 flex justify-between items-center cursor-pointer subject-card";
                 card.onclick = () => loadCategories(sidx);
                 card.innerHTML = `<div class="flex gap-3"><i class="fas fa-book-open text-blue-400"></i><span class="font-bold text-sm">${sub.name}</span></div><i class="fas fa-arrow-right text-xs"></i>`;
                 subDiv.appendChild(card);
@@ -353,9 +361,11 @@
             activeSubIdx = subIdx;
             setViewTitle("Select Content", false);
             const catDiv = document.getElementById("category-section");
-            catDiv.innerHTML = `<div onclick="loadItems('CHAPTERS')" class="glass-card p-6 flex items-center gap-4 cursor-pointer"><i class="fas fa-video text-2xl text-blue-500"></i><div><p class="font-bold">Video Lectures & Notes</p><span class="text-[9px] text-slate-400">Chapters</span></div></div>
-                <div onclick="loadItems('WEEKLY TESTS')" class="glass-card p-6 flex items-center gap-4 cursor-pointer"><i class="fas fa-clipboard-list text-2xl text-pink-500"></i><div><p class="font-bold">Weekly Tests / Quizzes</p><span class="text-[9px] text-slate-400">Mock Exams</span></div></div>
-                <button onclick="loadSubjects(activeCourseIdx)" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← Back to Subjects</button>`;
+            catDiv.innerHTML = `
+                <div onclick="loadItems('CHAPTERS')" class="glass-card p-6 flex items-center gap-4 cursor-pointer category-card"><i class="fas fa-video text-2xl text-blue-500"></i><div><p class="font-bold">Video Lectures & Notes</p><span class="text-[9px] text-slate-400">Chapters</span></div></div>
+                <div onclick="loadItems('WEEKLY TESTS')" class="glass-card p-6 flex items-center gap-4 cursor-pointer category-card"><i class="fas fa-clipboard-list text-2xl text-pink-500"></i><div><p class="font-bold">Weekly Tests / Quizzes</p><span class="text-[9px] text-slate-400">Mock Exams</span></div></div>
+                <button onclick="loadSubjects(activeCourseIdx)" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← Back to Subjects</button>
+            `;
             showOnly("category-section");
         }
         
@@ -365,7 +375,7 @@
             setViewTitle(type === "CHAPTERS" ? "📖 STUDY MATERIAL" : "📝 MOCK TESTS", false);
             const contentDiv = document.getElementById("content-section");
             contentDiv.innerHTML = "";
-            if(items.length === 0) contentDiv.innerHTML = "<div class='glass-card p-12 text-center opacity-50'><i class='fas fa-folder-open text-3xl'></i><p class='text-xs mt-2'>No content uploaded yet</p></div>";
+            if(items.length === 0) contentDiv.innerHTML = "<div class='glass-card p-12 text-center opacity-50'><i class='fas fa-folder-open text-3xl'></i><p class='text-xs mt-2'>No content yet</p></div>";
             items.forEach(item => {
                 let btns = "";
                 if(item.url) btns += `<button onclick="safeRedirect('${item.url}')" class="btn-video text-[10px] px-3 py-2 rounded-xl font-bold uppercase m-1">🎥 Video</button>`;
@@ -378,15 +388,31 @@
             showOnly("content-section");
         }
         
-        function safeRedirect(url) { if(url === "#") { alert("Content will be added soon!"); return; } document.getElementById("redirect-overlay").classList.remove("hidden"); setTimeout(() => { window.open(url, "_blank"); document.getElementById("redirect-overlay").classList.add("hidden"); }, 700); }
+        function safeRedirect(url) { 
+            if(!url || url === "#") { alert("Content will be added soon! Join WhatsApp channel for updates."); return; }
+            document.getElementById("redirect-overlay").classList.remove("hidden"); 
+            setTimeout(() => { window.open(url, "_blank"); document.getElementById("redirect-overlay").classList.add("hidden"); }, 700); 
+        }
         
-        // ========== CHAT WITH TELEGRAM NOTIFICATION (with user name) ==========
+        // Chat with Telegram (includes username in message)
         function refreshChatBox() {
             const box = document.getElementById("chat-box");
             box.innerHTML = "";
             const chats = userChats[currentUser.email] || [];
-            if(chats.length === 0) { let w = document.createElement("div"); w.className = "chat-msg msg-vivid p-3"; w.innerHTML = "👋 Ask your doubts! We reply within 24h. Your chats are saved."; box.appendChild(w); }
-            else { chats.forEach(chat => { let div = document.createElement("div"); div.className = `chat-msg ${chat.sender === 'user' ? 'msg-user' : 'msg-vivid'} p-3`; div.innerHTML = `<div class="text-[8px] opacity-50 mb-1">${chat.timestamp || ""}</div>${chat.text}`; box.appendChild(div); }); }
+            if(chats.length === 0) {
+                let w = document.createElement("div"); 
+                w.className = "chat-msg msg-vivid p-3"; 
+                w.innerHTML = "👋 Ask your doubts! We'll respond within 24h. Your chats are saved."; 
+                box.appendChild(w);
+            } else {
+                chats.forEach(chat => {
+                    if(chat.hiddenFromHistory) return;
+                    let div = document.createElement("div"); 
+                    div.className = `chat-msg ${chat.sender === 'user' ? 'msg-user' : 'msg-vivid'} p-3`; 
+                    div.innerHTML = `<div class="text-[8px] opacity-50 mb-1">${chat.timestamp || ""}</div>${chat.text}`; 
+                    box.appendChild(div);
+                });
+            }
             box.scrollTop = box.scrollHeight;
         }
         
@@ -401,21 +427,19 @@
             refreshChatBox();
             inp.value = "";
             
-            // Send to Telegram Bot with User Name (professional)
+            // Send to Telegram with username
             try {
                 let userName = currentUser.name.substring(0, 20);
-                let userIdentifier = currentUser.username || currentUser.email.split('@')[0];
-                let fullMsg = `📩 *NEW QUERY FROM VIVID PORTAL*%0A👤 *User:* ${userName} (@${userIdentifier})%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${msg.substring(0, 300)}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
+                let userTag = currentUser.username || currentUser.email.split('@')[0];
+                let fullMsg = `📩 *NEW QUERY FROM VIVID PORTAL*%0A👤 *User:* ${userName} (@${userTag})%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${msg.substring(0, 300)}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
             } catch(e) { console.error("TG send fail"); }
             
-            // Auto reply
-            setTimeout(() => {
-                let reply = { text: "✅ Query received! Admin will check & respond in notifications. Join WhatsApp channel for instant updates.", sender: 'vivid', timestamp: new Date().toLocaleTimeString() };
-                userChats[currentUser.email].push(reply);
-                saveChats();
-                refreshChatBox();
-            }, 900);
+            // Auto reply - NOT saved in chat history (hiddenFromHistory)
+            let reply = { text: "✅ Query received! Admin will check & respond in notifications. Join WhatsApp channel for instant updates.", sender: 'vivid', timestamp: new Date().toLocaleTimeString(), hiddenFromHistory: true };
+            userChats[currentUser.email].push(reply);
+            saveChats();
+            refreshChatBox();
         }
         
         function showChatHistory() {
@@ -423,9 +447,10 @@
             const section = document.getElementById("chat-history-section");
             section.innerHTML = "";
             const chats = userChats[currentUser.email] || [];
-            if(chats.length === 0) section.innerHTML = "<div class='glass-card p-10 text-center opacity-60'><i class='fas fa-comment-slash text-3xl'></i><p class='text-xs mt-2'>No chats yet</p></div>";
+            const visibleChats = chats.filter(c => !c.hiddenFromHistory);
+            if(visibleChats.length === 0) section.innerHTML = "<div class='glass-card p-10 text-center opacity-60'><i class='fas fa-comment-slash text-3xl'></i><p class='text-xs mt-2'>No chats yet</p></div>";
             else {
-                chats.slice().reverse().forEach(chat => {
+                visibleChats.slice().reverse().forEach(chat => {
                     section.innerHTML += `<div class="glass-card p-4 border-l-4 ${chat.sender === 'user' ? 'border-blue-500' : 'border-green-500'}"><div class="flex justify-between text-[9px] text-slate-400"><span class="font-bold">${chat.sender === 'user' ? currentUser.name : 'Vivid Support'}</span><span>${chat.timestamp}</span></div><p class="text-sm mt-1">${chat.text}</p></div>`;
                 });
             }
@@ -433,13 +458,11 @@
             showOnly("chat-history-section");
         }
         
-        // ========== NOTIFICATIONS WITH REACTION SYSTEM ==========
+        // Notifications with reactions
         function loadNotifications() {
             if(!mainData || !mainData.notifications) return;
-            if(!notifReactions) notifReactions = {};
-            const notifs = mainData.notifications;
             const dot = document.getElementById("notif-dot");
-            if(notifs && notifs.length > 0) { dot.innerText = notifs.length; dot.classList.remove("hidden"); }
+            if(mainData.notifications.length > 0) { dot.innerText = mainData.notifications.length; dot.classList.remove("hidden"); }
             else dot.classList.add("hidden");
         }
         
@@ -447,7 +470,6 @@
             const modal = document.getElementById("inbox-modal");
             modal.classList.toggle("hidden");
             if(!modal.classList.contains("hidden")) renderNotificationsWithReactions();
-            else document.body.style.overflow = "auto";
         }
         
         function renderNotificationsWithReactions() {
@@ -474,20 +496,48 @@
             if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0 };
             notifReactions[nid][type] += 1;
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
-            localStorage.setItem("vivid_reactions", JSON.stringify(notifReactions));
+            localStorage.setItem("vivid_reactions_v3", JSON.stringify(notifReactions));
         }
         
-        function setViewTitle(title, showSearch) { document.getElementById("view-title").innerText = title; document.querySelector("#courseSearch").parentElement.parentElement.style.display = showSearch ? "flex" : "none"; }
-        function showOnly(id) { const sections = ['course-list','subject-section','category-section','content-section','chat-history-section']; sections.forEach(s => document.getElementById(s).classList.add("hidden")); document.getElementById(id).classList.remove("hidden"); window.scrollTo({ top: 0 }); }
-        function navAction(type) { toggleMenu(); if(type === 'HOME') renderCourseGrid(); if(type === 'CHAT_HISTORY') showChatHistory(); }
-        function toggleMenu() { document.getElementById("side-menu").classList.toggle("active"); }
-        function filterCourses() { let val = document.getElementById("courseSearch").value.toUpperCase(); let items = document.getElementById("course-list").children; let cnt = 0; for(let i=0;i<items.length;i++) { let match = items[i].innerText.toUpperCase().includes(val); items[i].style.display = match ? "" : "none"; if(match) cnt++; } document.getElementById("item-count").innerText = cnt + " Courses"; }
-        document.getElementById("courseSearch").addEventListener("keyup", filterCourses);
+        // Utility functions
+        function setViewTitle(title, showSearch) { 
+            document.getElementById("view-title").innerText = title; 
+            let searchContainer = document.querySelector("#courseSearch").parentElement.parentElement;
+            if(searchContainer) searchContainer.style.display = showSearch ? "flex" : "none";
+        }
         
-        let storedReactions = localStorage.getItem("vivid_reactions");
+        function showOnly(id) { 
+            const sections = ['course-list','subject-section','category-section','content-section','chat-history-section'];
+            sections.forEach(s => document.getElementById(s)?.classList.add("hidden"));
+            document.getElementById(id)?.classList.remove("hidden");
+            window.scrollTo({ top: 0 });
+        }
+        
+        function navAction(type) { 
+            toggleMenu(); 
+            if(type === 'HOME') renderCourseGrid(); 
+            if(type === 'CHAT_HISTORY') showChatHistory(); 
+        }
+        
+        function toggleMenu() { document.getElementById("side-menu").classList.toggle("active"); }
+        
+        function filterCourses() { 
+            let val = document.getElementById("courseSearch").value.toUpperCase();
+            let items = document.getElementById("course-list").children;
+            let cnt = 0;
+            for(let i=0; i<items.length; i++) {
+                let match = items[i].innerText.toUpperCase().includes(val);
+                items[i].style.display = match ? "" : "none";
+                if(match) cnt++;
+            }
+            document.getElementById("item-count").innerText = cnt + " Courses";
+        }
+        document.getElementById("courseSearch")?.addEventListener("keyup", filterCourses);
+        
+        let storedReactions = localStorage.getItem("vivid_reactions_v3");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-        </html>
+</html>
