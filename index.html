@@ -236,13 +236,13 @@
         .file-input-label {
             cursor: pointer;
             background: rgba(255,255,255,0.05);
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 11px;
+            padding: 10px 14px;
+            border-radius: 28px;
+            font-size: 14px;
             transition: all 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
         .file-input-label:hover {
             background: rgba(59,130,246,0.3);
@@ -256,6 +256,19 @@
         .signup-highlight:hover {
             transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+        
+        /* Chat input container */
+        .chat-input-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .chat-input-container input {
+            flex: 1;
+        }
+        .chat-input-container button {
+            flex-shrink: 0;
         }
     </style>
 </head>
@@ -273,7 +286,7 @@
         <i class="fas fa-arrow-left"></i>
     </div>
 
-    <!-- SIDE MENU - With Notifications included -->
+    <!-- SIDE MENU -->
     <div id="side-menu">
         <div class="flex justify-between items-center mb-8">
             <div><h3 class="font-black text-blue-500 text-base">VIVID</h3><p id="menuUserName" class="text-[9px] text-slate-500 mt-0.5">learner</p></div>
@@ -311,7 +324,7 @@
         </div>
     </div>
 
-    <!-- NOTIFICATIONS MODAL - With Back Button -->
+    <!-- NOTIFICATIONS MODAL -->
     <div id="inbox-modal" class="fixed inset-0 modal-overlay hidden flex flex-col z-[10003]">
         <div class="bg-gradient-to-r from-slate-900 to-slate-950 backdrop-blur-xl p-5 flex justify-between items-center border-b border-white/10">
             <div class="flex items-center gap-3">
@@ -425,11 +438,11 @@
                     <span class="text-[8px] text-slate-500">Admin replies appear here</span>
                 </div>
                 <div id="live-chat-box" class="h-96 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
-                <div class="p-4 bg-slate-900/60 flex gap-2">
+                <div class="p-4 bg-slate-900/60 chat-input-container">
                     <label class="file-input-label"><i class="fas fa-image"></i></label>
                     <input type="file" id="liveImageInput" accept="image/*" class="hidden" onchange="previewLiveImage(this)">
-                    <input type="text" id="liveChatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white flex-1 outline-none focus:border-blue-500">
-                    <button onclick="sendLiveQueryWithImage()" class="btn-video w-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                    <input type="text" id="liveChatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500">
+                    <button onclick="sendLiveQueryWithImage()" class="btn-video w-12 h-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
                 </div>
                 <div id="liveImagePreview" class="p-2 hidden"></div>
             </div>
@@ -442,11 +455,11 @@
                 <span class="text-[8px] text-slate-500">Admin replies appear here</span>
             </div>
             <div id="chat-box" class="h-80 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
-            <div class="p-4 bg-slate-900/60 flex gap-2">
+            <div class="p-4 bg-slate-900/60 chat-input-container">
                 <label class="file-input-label"><i class="fas fa-image"></i></label>
                 <input type="file" id="chatImageInput" accept="image/*" class="hidden" onchange="previewChatImage(this)">
-                <input type="text" id="chatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white flex-1 outline-none focus:border-blue-500">
-                <button onclick="sendUserQueryWithImage()" class="btn-video w-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                <input type="text" id="chatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500">
+                <button onclick="sendUserQueryWithImage()" class="btn-video w-12 h-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
             </div>
             <div id="chatImagePreview" class="p-2 hidden"></div>
         </div>
@@ -522,21 +535,29 @@
         function updateProgress(percent) { document.getElementById('progress-bar').style.width = percent + '%'; }
         function closeNotice() { document.getElementById('notice-modal').style.display = 'none'; updateProgress(20); }
         
-        // User Management
+        // User Management with username uniqueness check
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_v19");
+            let users = localStorage.getItem("vivid_users_v20");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_v19");
+            let chats = localStorage.getItem("vivid_chats_v20");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_v19");
+            let token = localStorage.getItem("vivid_token_v20");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_v19", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_v19", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_v20", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_v20", JSON.stringify(userChats)); }
         
         function isValidUsername(username) { return /^[A-Za-z0-9]{3,12}$/.test(username); }
+        
+        function isUsernameTaken(username, excludeEmail = null) {
+            for(let key in window.allUsers) {
+                if(excludeEmail && key === excludeEmail) continue;
+                if(window.allUsers[key].username === username) return true;
+            }
+            return false;
+        }
         
         function handleSignup() {
             let fullname = document.getElementById("signupFullname").value.trim().slice(0, 25);
@@ -546,16 +567,15 @@
             if(!fullname || !username || !email || !pwd) { alert("All fields required"); return; }
             if(!isValidUsername(username)) { alert("Username must be 3-12 characters, letters and numbers only!"); return; }
             if(pwd.length < 5) { alert("Password min 5 characters"); return; }
-            for(let key in window.allUsers) {
-                if(window.allUsers[key].username === username) { alert("Username already taken!"); return; }
-                if(window.allUsers[key].email === email) { alert("Email already registered."); return; }
-            }
+            if(isUsernameTaken(username)) { alert("Username already taken! Please choose another."); return; }
+            if(window.allUsers[email]) { alert("Email already registered."); return; }
+            
             window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd, notifViewed: false };
             saveUsers();
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v19", email);
+            localStorage.setItem("vivid_token_v20", email);
             showApp();
         }
         
@@ -573,7 +593,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v19", currentUser.email);
+            localStorage.setItem("vivid_token_v20", currentUser.email);
             showApp();
         }
         
@@ -597,7 +617,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_v19"); 
+            localStorage.removeItem("vivid_token_v20"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -614,7 +634,7 @@
             startPollingForAdminReplies();
         }
         
-        // Navigation UI - Show/hide menu/back buttons
+        // Navigation UI
         function updateNavigationButtons(isHomePage) {
             const menuBtn = document.getElementById('menuButton');
             const backBtn = document.getElementById('backButton');
@@ -879,6 +899,7 @@
             refreshChatBox();
             refreshLiveChatBox();
             inp.value = "";
+            let imageToSend = currentImageData;
             clearChatImage();
             
             addAutoDeleteMessage("✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", "vivid");
@@ -886,14 +907,13 @@
             try {
                 let userName = currentUser.name.substring(0, 20);
                 let userTag = currentUser.username;
-                let imagePart = currentImageData ? `%0A📷 *Image attached*` : '';
+                let imagePart = imageToSend ? `%0A📷 *Image attached*` : '';
                 let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${(msg || "Image shared").substring(0, 300)}${imagePart}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
-                if(currentImageData) {
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?chat_id=${ADMIN_CHAT_ID}&caption=📷 Image from @${userTag}&photo=${encodeURIComponent(currentImageData)}`);
+                if(imageToSend) {
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?chat_id=${ADMIN_CHAT_ID}&caption=📷 Image from @${userTag}&photo=${encodeURIComponent(imageToSend)}`);
                 }
             } catch(e) { console.error("TG send fail"); }
-            currentImageData = null;
         }
         
         async function sendLiveQueryWithImage() {
@@ -910,6 +930,7 @@
             refreshChatBox();
             refreshLiveChatBox();
             inp.value = "";
+            let imageToSend = currentLiveImageData;
             clearLiveImage();
             
             addAutoDeleteMessage("✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", "vivid");
@@ -917,14 +938,13 @@
             try {
                 let userName = currentUser.name.substring(0, 20);
                 let userTag = currentUser.username;
-                let imagePart = currentLiveImageData ? `%0A📷 *Image attached*` : '';
+                let imagePart = imageToSend ? `%0A📷 *Image attached*` : '';
                 let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${(msg || "Image shared").substring(0, 300)}${imagePart}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
-                if(currentLiveImageData) {
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?chat_id=${ADMIN_CHAT_ID}&caption=📷 Image from @${userTag}&photo=${encodeURIComponent(currentLiveImageData)}`);
+                if(imageToSend) {
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?chat_id=${ADMIN_CHAT_ID}&caption=📷 Image from @${userTag}&photo=${encodeURIComponent(imageToSend)}`);
                 }
             } catch(e) { console.error("TG send fail"); }
-            currentLiveImageData = null;
         }
         
         function startPollingForAdminReplies() {
@@ -1033,7 +1053,7 @@
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
             const btn = event.currentTarget;
             btn.classList.add('reaction-active');
-            localStorage.setItem("vivid_reactions_v19", JSON.stringify(notifReactions));
+            localStorage.setItem("vivid_reactions_v20", JSON.stringify(notifReactions));
         }
         
         function navAction(type) { 
@@ -1073,7 +1093,7 @@
             });
         });
         
-        let storedReactions = localStorage.getItem("vivid_reactions_v19");
+        let storedReactions = localStorage.getItem("vivid_reactions_v20");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
