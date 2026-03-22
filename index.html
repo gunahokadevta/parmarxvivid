@@ -87,8 +87,9 @@
         .loader-spinner { width: 40px; height: 40px; border: 3px solid rgba(59,130,246,0.2); border-top: 3px solid #3b82f6; border-radius: 50%; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        .reaction-btn { transition: all 0.1s; cursor: pointer; }
-        .reaction-btn:active { transform: scale(0.9); }
+        .reaction-btn { transition: all 0.2s; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 40px; background: rgba(255,255,255,0.05); }
+        .reaction-btn:hover { background: rgba(255,255,255,0.12); transform: scale(1.02); }
+        .reaction-btn:active { transform: scale(0.95); }
         
         .course-card, .subject-card, .category-card { cursor: pointer; }
         
@@ -113,25 +114,35 @@
             100% { opacity: 0; transform: translateY(-10px); display: none; }
         }
         
-        #notif-dot {
-            min-width: 18px;
-            height: 18px;
-            padding: 0 4px;
-            font-size: 10px;
-            font-weight: bold;
-            top: -4px;
-            right: -6px;
-            border: 2px solid #020617;
+        /* Hamburger Menu Icon */
+        .menu-icon {
+            width: 28px;
+            height: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .menu-icon span {
+            width: 100%;
+            height: 2.5px;
+            background: white;
+            border-radius: 2px;
+            transition: 0.2s;
         }
         
-        .notif-btn {
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-            animation: ring 2s infinite ease-in-out;
+        /* Professional Notification Card */
+        .notif-card {
+            transition: all 0.2s ease;
         }
-        @keyframes ring {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        .notif-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59,130,246,0.5);
+        }
+        
+        .reaction-active {
+            background: rgba(59,130,246,0.2) !important;
+            color: #3b82f6 !important;
         }
     </style>
 </head>
@@ -176,13 +187,16 @@
         </div>
     </div>
 
-    <!-- NOTIFICATIONS MODAL -->
+    <!-- NOTIFICATIONS MODAL - Professional Design -->
     <div id="inbox-modal" class="fixed inset-0 modal-overlay hidden flex flex-col z-[10003]">
-        <div class="bg-slate-950/90 backdrop-blur-xl p-5 flex justify-between items-center border-b border-white/10">
-            <h3 class="font-black text-lg"><i class="fas fa-bell text-blue-500 mr-2"></i> Announcements</h3>
-            <button onclick="toggleInbox()" class="text-slate-400 text-3xl leading-none">&times;</button>
+        <div class="bg-gradient-to-r from-slate-900 to-slate-950 backdrop-blur-xl p-5 flex justify-between items-center border-b border-white/10">
+            <div>
+                <h3 class="font-black text-xl"><i class="fas fa-bell text-blue-500 mr-2"></i> Announcements</h3>
+                <p class="text-[9px] text-slate-500 mt-1">Stay updated with latest news</p>
+            </div>
+            <button onclick="toggleInbox()" class="w-10 h-10 rounded-full bg-white/10 text-slate-400 text-2xl hover:bg-white/20 transition">&times;</button>
         </div>
-        <div id="inbox-list" class="flex-1 overflow-y-auto p-5 space-y-5 max-w-3xl w-full mx-auto"></div>
+        <div id="inbox-list" class="flex-1 overflow-y-auto p-6 space-y-5 max-w-3xl w-full mx-auto"></div>
     </div>
 
     <!-- REDIRECT OVERLAY -->
@@ -221,21 +235,19 @@
     <!-- MAIN APP -->
     <div id="app-container" class="max-w-md mx-auto p-4 pb-28 hidden">
         <header class="text-center py-6 relative">
-            <button onclick="toggleMenu()" class="absolute right-0 top-6 w-11 h-11 glass-card flex items-center justify-center text-blue-500"><i class="fas fa-user-circle text-xl"></i></button>
+            <button onclick="toggleMenu()" class="absolute right-0 top-6 w-11 h-11 glass-card flex items-center justify-center text-white">
+                <div class="menu-icon"><span></span><span></span><span></span></div>
+            </button>
             <h1 class="text-3xl font-black tracking-tighter">VIVID <span class="text-blue-500">ACADEMY</span></h1>
             <p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">SSC • BANK • RAILWAY</p>
         </header>
 
-        <!-- Search Container -->
-        <div id="search-container" class="mb-6 flex gap-3">
-            <div class="glass-card flex-1 flex items-center px-5 py-4">
+        <!-- Search Container - No Notification Button -->
+        <div id="search-container" class="mb-6">
+            <div class="glass-card flex items-center px-5 py-4">
                 <i class="fas fa-search text-blue-500 mr-3"></i>
                 <input type="text" id="courseSearch" placeholder="Search courses..." class="bg-transparent w-full outline-none text-white text-sm" onkeyup="filterCourses()">
             </div>
-            <button onclick="toggleInbox()" class="notif-btn glass-card w-14 h-14 flex items-center justify-center text-blue-500 relative">
-                <i class="fas fa-bell text-xl"></i>
-                <span id="notif-dot" class="hidden absolute bg-red-500 text-white rounded-full">0</span>
-            </button>
         </div>
 
         <h2 id="view-title" class="text-[10px] font-black mb-4 uppercase tracking-wider text-blue-400 border-b border-blue-500/20 pb-2">AVAILABLE COURSES</h2>
@@ -295,8 +307,9 @@
         let notifViewed = false;
         let pollingInterval = null;
         let lastUpdateId = 0;
+        let lastProcessedMsgIds = new Set();
         
-        // Load from GitHub db.json with retry
+        // Load from GitHub db.json
         function loadData(retryCount = 0) {
             updateProgress(30);
             const dbUrl = 'https://raw.githubusercontent.com/gunahokadevta/parmarxvivid/main/db.json?v=' + Date.now();
@@ -311,8 +324,7 @@
                     renderCourses();
                     if(!notifViewed && data.notifications && data.notifications.length > 0) {
                         const dot = document.getElementById('notif-dot');
-                        dot.innerText = data.notifications.length;
-                        dot.classList.remove('hidden');
+                        if(dot) dot.innerText = data.notifications.length;
                     }
                 })
                 .catch(err => { 
@@ -330,21 +342,19 @@
         
         // User Management
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_v8");
+            let users = localStorage.getItem("vivid_users_v9");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_v8");
+            let chats = localStorage.getItem("vivid_chats_v9");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_v8");
+            let token = localStorage.getItem("vivid_token_v9");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_v8", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_v8", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_v9", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_v9", JSON.stringify(userChats)); }
         
-        function isValidUsername(username) {
-            return /^[A-Za-z0-9]{3,12}$/.test(username);
-        }
+        function isValidUsername(username) { return /^[A-Za-z0-9]{3,12}$/.test(username); }
         
         function handleSignup() {
             let fullname = document.getElementById("signupFullname").value.trim().slice(0, 25);
@@ -354,18 +364,16 @@
             if(!fullname || !username || !email || !pwd) { alert("All fields required"); return; }
             if(!isValidUsername(username)) { alert("Username must be 3-12 characters, letters and numbers only!"); return; }
             if(pwd.length < 5) { alert("Password min 5 characters"); return; }
-            
             for(let key in window.allUsers) {
                 if(window.allUsers[key].username === username) { alert("Username already taken!"); return; }
                 if(window.allUsers[key].email === email) { alert("Email already registered."); return; }
             }
-            
             window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd };
             saveUsers();
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v8", email);
+            localStorage.setItem("vivid_token_v9", email);
             showApp();
         }
         
@@ -383,7 +391,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v8", currentUser.email);
+            localStorage.setItem("vivid_token_v9", currentUser.email);
             showApp();
         }
         
@@ -407,7 +415,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_v8"); 
+            localStorage.removeItem("vivid_token_v9"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -424,7 +432,7 @@
             startPollingForAdminReplies();
         }
         
-        // ========== COURSE NAVIGATION (Matches your working code exactly) ==========
+        // ========== COURSE NAVIGATION ==========
         function renderCourses() { 
             updateProgress(30);
             document.getElementById('view-title').innerText = "AVAILABLE COURSES"; 
@@ -522,7 +530,7 @@
             window.scrollTo({top: 0, behavior: 'smooth'}); 
         }
         
-        // ========== CHAT FUNCTIONS ==========
+        // ========== CHAT FUNCTIONS with duplicate prevention ==========
         function refreshChatBox() {
             const box = document.getElementById("chat-box");
             box.innerHTML = "";
@@ -581,12 +589,16 @@
                     for(let update of data.result) {
                         lastUpdateId = update.update_id + 1;
                         const msg = update.message;
-                        if(msg && msg.text) {
+                        if(msg && msg.text && msg.message_id) {
+                            const msgId = msg.message_id;
+                            if(lastProcessedMsgIds.has(msgId)) continue;
+                            
                             const messageText = msg.text;
                             const userTag = currentUser.username;
                             const isForThisUser = messageText.includes(`@${userTag}`);
                             
                             if(isForThisUser) {
+                                lastProcessedMsgIds.add(msgId);
                                 let replyContent = messageText.replace(new RegExp(`@${userTag}`, 'gi'), '').trim();
                                 if(replyContent === "") replyContent = messageText;
                                 
@@ -610,6 +622,7 @@
                             }
                         }
                     }
+                    if(lastProcessedMsgIds.size > 100) lastProcessedMsgIds.clear();
                 }
             } catch(e) { console.log("Polling error:", e); }
         }
@@ -654,15 +667,12 @@
             toggleSection('chat-history-section');
         }
         
-        // Notifications
+        // Notifications with professional reactions
         function toggleInbox() {
             const modal = document.getElementById('inbox-modal');
-            const dot = document.getElementById('notif-dot');
             modal.classList.toggle('hidden');
             if(!modal.classList.contains('hidden')) {
                 renderNotifications();
-                dot.classList.add('hidden');
-                notifViewed = true; 
                 document.body.style.overflow = 'hidden'; 
             } else {
                 document.body.style.overflow = 'auto';
@@ -672,31 +682,36 @@
         function renderNotifications() {
             const list = document.getElementById('inbox-list');
             const msgs = mainData.notifications || [];
-            list.innerHTML = msgs.length ? '' : '<p class="text-center text-slate-500 text-xs py-20">No new updates</p>';
+            list.innerHTML = msgs.length ? '' : '<div class="glass-card p-12 text-center opacity-60"><i class="fas fa-bell-slash text-4xl mb-3"></i><p class="text-xs">No announcements yet</p></div>';
             msgs.slice().reverse().forEach((n, idx) => {
                 let nid = `notif_${idx}`;
-                if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0 };
+                if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0, fire: 0 };
                 let reacts = notifReactions[nid];
                 list.innerHTML += `
-                    <div class="glass-card p-5 border-l-4 border-blue-500">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-blue-400 text-[10px] font-black uppercase bg-blue-500/10 px-2 py-0.5 rounded">${n.tag || 'UPDATE'}</span>
-                            <span class="text-slate-500 text-[9px]">${n.date || ''}</span>
+                    <div class="notif-card glass-card p-6 border-l-4 border-blue-500 bg-gradient-to-r from-blue-500/5 to-transparent">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-blue-400 text-[11px] font-black uppercase bg-blue-500/20 px-3 py-1 rounded-full">${n.tag || 'UPDATE'}</span>
+                                <span class="text-slate-500 text-[10px]"><i class="far fa-clock mr-1"></i>${n.date || 'Just now'}</span>
+                            </div>
                         </div>
-                        <p class="text-sm text-slate-200 leading-relaxed mb-3">${n.message}</p>
-                        <div class="flex gap-5 mt-2 pt-2 border-t border-white/10">
-                            <div class="reaction-btn flex items-center gap-1 text-xs text-slate-400 hover:text-blue-400" onclick="addReaction('${nid}', 'like')"><i class="far fa-thumbs-up"></i> <span id="${nid}_like">${reacts.like}</span></div>
-                            <div class="reaction-btn flex items-center gap-1 text-xs text-slate-400 hover:text-pink-400" onclick="addReaction('${nid}', 'love')"><i class="far fa-heart"></i> <span id="${nid}_love">${reacts.love}</span></div>
+                        <p class="text-[14px] text-slate-200 leading-relaxed mb-4">${n.message}</p>
+                        <div class="flex gap-3 pt-2 border-t border-white/10">
+                            <div class="reaction-btn ${reacts.like > 0 ? 'reaction-active' : ''}" onclick="addReaction('${nid}', 'like')"><i class="far fa-thumbs-up"></i> <span id="${nid}_like">${reacts.like}</span></div>
+                            <div class="reaction-btn ${reacts.love > 0 ? 'reaction-active' : ''}" onclick="addReaction('${nid}', 'love')"><i class="far fa-heart"></i> <span id="${nid}_love">${reacts.love}</span></div>
+                            <div class="reaction-btn ${reacts.fire > 0 ? 'reaction-active' : ''}" onclick="addReaction('${nid}', 'fire')"><i class="far fa-fire"></i> <span id="${nid}_fire">${reacts.fire}</span></div>
                         </div>
                     </div>`;
             });
         }
         
         function addReaction(nid, type) {
-            if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0 };
+            if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0, fire: 0 };
             notifReactions[nid][type] += 1;
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
-            localStorage.setItem("vivid_reactions_v8", JSON.stringify(notifReactions));
+            const btn = event.currentTarget;
+            btn.classList.add('reaction-active');
+            localStorage.setItem("vivid_reactions_v9", JSON.stringify(notifReactions));
         }
         
         function navAction(type) { 
@@ -707,10 +722,10 @@
         
         function toggleMenu() { document.getElementById("side-menu").classList.toggle("active"); }
         
-        let storedReactions = localStorage.getItem("vivid_reactions_v8");
+        let storedReactions = localStorage.getItem("vivid_reactions_v9");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-</html>
+    </html>
