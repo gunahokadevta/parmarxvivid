@@ -23,8 +23,8 @@
             min-height: 100vh; 
         }
 
-        #progress-bar-fixed { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: rgba(59,130,246,0.2); z-index: 10000; }
-        #progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6, #a855f7); transition: width 0.3s ease; }
+        #progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: rgba(59,130,246,0.2); z-index: 10000; }
+        #progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6, #a855f7); transition: width 0.3s ease; }
 
         .glass-card { 
             background: rgba(15, 23, 42, 0.65); 
@@ -112,11 +112,32 @@
             0% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(-10px); display: none; }
         }
+        
+        #notif-dot {
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            font-size: 10px;
+            font-weight: bold;
+            top: -4px;
+            right: -6px;
+            border: 2px solid #020617;
+        }
+        
+        .notif-btn {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+            animation: ring 2s infinite ease-in-out;
+        }
+        @keyframes ring {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
 
-    <div id="progress-bar-fixed"><div id="progress-fill"></div></div>
+    <div id="progress-container"><div id="progress-bar"></div></div>
 
     <!-- SIDE MENU -->
     <div id="side-menu">
@@ -205,15 +226,37 @@
             <p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">SSC • BANK • RAILWAY</p>
         </header>
 
-        <!-- Search Bar -->
-        <div class="mb-6"><div class="glass-card flex items-center px-5 py-4"><i class="fas fa-search text-blue-500 mr-3"></i><input type="text" id="courseSearch" placeholder="Search courses..." class="bg-transparent w-full outline-none text-white text-sm"></div></div>
+        <!-- Search Container -->
+        <div id="search-container" class="mb-6 flex gap-3">
+            <div class="glass-card flex-1 flex items-center px-5 py-4">
+                <i class="fas fa-search text-blue-500 mr-3"></i>
+                <input type="text" id="courseSearch" placeholder="Search courses..." class="bg-transparent w-full outline-none text-white text-sm" onkeyup="filterCourses()">
+            </div>
+            <button onclick="toggleInbox()" class="notif-btn glass-card w-14 h-14 flex items-center justify-center text-blue-500 relative">
+                <i class="fas fa-bell text-xl"></i>
+                <span id="notif-dot" class="hidden absolute bg-red-500 text-white rounded-full">0</span>
+            </button>
+        </div>
 
-        <div class="flex justify-between items-center mb-4"><h2 id="view-title" class="text-[10px] font-black uppercase tracking-wider text-blue-400">COURSES</h2><span id="item-count" class="text-[9px] bg-blue-500/20 px-2 py-0.5 rounded-full">0</span></div>
-
+        <h2 id="view-title" class="text-[10px] font-black mb-4 uppercase tracking-wider text-blue-400 border-b border-blue-500/20 pb-2">AVAILABLE COURSES</h2>
         <div id="course-list" class="grid gap-4"></div>
-        <div id="subject-section" class="hidden grid gap-4"></div>
-        <div id="category-section" class="hidden grid gap-4"></div>
-        <div id="content-section" class="hidden grid gap-4"></div>
+        <div id="no-results" class="hidden text-center py-20 text-slate-500 italic">No course found.</div>
+
+        <div id="subject-section" class="hidden grid gap-4">
+            <div id="subject-list" class="grid gap-4"></div>
+            <button onclick="renderCourses()" class="mt-6 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase">BACK TO COURSES</button>
+        </div>
+
+        <div id="category-section" class="hidden grid gap-4">
+            <div id="category-list" class="grid gap-4"></div>
+            <button onclick="toggleSection('subject-section')" class="mt-4 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase text-center">BACK</button>
+        </div>
+
+        <div id="content-section" class="hidden grid gap-4 text-center">
+            <div id="chapter-list" class="grid gap-4"></div>
+            <button onclick="toggleSection('category-section')" class="mt-6 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase mb-10 text-center">BACK</button>
+        </div>
+        
         <div id="chat-history-section" class="hidden grid gap-4"></div>
         
         <!-- Chat Window -->
@@ -245,16 +288,16 @@
         const BOT_TOKEN = "8670403460:AAGyJQnVT62Sg0bhqGm0vUTE6id66PF1t5I";
         const ADMIN_CHAT_ID = "8305282917";
         
-        let mainData = null;
+        let mainData = null, curC = null, curS = null;
         let currentUser = null;
         let userChats = {};
         let notifReactions = {};
-        let activeCourseIdx = 0, activeSubIdx = 0;
+        let notifViewed = false;
         let pollingInterval = null;
         let lastUpdateId = 0;
         
         // Load from GitHub db.json with retry
-        function loadCoursesFromDB(retryCount = 0) {
+        function loadData(retryCount = 0) {
             updateProgress(30);
             const dbUrl = 'https://raw.githubusercontent.com/gunahokadevta/parmarxvivid/main/db.json?v=' + Date.now();
             fetch(dbUrl)
@@ -265,35 +308,39 @@
                 .then(data => { 
                     mainData = data; 
                     updateProgress(100); 
-                    renderCourseGrid(); 
-                    loadNotifications();
+                    renderCourses();
+                    if(!notifViewed && data.notifications && data.notifications.length > 0) {
+                        const dot = document.getElementById('notif-dot');
+                        dot.innerText = data.notifications.length;
+                        dot.classList.remove('hidden');
+                    }
                 })
                 .catch(err => { 
                     console.error("DB error:", err);
                     if(retryCount < 2) {
-                        setTimeout(() => loadCoursesFromDB(retryCount + 1), 1500);
+                        setTimeout(() => loadData(retryCount + 1), 1500);
                     } else {
-                        document.getElementById("course-list").innerHTML = `<div class="glass-card p-10 text-center text-red-400 text-xs">⚠️ Failed to load courses. Please refresh the page.</div>`;
+                        document.getElementById("course-list").innerHTML = `<div class="glass-card p-10 text-center text-red-400 text-xs">⚠️ Failed to load courses. Please refresh.</div>`;
                     }
                 });
         }
         
-        function updateProgress(p) { document.getElementById("progress-fill").style.width = p + "%"; }
-        function closeNotice() { document.getElementById("notice-modal").style.display = "none"; }
+        function updateProgress(percent) { document.getElementById('progress-bar').style.width = percent + '%'; }
+        function closeNotice() { document.getElementById('notice-modal').style.display = 'none'; updateProgress(20); }
         
         // User Management
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_v7");
+            let users = localStorage.getItem("vivid_users_v8");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_v7");
+            let chats = localStorage.getItem("vivid_chats_v8");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_v7");
+            let token = localStorage.getItem("vivid_token_v8");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_v7", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_v7", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_v8", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_v8", JSON.stringify(userChats)); }
         
         function isValidUsername(username) {
             return /^[A-Za-z0-9]{3,12}$/.test(username);
@@ -318,7 +365,7 @@
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v7", email);
+            localStorage.setItem("vivid_token_v8", email);
             showApp();
         }
         
@@ -336,7 +383,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v7", currentUser.email);
+            localStorage.setItem("vivid_token_v8", currentUser.email);
             showApp();
         }
         
@@ -360,7 +407,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_v7"); 
+            localStorage.removeItem("vivid_token_v8"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -372,19 +419,139 @@
             document.getElementById("menuUserName").innerHTML = `@${displayName.substring(0,12)}`;
             document.getElementById("sideUserName").innerText = currentUser.name.substring(0,18);
             document.getElementById("sideUserEmail").innerText = currentUser.email.substring(0,22);
-            loadCoursesFromDB();
+            loadData();
             refreshChatBox();
             startPollingForAdminReplies();
         }
         
-        // Auto-delete confirmation message
+        // ========== COURSE NAVIGATION (Matches your working code exactly) ==========
+        function renderCourses() { 
+            updateProgress(30);
+            document.getElementById('view-title').innerText = "AVAILABLE COURSES"; 
+            document.getElementById('search-container').classList.remove('hidden');
+            const list = document.getElementById('course-list'); list.innerHTML = ''; 
+            mainData.courses.forEach((c, i) => { 
+                let action = c.directLink ? `handleOpen('${c.directLink}')` : `selectCourse(${i})`;
+                list.innerHTML += `<div onclick="${action}" class="glass-card p-5 flex items-center cursor-pointer active:scale-95 course-card">
+                    <div class="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center mr-4 border border-blue-500/20"><i class="fas fa-graduation-cap text-blue-500 text-xl"></i></div>
+                    <div><div class="font-bold text-white text-sm">${c.name}</div><div class="text-slate-500 text-[9px] font-black uppercase mt-1">${c.teacher || 'Vivid Faculty'}</div></div>
+                    <i class="fas fa-chevron-right ml-auto text-slate-600 text-xs"></i>
+                </div>`; 
+            }); 
+            toggleSection('course-list'); 
+        }
+
+        function filterCourses() {
+            let input = document.getElementById('courseSearch').value.toUpperCase();
+            let items = document.getElementById('course-list').children;
+            let found = false;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].innerText.toUpperCase().includes(input)) { items[i].style.display = ""; found = true; }
+                else items[i].style.display = "none";
+            }
+            document.getElementById('no-results').classList.toggle('hidden', found);
+        }
+
+        function selectCourse(i) { 
+            curC = i; updateProgress(50);
+            document.getElementById('search-container').classList.add('hidden');
+            document.getElementById('view-title').innerText = mainData.courses[i].name;
+            const list = document.getElementById('subject-list'); list.innerHTML = ''; 
+            mainData.courses[i].subjects.forEach((s, si) => { 
+                list.innerHTML += `<div onclick="showCategories(${si})" class="glass-card p-5 flex justify-between items-center cursor-pointer active:scale-95 subject-card"><span class="font-bold text-sm uppercase text-slate-200">${s.name}</span><i class="fas fa-arrow-right text-blue-500"></i></div>`; 
+            }); 
+            toggleSection('subject-section'); 
+        }
+
+        function showCategories(si) { 
+            curS = si; updateProgress(75);
+            document.getElementById('view-title').innerText = mainData.courses[curC].subjects[si].name;
+            document.getElementById('category-list').innerHTML = `
+                <div onclick="showItems('CHAPTERS')" class="glass-card p-6 border-l-4 border-blue-600 cursor-pointer flex items-center active:scale-95 category-card"><i class="fas fa-book-open mr-4 text-blue-500 text-xl"></i> <span class="font-black text-sm uppercase text-white tracking-widest">📖 CHAPTERS CONTENT</span></div>
+                <div onclick="showItems('WEEKLY TESTS')" class="glass-card p-6 border-l-4 border-pink-600 cursor-pointer flex items-center active:scale-95 category-card"><i class="fas fa-vial mr-4 text-pink-500 text-xl"></i> <span class="font-black text-sm uppercase text-white tracking-widest">📝 MOCK TESTS</span></div>`; 
+            toggleSection('category-section'); 
+        }
+
+        function showItems(type) { 
+            const items = mainData.courses[curC].subjects[curS][type] || []; 
+            updateProgress(100);
+            document.getElementById('view-title').innerText = type === "CHAPTERS" ? "📖 STUDY MATERIAL" : "📝 MOCK TESTS";
+            const list = document.getElementById('chapter-list'); list.innerHTML = ''; 
+            if(items.length === 0) {
+                list.innerHTML = "<div class='glass-card p-12 text-center opacity-50'><i class='fas fa-folder-open text-3xl'></i><p class='text-xs mt-2'>No content yet</p></div>";
+            } else {
+                items.forEach((ch) => { 
+                    list.innerHTML += `<div class="glass-card p-5 mb-4 text-left">
+                        <h4 class="font-bold mb-4 text-white text-sm uppercase border-b border-slate-700 pb-3 tracking-wide">${ch.title}</h4>
+                        <div class="grid grid-cols-2 gap-3 text-[10px] font-black uppercase text-white">
+                            ${ch.url ? `<button onclick="handleOpen('${ch.url}')" class="btn-video py-3 rounded-xl">🎥 VIDEO</button>` : ''}
+                            ${ch.notes_en ? `<button onclick="handleOpen('${ch.notes_en}')" class="btn-eng py-3 rounded-xl">📄 ENG NOTES</button>` : ''}
+                            ${ch.notes_hi ? `<button onclick="handleOpen('${ch.notes_hi}')" class="btn-hindi py-3 rounded-xl">📄 HINDI NOTES</button>` : ''}
+                            ${ch.quiz ? `<button onclick="handleOpen('${ch.quiz}')" class="btn-quiz py-3 rounded-xl">🧠 QUIZ</button>` : ''}
+                            ${ch.handwritten ? `<button onclick="handleOpen('${ch.handwritten}')" class="btn-ppt py-3 rounded-xl">📑 PDF/PPT</button>` : ''}
+                        </div>
+                    </div>`; 
+                });
+            }
+            toggleSection('content-section'); 
+        }
+        
+        function handleOpen(content) {
+            if (!content) return;
+            if (content.includes('<') && content.includes('>')) {
+                const newWindow = window.open('', '_blank');
+                newWindow.document.write(content);
+                newWindow.document.close();
+            } else {
+                safeRedirect(content);
+            }
+        }
+        
+        function safeRedirect(url) { 
+            if(!url || url === "#") { alert("Content coming soon!"); return; }
+            document.getElementById("redirect-overlay").classList.remove("hidden"); 
+            setTimeout(() => { window.open(url, "_blank"); document.getElementById("redirect-overlay").classList.add("hidden"); }, 700); 
+        }
+        
+        function toggleSection(id) { 
+            ['course-list', 'subject-section', 'category-section', 'content-section', 'chat-history-section'].forEach(d => {
+                const el = document.getElementById(d);
+                if(el) el.classList.add('hidden');
+            });
+            document.getElementById(id).classList.remove('hidden'); 
+            window.scrollTo({top: 0, behavior: 'smooth'}); 
+        }
+        
+        // ========== CHAT FUNCTIONS ==========
+        function refreshChatBox() {
+            const box = document.getElementById("chat-box");
+            box.innerHTML = "";
+            const chats = userChats[currentUser.email] || [];
+            if(chats.length === 0) {
+                let w = document.createElement("div"); 
+                w.className = "chat-msg msg-vivid p-3"; 
+                w.innerHTML = "👋 Ask your doubts! Admin will reply with @yourusername and it will appear here automatically."; 
+                box.appendChild(w);
+            } else {
+                chats.forEach(chat => {
+                    if(chat.isTemp) return;
+                    let div = document.createElement("div");
+                    let msgClass = chat.sender === 'user' ? 'msg-user' : (chat.sender === 'admin' ? 'msg-admin' : 'msg-vivid');
+                    div.className = `chat-msg ${msgClass} p-3`;
+                    let senderName = chat.sender === 'user' ? 'You' : (chat.sender === 'admin' ? '✨ Vivid Admin' : '🤖 Vivid Bot');
+                    div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${chat.text}`;
+                    box.appendChild(div);
+                });
+            }
+            box.scrollTop = box.scrollHeight;
+        }
+        
         function addAutoDeleteMessage(text, sender) {
             const timestamp = new Date().toLocaleTimeString();
             const tempMsg = { text: text, sender: sender, timestamp: timestamp, isTemp: true };
             userChats[currentUser.email].push(tempMsg);
             saveChats();
             refreshChatBox();
-            
             setTimeout(() => {
                 const chats = userChats[currentUser.email];
                 const index = chats.findIndex(c => c.text === text && c.timestamp === timestamp && c.isTemp);
@@ -396,7 +563,6 @@
             }, 3500);
         }
         
-        // Polling for admin replies
         function startPollingForAdminReplies() {
             if(pollingInterval) clearInterval(pollingInterval);
             pollingInterval = setInterval(async () => {
@@ -418,7 +584,6 @@
                         if(msg && msg.text) {
                             const messageText = msg.text;
                             const userTag = currentUser.username;
-                            
                             const isForThisUser = messageText.includes(`@${userTag}`);
                             
                             if(isForThisUser) {
@@ -440,63 +605,13 @@
                                     };
                                     userChats[currentUser.email].push(adminMsg);
                                     saveChats();
-                                    refreshChatBoxWithFlash();
+                                    refreshChatBox();
                                 }
                             }
                         }
                     }
                 }
             } catch(e) { console.log("Polling error:", e); }
-        }
-        
-        function refreshChatBoxWithFlash() {
-            const box = document.getElementById("chat-box");
-            box.innerHTML = "";
-            const chats = userChats[currentUser.email] || [];
-            if(chats.length === 0) {
-                let w = document.createElement("div"); 
-                w.className = "chat-msg msg-vivid p-3"; 
-                w.innerHTML = "👋 Ask your doubts! Admin will reply with @yourusername and it will appear here automatically."; 
-                box.appendChild(w);
-            } else {
-                chats.forEach((chat, idx) => {
-                    let div = document.createElement("div");
-                    let msgClass = chat.sender === 'user' ? 'msg-user' : (chat.sender === 'admin' ? 'msg-admin' : 'msg-vivid');
-                    div.className = `chat-msg ${msgClass} p-3`;
-                    let senderName = chat.sender === 'user' ? 'You' : (chat.sender === 'admin' ? '✨ Vivid Admin' : '🤖 Vivid Bot');
-                    div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${chat.text}`;
-                    box.appendChild(div);
-                    
-                    if(chat.sender === 'admin' && idx === chats.length - 1 && !chat.seen) {
-                        div.classList.add("admin-reply-new");
-                        chat.seen = true;
-                        saveChats();
-                    }
-                });
-            }
-            box.scrollTop = box.scrollHeight;
-        }
-        
-        function refreshChatBox() {
-            const box = document.getElementById("chat-box");
-            box.innerHTML = "";
-            const chats = userChats[currentUser.email] || [];
-            if(chats.length === 0) {
-                let w = document.createElement("div"); 
-                w.className = "chat-msg msg-vivid p-3"; 
-                w.innerHTML = "👋 Ask your doubts! Admin will reply with @yourusername and it will appear here automatically."; 
-                box.appendChild(w);
-            } else {
-                chats.forEach(chat => {
-                    let div = document.createElement("div");
-                    let msgClass = chat.sender === 'user' ? 'msg-user' : (chat.sender === 'admin' ? 'msg-admin' : 'msg-vivid');
-                    div.className = `chat-msg ${msgClass} p-3`;
-                    let senderName = chat.sender === 'user' ? 'You' : (chat.sender === 'admin' ? '✨ Vivid Admin' : '🤖 Vivid Bot');
-                    div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${chat.text}`;
-                    box.appendChild(div);
-                });
-            }
-            box.scrollTop = box.scrollHeight;
         }
         
         async function sendUserQuery() {
@@ -521,7 +636,8 @@
         }
         
         function showChatHistory() {
-            setViewTitle("📜 MY CHAT HISTORY", false);
+            document.getElementById('view-title').innerText = "📜 MY CHAT HISTORY";
+            document.getElementById('search-container').classList.add('hidden');
             const section = document.getElementById("chat-history-section");
             section.innerHTML = "";
             const chats = userChats[currentUser.email] || [];
@@ -534,123 +650,39 @@
                     section.innerHTML += `<div class="glass-card p-4 border-l-4 ${borderColor}"><div class="flex justify-between text-[9px] text-slate-400"><span class="font-bold">${senderDisplay}</span><span>${chat.timestamp}</span></div><p class="text-sm mt-1">${chat.text}</p></div>`;
                 });
             }
-            section.innerHTML += `<button onclick="renderCourseGrid()" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← Back to Home</button>`;
-            showOnly("chat-history-section");
-        }
-        
-        // ========== COURSE NAVIGATION (Fixed - matches your working code) ==========
-        function renderCourseGrid() {
-            if(!mainData || !mainData.courses) return;
-            setViewTitle("📚 AVAILABLE COURSES", true);
-            const container = document.getElementById("course-list");
-            container.innerHTML = "";
-            mainData.courses.forEach((c, idx) => {
-                let card = document.createElement("div");
-                card.className = "glass-card p-5 flex items-center justify-between cursor-pointer active:scale-95 transition course-card";
-                if(c.directLink) {
-                    card.onclick = () => handleOpen(c.directLink);
-                } else {
-                    card.onclick = () => selectCourse(idx);
-                }
-                card.innerHTML = `<div class="flex gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center"><i class="fas fa-graduation-cap text-blue-500"></i></div><div><h4 class="font-bold text-white text-sm">${c.name}</h4><span class="text-[9px] text-slate-400">${c.subjects?.length || 0} subjects</span></div></div><i class="fas fa-chevron-right text-slate-500"></i>`;
-                container.appendChild(card);
-            });
-            document.getElementById("item-count").innerText = mainData.courses.length + " Courses";
-            showOnly("course-list");
-        }
-        
-        function selectCourse(i) { 
-            activeCourseIdx = i;
-            updateProgress(50);
-            setViewTitle(mainData.courses[i].name, false);
-            const list = document.getElementById("subject-list");
-            list.innerHTML = ''; 
-            mainData.courses[i].subjects.forEach((s, si) => { 
-                list.innerHTML += `<div onclick="showCategories(${si})" class="glass-card p-5 flex justify-between items-center cursor-pointer subject-card"><span class="font-bold text-sm uppercase text-slate-200">${s.name}</span><i class="fas fa-arrow-right text-blue-500"></i></div>`; 
-            }); 
-            list.innerHTML += `<button onclick="renderCourseGrid()" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← All Courses</button>`;
-            showOnly("subject-section");
-        }
-        
-        function showCategories(si) { 
-            activeSubIdx = si;
-            updateProgress(75);
-            setViewTitle(mainData.courses[activeCourseIdx].subjects[si].name, false);
-            const catList = document.getElementById("category-list");
-            catList.innerHTML = `
-                <div onclick="showItems('CHAPTERS')" class="glass-card p-6 flex items-center gap-4 cursor-pointer category-card"><i class="fas fa-book-open text-2xl text-blue-500"></i><div><p class="font-bold text-sm uppercase">Video Lectures & Notes</p><span class="text-[9px] text-slate-400">Chapters</span></div></div>
-                <div onclick="showItems('WEEKLY TESTS')" class="glass-card p-6 flex items-center gap-4 cursor-pointer category-card"><i class="fas fa-clipboard-list text-2xl text-pink-500"></i><div><p class="font-bold text-sm uppercase">Weekly Tests / Quizzes</p><span class="text-[9px] text-slate-400">Mock Exams</span></div></div>
-                <button onclick="selectCourse(activeCourseIdx)" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← Back to Subjects</button>
-            `;
-            showOnly("category-section");
-        }
-        
-        function showItems(type) { 
-            const items = mainData.courses[activeCourseIdx].subjects[activeSubIdx][type] || []; 
-            updateProgress(100);
-            setViewTitle(type === "CHAPTERS" ? "📖 STUDY MATERIAL" : "📝 MOCK TESTS", false);
-            const chapterList = document.getElementById("chapter-list");
-            chapterList.innerHTML = ''; 
-            if(items.length === 0) {
-                chapterList.innerHTML = "<div class='glass-card p-12 text-center opacity-50'><i class='fas fa-folder-open text-3xl'></i><p class='text-xs mt-2'>No content yet</p></div>";
-            } else {
-                items.forEach((ch) => { 
-                    let btns = "";
-                    if(ch.url) btns += `<button onclick="handleOpen('${ch.url}')" class="btn-video py-3 rounded-xl text-[10px] font-black uppercase m-1 px-4">🎥 VIDEO</button>`;
-                    if(ch.notes_en) btns += `<button onclick="handleOpen('${ch.notes_en}')" class="btn-eng py-3 rounded-xl text-[10px] font-black uppercase m-1 px-4">📄 ENG NOTES</button>`;
-                    if(ch.notes_hi) btns += `<button onclick="handleOpen('${ch.notes_hi}')" class="btn-hindi py-3 rounded-xl text-[10px] font-black uppercase m-1 px-4">📄 HINDI NOTES</button>`;
-                    if(ch.quiz) btns += `<button onclick="handleOpen('${ch.quiz}')" class="btn-quiz py-3 rounded-xl text-[10px] font-black uppercase m-1 px-4">🧠 QUIZ</button>`;
-                    if(ch.handwritten) btns += `<button onclick="handleOpen('${ch.handwritten}')" class="btn-ppt py-3 rounded-xl text-[10px] font-black uppercase m-1 px-4">📑 PDF/PPT</button>`;
-                    
-                    chapterList.innerHTML += `<div class="glass-card p-5 mb-3 text-left"><h5 class="font-bold text-white text-sm mb-3">${ch.title}</h5><div class="flex flex-wrap gap-2">${btns || '<span class="text-[10px] text-slate-500">Resources coming soon</span>'}</div></div>`;
-                });
-            }
-            chapterList.innerHTML += `<button onclick="showCategories(activeSubIdx)" class="mt-4 p-4 glass-card text-center text-[10px] font-bold uppercase">← Back</button>`;
-            showOnly("content-section");
-        }
-        
-        function handleOpen(content) {
-            if (!content) return;
-            if (content.includes('<') && content.includes('>')) {
-                const newWindow = window.open('', '_blank');
-                newWindow.document.write(content);
-                newWindow.document.close();
-            } else {
-                safeRedirect(content);
-            }
-        }
-        
-        function safeRedirect(url) { 
-            if(!url || url === "#") { alert("Content coming soon! Join WhatsApp channel for updates."); return; }
-            document.getElementById("redirect-overlay").classList.remove("hidden"); 
-            setTimeout(() => { window.open(url, "_blank"); document.getElementById("redirect-overlay").classList.add("hidden"); }, 700); 
+            section.innerHTML += `<button onclick="renderCourses()" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← Back to Home</button>`;
+            toggleSection('chat-history-section');
         }
         
         // Notifications
-        function loadNotifications() {
-            if(!mainData || !mainData.notifications) return;
-            const dot = document.getElementById("notif-dot");
-            if(mainData.notifications.length > 0) { dot.innerText = mainData.notifications.length; dot.classList.remove("hidden"); }
-            else dot.classList.add("hidden");
-        }
-        
         function toggleInbox() {
-            const modal = document.getElementById("inbox-modal");
-            modal.classList.toggle("hidden");
-            if(!modal.classList.contains("hidden")) renderNotifications();
+            const modal = document.getElementById('inbox-modal');
+            const dot = document.getElementById('notif-dot');
+            modal.classList.toggle('hidden');
+            if(!modal.classList.contains('hidden')) {
+                renderNotifications();
+                dot.classList.add('hidden');
+                notifViewed = true; 
+                document.body.style.overflow = 'hidden'; 
+            } else {
+                document.body.style.overflow = 'auto';
+            }
         }
         
         function renderNotifications() {
-            const container = document.getElementById("inbox-list");
-            if(!mainData || !mainData.notifications) { container.innerHTML = "<div class='text-center py-20 text-slate-500'>No announcements</div>"; return; }
-            container.innerHTML = "";
-            mainData.notifications.slice().reverse().forEach((n, idx) => {
+            const list = document.getElementById('inbox-list');
+            const msgs = mainData.notifications || [];
+            list.innerHTML = msgs.length ? '' : '<p class="text-center text-slate-500 text-xs py-20">No new updates</p>';
+            msgs.slice().reverse().forEach((n, idx) => {
                 let nid = `notif_${idx}`;
                 if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0 };
                 let reacts = notifReactions[nid];
-                container.innerHTML += `
+                list.innerHTML += `
                     <div class="glass-card p-5 border-l-4 border-blue-500">
-                        <div class="flex justify-between items-center mb-2"><span class="text-blue-400 text-[10px] font-black uppercase bg-blue-500/10 px-2 py-0.5 rounded">${n.tag || 'UPDATE'}</span><span class="text-slate-500 text-[9px]">${n.date || 'Just now'}</span></div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-blue-400 text-[10px] font-black uppercase bg-blue-500/10 px-2 py-0.5 rounded">${n.tag || 'UPDATE'}</span>
+                            <span class="text-slate-500 text-[9px]">${n.date || ''}</span>
+                        </div>
                         <p class="text-sm text-slate-200 leading-relaxed mb-3">${n.message}</p>
                         <div class="flex gap-5 mt-2 pt-2 border-t border-white/10">
                             <div class="reaction-btn flex items-center gap-1 text-xs text-slate-400 hover:text-blue-400" onclick="addReaction('${nid}', 'like')"><i class="far fa-thumbs-up"></i> <span id="${nid}_like">${reacts.like}</span></div>
@@ -664,50 +696,18 @@
             if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0 };
             notifReactions[nid][type] += 1;
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
-            localStorage.setItem("vivid_reactions_v7", JSON.stringify(notifReactions));
-        }
-        
-        // Utility
-        function setViewTitle(title, showSearch) { 
-            document.getElementById("view-title").innerText = title; 
-            let searchContainer = document.querySelector("#courseSearch")?.parentElement?.parentElement;
-            if(searchContainer) searchContainer.style.display = showSearch ? "flex" : "none";
-        }
-        
-        function showOnly(id) { 
-            const sections = ['course-list', 'subject-section', 'category-section', 'content-section', 'chat-history-section'];
-            sections.forEach(s => {
-                const el = document.getElementById(s);
-                if(el) el.classList.add("hidden");
-            });
-            const target = document.getElementById(id);
-            if(target) target.classList.remove("hidden");
-            window.scrollTo({ top: 0 });
+            localStorage.setItem("vivid_reactions_v8", JSON.stringify(notifReactions));
         }
         
         function navAction(type) { 
             if(type !== 'HOME') toggleMenu(); 
-            if(type === 'HOME') renderCourseGrid(); 
+            if(type === 'HOME') renderCourses(); 
             if(type === 'CHAT_HISTORY') showChatHistory(); 
         }
         
         function toggleMenu() { document.getElementById("side-menu").classList.toggle("active"); }
         
-        function filterCourses() { 
-            let val = document.getElementById("courseSearch")?.value.toUpperCase() || "";
-            let items = document.getElementById("course-list")?.children;
-            if(!items) return;
-            let cnt = 0;
-            for(let i=0; i<items.length; i++) {
-                let match = items[i].innerText.toUpperCase().includes(val);
-                items[i].style.display = match ? "" : "none";
-                if(match) cnt++;
-            }
-            document.getElementById("item-count").innerText = cnt + " Courses";
-        }
-        document.getElementById("courseSearch")?.addEventListener("keyup", filterCourses);
-        
-        let storedReactions = localStorage.getItem("vivid_reactions_v7");
+        let storedReactions = localStorage.getItem("vivid_reactions_v8");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
