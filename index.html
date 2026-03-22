@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Vivid Academy | Secure Portal v5.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Vivid Academy | Secure Learning Portal</title>
     
     <meta name="theme-color" content="#020617">
-    <meta name="description" content="Premium SSC Educational Portal with Secure Login & Persistent Chat">
+    <meta name="description" content="Premium SSC Educational Portal by Vivid">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,167 +17,230 @@
             --bg-dark: #020617;
             --glass-border: rgba(255, 255, 255, 0.08);
             --glass-bg: rgba(15, 23, 42, 0.75);
-            --accent-blue: #3b82f6;
-            --accent-pink: #ec4899;
-            --whatsapp-green: #25D366;
         }
 
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #020617; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
             font-family: 'Poppins', sans-serif; 
-            background: radial-gradient(circle at top right, #1e1b4b, #020617); 
+            background: radial-gradient(circle at top right, #0f0c29, #020617, #0a0a2a); 
             background-attachment: fixed;
             color: #f1f5f9; 
             min-height: 100vh; 
             overflow-x: hidden;
         }
 
-        /* Glassmorphism */
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 28px; transition: all 0.3s ease; }
-        .glass-card:hover { border-color: rgba(59, 130, 246, 0.4); transform: translateY(-2px); }
+        #progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: rgba(255,255,255,0.05); z-index: 10000; }
+        #progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); transition: width 0.3s; }
 
-        /* Buttons */
-        .btn-action { transition: all 0.2s ease; }
-        .btn-action:active { transform: scale(0.96); }
-        .btn-video { background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
-        .btn-wa { background: linear-gradient(135deg, #25D366, #128C7E); box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }
+        .glass-card { 
+            background: rgba(15, 23, 42, 0.7); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 28px; 
+            transition: all 0.2s ease;
+        }
 
-        /* Chat */
+        .btn-video { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+        .btn-eng { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        .btn-hindi { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .btn-quiz { background: linear-gradient(135deg, #ec4899, #db2777); }
+        .btn-ppt { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+
+        .modal-overlay { background: rgba(2, 6, 23, 0.96); backdrop-filter: blur(12px); z-index: 9999; }
+        
         .chat-msg { max-width: 85%; border-radius: 20px; font-size: 13px; line-height: 1.45; margin-bottom: 12px; }
-        .msg-vivid { background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.25); border-bottom-left-radius: 4px; color: #93c5fd; }
+        .msg-vivid { background: rgba(59, 130, 246, 0.18); border: 1px solid rgba(59, 130, 246, 0.25); border-bottom-left-radius: 4px; color: #b0d4ff; }
         .msg-user { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255,255,255,0.1); border-bottom-right-radius: 4px; margin-left: auto; color: #fff; }
-
-        /* Modal Animations */
-        .modal-overlay { background: rgba(2, 6, 23, 0.92); backdrop-filter: blur(12px); z-index: 10000; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeInUp 0.4s ease forwards; }
 
         .hidden { display: none !important; }
         
-        /* WhatsApp Channel Priority Styling */
-        .wa-pulse {
-            animation: wa-glow 1.8s infinite;
-        }
-        @keyframes wa-glow {
-            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
-            70% { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeInUp 0.4s ease forwards; }
         
-        /* Side Menu */
-        #side-menu { transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1); z-index: 10001; }
+        #side-menu { transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1); z-index: 10001; position: fixed; top: 0; right: 0; bottom: 0; width: 280px; background: rgba(2, 6, 23, 0.98); backdrop-filter: blur(24px); border-left: 1px solid rgba(255,255,255,0.1); padding: 24px; }
         #side-menu.active { transform: translateX(0); }
         
-        /* Subject Cards Click Effect */
-        .subject-card { cursor: pointer; transition: all 0.2s; }
-        .subject-card:active { transform: scale(0.98); }
+        /* Instagram-like input style */
+        .auth-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 14px 18px;
+            width: 100%;
+            color: white;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .auth-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .auth-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            border-radius: 16px;
+            padding: 14px;
+            font-weight: 700;
+            font-size: 14px;
+            color: white;
+            width: 100%;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .auth-btn:active { transform: scale(0.97); }
         
-        input, textarea { font-family: 'Poppins', sans-serif; }
+        .switch-auth {
+            color: #3b82f6;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 16px;
+        }
+        
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(59, 130, 246, 0.2);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .whatsapp-pulse {
+            animation: pulse-green 1.5s infinite;
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
     </style>
 </head>
-<body class="p-4 pb-32">
+<body>
 
-    <!-- Progress Bar -->
-    <div id="progress-container" class="fixed top-0 left-0 w-full h-1 bg-white/5 z-[10000]"><div id="progress-bar" class="h-full w-0 bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-300"></div></div>
+    <div id="progress-container"><div id="progress-bar"></div></div>
 
-    <!-- SIDE MENU (with User Info) -->
-    <div id="side-menu" class="fixed inset-y-0 right-0 w-80 bg-slate-950/95 border-l border-white/10 p-6 flex flex-col shadow-2xl backdrop-blur-2xl">
+    <!-- SIDE MENU -->
+    <div id="side-menu">
         <div class="flex justify-between items-center mb-8">
             <div>
-                <h3 class="font-black text-blue-500 text-sm tracking-wider">VIVID <span class="text-white">PROFILE</span></h3>
-                <p id="menuUserName" class="text-[10px] text-slate-400 mt-1">Welcome, Aspirant</p>
+                <h3 class="font-black text-blue-500 text-sm tracking-wider">VIVID ACCOUNT</h3>
+                <p id="menuUserName" class="text-[10px] text-slate-400 mt-1">Aspirant</p>
             </div>
-            <button onclick="toggleMenu()" class="w-10 h-10 rounded-full bg-white/5 text-slate-400 text-xl hover:bg-white/10">&times;</button>
+            <button onclick="toggleMenu()" class="w-10 h-10 rounded-full bg-white/5 text-slate-400 text-xl">&times;</button>
         </div>
-        
-        <div class="glass-card p-5 mb-8 text-center">
+        <div class="glass-card p-5 mb-6 text-center">
             <div class="w-16 h-16 mx-auto bg-blue-500/20 rounded-full flex items-center justify-center mb-3">
-                <i class="fas fa-user-graduate text-2xl text-blue-400"></i>
+                <i class="fas fa-user-astronaut text-2xl text-blue-400"></i>
             </div>
-            <h4 id="sideUserName" class="font-bold text-white text-sm">Student</h4>
-            <p id="sideUserEmail" class="text-[9px] text-slate-500 mt-1">vivid@learner.com</p>
-            <button onclick="logoutUser()" class="mt-4 text-[10px] bg-red-500/20 text-red-400 px-4 py-2 rounded-full w-full font-bold uppercase tracking-wider hover:bg-red-500/30 transition">Logout</button>
+            <h4 id="sideUserName" class="font-bold text-white">Student</h4>
+            <p id="sideUserEmail" class="text-[9px] text-slate-500 mt-1 break-all">user@vivid.com</p>
+            <button onclick="logoutUser()" class="mt-4 text-[10px] bg-red-500/20 text-red-400 px-4 py-2 rounded-full w-full font-bold">Logout</button>
         </div>
-        
-        <nav class="space-y-3 flex-1">
-            <button onclick="navAction('HOME')" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition w-full text-left"><i class="fas fa-home w-5 text-blue-500"></i><span class="text-sm font-medium">Dashboard</span></button>
-            <button onclick="navAction('CHAT_HISTORY')" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition w-full text-left"><i class="fas fa-comment-dots w-5 text-green-500"></i><span class="text-sm font-medium">My Chats</span></button>
-            <button onclick="navAction('RESOLVED')" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition w-full text-left"><i class="fas fa-check-circle w-5 text-purple-500"></i><span class="text-sm font-medium">Resolved Queries</span></button>
-            <button onclick="navAction('WHATSAPP')" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition w-full text-left"><i class="fab fa-whatsapp w-5 text-green-400"></i><span class="text-sm font-medium">WhatsApp Channel</span></button>
+        <nav class="space-y-3">
+            <button onclick="navAction('HOME')" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-home w-5 text-blue-500"></i><span>Dashboard</span></button>
+            <button onclick="navAction('CHAT_HISTORY')" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-comment-dots w-5 text-green-500"></i><span>My Chat History</span></button>
+            <button onclick="navAction('RESOLVED')" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-check-circle w-5 text-purple-500"></i><span>Resolved Queries</span></button>
         </nav>
-        
-        <div class="pt-6 border-t border-white/5 mt-4">
-            <p class="text-[8px] text-slate-600 uppercase font-black tracking-wider mb-3">Official Support</p>
-            <a href="https://whatsapp.com/channel/0029VaVividAcademy" target="_blank" class="flex items-center gap-3 bg-[#25D366]/10 p-3 rounded-xl hover:bg-[#25D366]/20 transition">
+        <div class="pt-6 mt-auto border-t border-white/10">
+            <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="flex items-center gap-3 bg-[#25D366]/10 p-3 rounded-xl whatsapp-pulse">
                 <i class="fab fa-whatsapp text-green-400 text-xl"></i>
-                <span class="text-[10px] font-bold uppercase tracking-wide">Join WhatsApp Channel</span>
-                <i class="fas fa-arrow-right text-[10px] ml-auto"></i>
+                <span class="text-[10px] font-bold uppercase">Join WhatsApp Channel</span>
             </a>
         </div>
     </div>
 
-    <!-- LOGIN MODAL (Persistent) -->
-    <div id="login-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-6 z-[20000]">
-        <div class="glass-card p-8 w-full max-w-md animate-fade border-t-4 border-blue-500">
+    <!-- NOTICE MODAL -->
+    <div id="notice-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-5 z-[10002]">
+        <div class="glass-card p-6 text-center max-w-sm w-full border-t-4 border-blue-500">
+            <i class="fas fa-shield-halved text-blue-500 text-4xl mb-3"></i>
+            <h2 class="text-xl font-bold mb-2">⚠️ Important Notice</h2>
+            <p class="text-sm text-slate-300 mb-4">All resources are 100% FREE. No paid agents. If anyone asks for money, it's a SCAM.</p>
+            <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="btn-video block py-3 rounded-xl text-xs font-bold uppercase mb-2">✅ VERIFIED WHATSAPP CHANNEL</a>
+            <button onclick="closeNotice()" class="bg-slate-800/60 py-3 rounded-xl text-xs font-bold w-full">I Understand</button>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL (Instagram Style Signup/Login) -->
+    <div id="auth-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-5 z-[20000]">
+        <div class="glass-card p-6 w-full max-w-md animate-fade">
             <div class="text-center mb-6">
-                <i class="fas fa-crown text-4xl text-blue-500 mb-2"></i>
-                <h2 class="text-2xl font-black text-white">VIVID ACCESS</h2>
-                <p class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Secure Login • Data Stays Locally</p>
+                <h1 class="text-3xl font-black tracking-tighter bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">VIVID</h1>
+                <p class="text-[10px] text-slate-500 mt-1">Elite Learning Hub</p>
             </div>
-            <div class="space-y-4">
-                <input type="text" id="loginName" placeholder="Full Name" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm outline-none focus:border-blue-500 transition">
-                <input type="email" id="loginEmail" placeholder="Email Address" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm outline-none focus:border-blue-500 transition">
-                <input type="password" id="loginPassword" placeholder="Password (min 4 chars)" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm outline-none focus:border-blue-500 transition">
-                <div class="flex justify-between text-[10px] text-slate-400">
-                    <label class="flex items-center gap-2"><input type="checkbox" id="rememberMe"> <span>Remember me</span></label>
-                    <button onclick="forgotPassword()" class="text-blue-400 hover:underline">Forgot Password?</button>
+            
+            <!-- Login Form (default visible) -->
+            <div id="login-form">
+                <input type="text" id="loginUsername" placeholder="Username or Email" class="auth-input mb-3">
+                <input type="password" id="loginPassword" placeholder="Password" class="auth-input mb-4">
+                <button onclick="handleLogin()" class="auth-btn mb-3">Log In</button>
+                <div class="flex justify-between text-[11px] text-slate-400 px-1">
+                    <span onclick="showForgotPassword()" class="cursor-pointer hover:text-blue-400">Forgot password?</span>
+                    <span onclick="switchToSignup()" class="cursor-pointer hover:text-blue-400">Don't have an account? <b class="text-blue-500">Sign up</b></span>
                 </div>
-                <button onclick="handleLogin()" class="btn-video w-full py-4 rounded-2xl font-bold text-sm uppercase tracking-wide">Login / Sign Up</button>
-                <p class="text-[9px] text-slate-500 text-center mt-4">By continuing, your chats & data sync with your account (local storage). No server cost, full privacy.</p>
+            </div>
+            
+            <!-- Signup Form (hidden initially) -->
+            <div id="signup-form" class="hidden">
+                <input type="text" id="signupFullname" placeholder="Full Name" class="auth-input mb-3">
+                <input type="text" id="signupUsername" placeholder="Username" class="auth-input mb-3">
+                <input type="email" id="signupEmail" placeholder="Email" class="auth-input mb-3">
+                <input type="password" id="signupPassword" placeholder="Password" class="auth-input mb-4">
+                <button onclick="handleSignup()" class="auth-btn mb-3">Sign Up</button>
+                <div class="text-center text-[11px] text-slate-400">
+                    <span onclick="switchToLogin()" class="cursor-pointer hover:text-blue-400">Already have an account? <b class="text-blue-500">Log in</b></span>
+                </div>
+            </div>
+            
+            <!-- Forgot Password Form -->
+            <div id="forgot-form" class="hidden">
+                <p class="text-xs text-slate-400 mb-4 text-center">Enter your email to reset password</p>
+                <input type="email" id="forgotEmail" placeholder="Registered Email" class="auth-input mb-4">
+                <button onclick="resetPassword()" class="auth-btn mb-2">Reset Password</button>
+                <div class="text-center text-[11px]"><span onclick="switchToLogin()" class="cursor-pointer text-blue-400">← Back to Login</span></div>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APP CONTAINER (initially hidden until login) -->
-    <div id="app-container" class="max-w-md mx-auto hidden">
+    <!-- REDIRECT OVERLAY -->
+    <div id="redirect-overlay" class="fixed inset-0 modal-overlay hidden flex-col items-center justify-center">
+        <div class="loader mb-4"></div>
+        <p class="text-sm text-blue-400">Opening secure content...</p>
+    </div>
+
+    <!-- MAIN APP (hidden until login) -->
+    <div id="app-container" class="max-w-md mx-auto p-4 pb-32 hidden">
         <!-- Header -->
-        <header class="text-center py-8 relative">
-            <button onclick="toggleMenu()" class="absolute right-0 top-8 w-12 h-12 glass-card flex items-center justify-center text-blue-500">
-                <i class="fas fa-bars-staggered"></i>
+        <header class="text-center py-6 relative">
+            <button onclick="toggleMenu()" class="absolute right-0 top-6 w-12 h-12 glass-card flex items-center justify-center text-blue-500">
+                <i class="fas fa-user-astronaut"></i>
             </button>
-            <h1 class="text-4xl font-black tracking-tighter text-white">VIVID <span class="text-blue-500">ELITE</span></h1>
-            <div class="flex justify-center gap-2 mt-3">
-                <span class="text-[8px] bg-white/10 px-3 py-1 rounded-full uppercase font-bold">SSC • BANK • RAILWAY</span>
-            </div>
+            <h1 class="text-3xl font-black tracking-tighter">VIVID <span class="text-blue-500">ACADEMY</span></h1>
+            <p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">SSC | BANK | RAILWAY</p>
         </header>
 
         <!-- WhatsApp Channel Priority Banner -->
-        <a href="https://whatsapp.com/channel/0029VaVividAcademy" target="_blank" class="glass-card p-4 mb-6 flex items-center gap-4 border-l-[6px] border-[#25D366] wa-pulse bg-gradient-to-r from-[#25D366]/10 to-transparent">
-            <div class="w-12 h-12 rounded-full bg-[#25D366]/20 flex items-center justify-center">
-                <i class="fab fa-whatsapp text-2xl text-[#25D366]"></i>
-            </div>
-            <div class="flex-1">
-                <p class="font-black text-xs uppercase tracking-wider">📢 JOIN OFFICIAL WHATSAPP CHANNEL</p>
-                <p class="text-[9px] text-slate-400">Daily updates, live quizzes & free notes</p>
-            </div>
-            <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
+        <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="glass-card p-3 flex items-center gap-3 mb-6 border-l-[4px] border-[#25D366] whatsapp-pulse">
+            <div class="w-10 h-10 rounded-full bg-[#25D366]/20 flex items-center justify-center"><i class="fab fa-whatsapp text-[#25D366] text-xl"></i></div>
+            <div class="flex-1"><p class="font-bold text-xs">📢 JOIN OFFICIAL WHATSAPP CHANNEL</p><p class="text-[8px] text-slate-400">Daily updates, quizzes & free notes</p></div>
+            <i class="fas fa-arrow-right text-slate-500 text-xs"></i>
         </a>
 
         <!-- Search -->
         <div class="mb-6">
             <div class="glass-card flex items-center px-5 py-4">
                 <i class="fas fa-search text-blue-500 mr-3"></i>
-                <input type="text" id="courseSearch" placeholder="Search subjects or courses..." class="bg-transparent w-full outline-none text-white text-sm placeholder-slate-600">
+                <input type="text" id="courseSearch" placeholder="Search courses or subjects..." class="bg-transparent w-full outline-none text-white text-sm">
             </div>
         </div>
 
-        <!-- View Title -->
-        <div class="flex justify-between items-center mb-4 px-1">
-            <h2 id="view-title" class="text-[11px] font-black uppercase tracking-wider text-blue-400">COURSES</h2>
-            <span id="item-count" class="text-[9px] bg-blue-500/20 px-2 py-1 rounded-full font-bold">0</span>
+        <!-- Title & Count -->
+        <div class="flex justify-between items-center mb-4">
+            <h2 id="view-title" class="text-[10px] font-black uppercase tracking-wider text-blue-400">COURSES</h2>
+            <span id="item-count" class="text-[9px] bg-blue-500/20 px-2 py-0.5 rounded-full">0</span>
         </div>
 
         <!-- Dynamic Sections -->
@@ -188,94 +251,110 @@
         <div id="resolved-section" class="hidden grid gap-4"></div>
         <div id="chat-history-section" class="hidden grid gap-4"></div>
         
-        <!-- Persistent Chat Window (always visible after login, keeps user chat) -->
-        <div id="chat-window" class="glass-card mt-8 mb-6 flex flex-col overflow-hidden border border-blue-500/30 shadow-xl">
+        <!-- Persistent Chat Window (saves user chats locally) -->
+        <div class="glass-card mt-6 mb-20 overflow-hidden">
             <div class="p-4 bg-blue-600/10 border-b border-white/10 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span class="text-[11px] font-black uppercase tracking-wider text-white">💬 Vivid Support Desk</span>
-                </div>
-                <span class="text-[8px] text-slate-500">Your chats are saved</span>
+                <div class="flex items-center gap-2"><div class="w-2 h-2 bg-green-500 rounded-full"></div><span class="text-[11px] font-bold">💬 Vivid Support Desk</span></div>
+                <span class="text-[8px] text-slate-500">Your chats saved</span>
             </div>
-            <div id="chat-box" class="h-72 overflow-y-auto p-4 flex flex-col scroll-smooth bg-black/20"></div>
-            <div class="p-4 bg-slate-900/60 flex gap-2 border-t border-white/5">
-                <input type="text" id="chatInput" placeholder="Ask your doubt or issue..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white outline-none flex-1 focus:border-blue-500">
-                <button onclick="sendUserQuery()" class="btn-video w-12 rounded-2xl flex items-center justify-center text-white"><i class="fas fa-paper-plane"></i></button>
+            <div id="chat-box" class="h-80 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
+            <div class="p-4 bg-slate-900/60 flex gap-2">
+                <input type="text" id="chatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white flex-1 outline-none focus:border-blue-500">
+                <button onclick="sendUserQuery()" class="btn-video w-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
         
         <!-- Bottom Nav -->
-        <footer class="fixed bottom-0 left-0 w-full p-4 bg-slate-950/90 backdrop-blur-2xl border-t border-white/5 z-[9999]">
+        <footer class="fixed bottom-0 left-0 w-full p-3 bg-slate-950/95 backdrop-blur-2xl border-t border-white/10 z-[9998]">
             <div class="flex justify-around items-center max-w-md mx-auto">
-                <button onclick="navAction('HOME')" class="flex flex-col items-center text-slate-400 hover:text-blue-400 transition">
-                    <i class="fas fa-home text-xl"></i>
-                    <span class="text-[8px] mt-1">Home</span>
-                </button>
-                <a href="https://whatsapp.com/channel/0029VaVividAcademy" target="_blank" class="flex flex-col items-center text-slate-400 hover:text-green-400 transition relative">
-                    <i class="fab fa-whatsapp text-2xl wa-pulse"></i>
-                    <span class="text-[8px] mt-1">Channel</span>
-                    <span class="absolute -top-1 -right-2 w-2 h-2 bg-green-500 rounded-full"></span>
-                </a>
-                <button onclick="navAction('CHAT_HISTORY')" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition">
-                    <i class="fas fa-comments text-xl"></i>
-                    <span class="text-[8px] mt-1">Chats</span>
-                </button>
-                <button onclick="toggleMenu()" class="flex flex-col items-center text-slate-400 hover:text-white transition">
-                    <i class="fas fa-user-circle text-xl"></i>
-                    <span class="text-[8px] mt-1">Profile</span>
-                </button>
+                <button onclick="navAction('HOME')" class="flex flex-col items-center text-slate-400"><i class="fas fa-home text-xl"></i><span class="text-[8px]">Home</span></button>
+                <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="flex flex-col items-center text-green-400 relative"><i class="fab fa-whatsapp text-2xl"></i><span class="text-[8px]">Channel</span></a>
+                <button onclick="navAction('CHAT_HISTORY')" class="flex flex-col items-center text-slate-400"><i class="fas fa-comments text-xl"></i><span class="text-[8px]">Chats</span></button>
+                <button onclick="toggleMenu()" class="flex flex-col items-center text-slate-400"><i class="fas fa-user text-xl"></i><span class="text-[8px]">Profile</span></button>
             </div>
         </footer>
     </div>
 
-    <!-- Redirect Overlay -->
-    <div id="redirect-overlay" class="fixed inset-0 modal-overlay hidden flex-col items-center justify-center text-center z-[15000]">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-        <p class="text-xs font-bold uppercase tracking-wider text-white">Redirecting to secure content...</p>
-    </div>
-
     <script>
-        // ---------- DATA (Full 1000+ lines structure, enhanced subjects) ----------
-        const MASTER_DATA = {
+        // ======================= ORIGINAL DATA STRUCTURE (from your purana code) =======================
+        const MASTER_COURSES = {
             courses: [
-                { name: "🏆 SSC CGL 2025 (Tier 1 + 2)", teacher: "Vivid Team", subjects: [
-                    { name: "Quantitative Aptitude", chapters: [
-                        { title: "Percentage & Ratio", url: "https://youtu.be/demo1", notes_en: "#", notes_hi: "#", quiz: "#", handwritten: "#" },
-                        { title: "Simplification & Approximation", url: "https://youtu.be/demo2", notes_en: "#", notes_hi: "#", quiz: "#" }
-                    ], weeklyTests: [{ title: "Week 1: Arithmetic Mock", quiz: "#" }] },
-                    { name: "English Language", chapters: [
-                        { title: "Grammar Rules - 1", url: "#", notes_en: "#", notes_hi: "#", quiz: "#" }
-                    ], weeklyTests: [] }
-                ] },
-                { name: "📚 Bank PO / Clerk 2025", teacher: "Elite Faculty", subjects: [
-                    { name: "Reasoning Ability", chapters: [{ title: "Inequality & Syllogism", url: "#", notes_en: "#" }], weeklyTests: [] }
-                ] }
+                { 
+                    name: "🎯 SSC CGL 2025 (Tier 1 + 2)", 
+                    teacher: "Vivid Expert", 
+                    subjects: [
+                        { 
+                            name: "Quantitative Aptitude", 
+                            CHAPTERS: [
+                                { title: "Percentage & Ratio", url: "https://youtu.be/demo1", notes_en: "#", notes_hi: "#", quiz: "#" },
+                                { title: "Simplification & Approximation", url: "https://youtu.be/demo2", notes_en: "#", notes_hi: "#" }
+                            ],
+                            "WEEKLY TESTS": [{ title: "Week 1: Arithmetic Mock", quiz: "#" }]
+                        },
+                        { 
+                            name: "English Language", 
+                            CHAPTERS: [{ title: "Grammar Masterclass", url: "https://youtu.be/english1", notes_en: "#", notes_hi: "#" }],
+                            "WEEKLY TESTS": []
+                        },
+                        { 
+                            name: "General Awareness", 
+                            CHAPTERS: [{ title: "Current Affairs 2025", url: "#", notes_en: "#" }],
+                            "WEEKLY TESTS": []
+                        }
+                    ] 
+                },
+                { 
+                    name: "📚 Bank PO / Clerk 2025", 
+                    teacher: "Banking Guru", 
+                    subjects: [
+                        { 
+                            name: "Reasoning Ability", 
+                            CHAPTERS: [{ title: "Syllogism & Inequality", url: "#", notes_en: "#" }],
+                            "WEEKLY TESTS": [{ title: "Reasoning Mock - 1", quiz: "#" }]
+                        },
+                        { 
+                            name: "Quantitative Aptitude", 
+                            CHAPTERS: [{ title: "Data Interpretation", url: "#", notes_en: "#" }],
+                            "WEEKLY TESTS": []
+                        }
+                    ] 
+                },
+                { 
+                    name: "🚀 RRB NTPC / Group D", 
+                    teacher: "Railway Special", 
+                    subjects: [
+                        { 
+                            name: "General Science", 
+                            CHAPTERS: [{ title: "Physics Basics", url: "#", notes_en: "#" }],
+                            "WEEKLY TESTS": []
+                        }
+                    ] 
+                }
             ],
-            notifications: [{ tag: "UPDATE", message: "WhatsApp Channel Launched! Join now for daily MCQs.", date: "Today" }],
+            notifications: [
+                { tag: "📢 UPDATE", message: "WhatsApp Channel is now active! Join for free quizzes & notes.", date: "Today" },
+                { tag: "🎁 FREE", message: "All courses are 100% FREE. Beware of frauds!", date: "Yesterday" }
+            ],
             resolved_queries: [
-                { name: "Rahul", query: "Syllabus for CGL?", solution: "Visit our WhatsApp channel for full PDF syllabus link." }
+                { name: "Rahul S.", query: "Is there any paid batch?", solution: "No, all content is absolutely free. Only join our official WhatsApp channel." },
+                { name: "Priya M.", query: "How to download notes?", solution: "Click on 'Eng Notes' or 'Hin Notes' button below each chapter." }
             ]
         };
 
-        // User storage
+        // User Management (localStorage)
         let currentUser = null;
-        let userChats = {};  // { userEmail: [{text, sender, timestamp}] }
+        let userChats = {};  // { email: [{text, sender, timestamp}] }
 
-        // Load from localStorage
         function loadStorage() {
-            const storedUsers = localStorage.getItem("vivid_users");
-            if(storedUsers) {
-                let users = JSON.parse(storedUsers);
-                window.allUsers = users;
-            } else {
-                window.allUsers = {};
-            }
-            const storedChats = localStorage.getItem("vivid_chats");
-            if(storedChats) userChats = JSON.parse(storedChats);
+            let users = localStorage.getItem("vivid_users");
+            if(users) window.allUsers = JSON.parse(users);
+            else window.allUsers = {};
+            
+            let chats = localStorage.getItem("vivid_chats");
+            if(chats) userChats = JSON.parse(chats);
             else userChats = {};
             
-            // Check remember token
-            const token = localStorage.getItem("vivid_token");
+            let token = localStorage.getItem("vivid_token");
             if(token && window.allUsers[token]) {
                 currentUser = window.allUsers[token];
                 showApp();
@@ -285,82 +364,105 @@
         function saveUsers() { localStorage.setItem("vivid_users", JSON.stringify(window.allUsers)); }
         function saveChats() { localStorage.setItem("vivid_chats", JSON.stringify(userChats)); }
         
-        function handleLogin() {
-            let name = document.getElementById("loginName").value.trim();
-            let email = document.getElementById("loginEmail").value.trim().toLowerCase();
-            let pwd = document.getElementById("loginPassword").value.trim();
-            let remember = document.getElementById("rememberMe").checked;
-            
-            if(!name || !email || !pwd) { alert("Fill all fields"); return; }
-            if(pwd.length < 4) { alert("Password min 4 characters"); return; }
-            
-            if(window.allUsers[email] && window.allUsers[email].password !== pwd) {
-                alert("Wrong password! Use 'forgot password' to reset.");
-                return;
-            }
-            
-            // Create/update
-            window.allUsers[email] = { name, email, password: pwd };
-            currentUser = window.allUsers[email];
+        function handleSignup() {
+            let fullname = document.getElementById("signupFullname").value.trim();
+            let username = document.getElementById("signupUsername").value.trim();
+            let email = document.getElementById("signupEmail").value.trim().toLowerCase();
+            let pwd = document.getElementById("signupPassword").value.trim();
+            if(!fullname || !username || !email || !pwd) { alert("Please fill all fields"); return; }
+            if(pwd.length < 4) { alert("Password must be at least 4 characters"); return; }
+            if(window.allUsers[email]) { alert("Email already registered. Please login."); return; }
+            window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd };
             saveUsers();
-            
-            if(remember) localStorage.setItem("vivid_token", email);
-            else localStorage.removeItem("vivid_token");
-            
-            // Initialize chat history for this user
+            currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            
+            localStorage.setItem("vivid_token", email);
             showApp();
         }
         
-        function forgotPassword() {
-            let email = prompt("Enter your registered email to reset password:");
-            if(email && window.allUsers[email]) {
+        function handleLogin() {
+            let identifier = document.getElementById("loginUsername").value.trim();
+            let pwd = document.getElementById("loginPassword").value.trim();
+            let user = null;
+            for(let key in window.allUsers) {
+                if(window.allUsers[key].email === identifier || window.allUsers[key].username === identifier) {
+                    if(window.allUsers[key].password === pwd) user = window.allUsers[key];
+                    break;
+                }
+            }
+            if(!user) { alert("Invalid credentials. Try again or sign up."); return; }
+            currentUser = user;
+            if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
+            saveChats();
+            localStorage.setItem("vivid_token", currentUser.email);
+            showApp();
+        }
+        
+        function resetPassword() {
+            let email = document.getElementById("forgotEmail").value.trim().toLowerCase();
+            if(window.allUsers[email]) {
                 let newPwd = prompt("Enter new password (min 4 chars):");
                 if(newPwd && newPwd.length >=4) {
                     window.allUsers[email].password = newPwd;
                     saveUsers();
-                    alert("Password updated! Login again.");
+                    alert("Password reset successful! Login with new password.");
+                    switchToLogin();
                 }
-            } else alert("Email not found.");
+            } else alert("Email not registered.");
+        }
+        
+        function showForgotPassword() {
+            document.getElementById("login-form").classList.add("hidden");
+            document.getElementById("signup-form").classList.add("hidden");
+            document.getElementById("forgot-form").classList.remove("hidden");
+        }
+        
+        function switchToSignup() {
+            document.getElementById("login-form").classList.add("hidden");
+            document.getElementById("forgot-form").classList.add("hidden");
+            document.getElementById("signup-form").classList.remove("hidden");
+        }
+        
+        function switchToLogin() {
+            document.getElementById("signup-form").classList.add("hidden");
+            document.getElementById("forgot-form").classList.add("hidden");
+            document.getElementById("login-form").classList.remove("hidden");
         }
         
         function logoutUser() {
             currentUser = null;
             localStorage.removeItem("vivid_token");
-            document.getElementById("login-modal").classList.remove("hidden");
             document.getElementById("app-container").classList.add("hidden");
+            document.getElementById("auth-modal").classList.remove("hidden");
         }
         
         function showApp() {
-            document.getElementById("login-modal").classList.add("hidden");
+            document.getElementById("auth-modal").classList.add("hidden");
             document.getElementById("app-container").classList.remove("hidden");
-            document.getElementById("menuUserName").innerText = `Hello, ${currentUser.name}`;
+            document.getElementById("menuUserName").innerText = `@${currentUser.username || currentUser.name}`;
             document.getElementById("sideUserName").innerText = currentUser.name;
             document.getElementById("sideUserEmail").innerText = currentUser.email;
             renderCourseGrid();
-            renderChatHistoryUI();
-            // Load existing user chats into chatbox
             refreshChatBox();
         }
         
-        // Chat Functions
+        // Chat Functions (persistent)
         function refreshChatBox() {
             const box = document.getElementById("chat-box");
             box.innerHTML = "";
             const chats = userChats[currentUser.email] || [];
             if(chats.length === 0) {
                 let welcome = document.createElement("div");
-                welcome.className = "chat-msg msg-vivid p-4";
-                welcome.innerHTML = "👋 Ask any doubt! Your conversations are saved permanently.";
+                welcome.className = "chat-msg msg-vivid p-3";
+                welcome.innerHTML = "👋 Welcome to Vivid Support! Ask your doubts, we'll help you.";
                 box.appendChild(welcome);
             } else {
                 chats.forEach(chat => {
-                    let msgDiv = document.createElement("div");
-                    msgDiv.className = `chat-msg ${chat.sender === 'user' ? 'msg-user' : 'msg-vivid'} p-4`;
-                    msgDiv.innerHTML = `<div class="text-[9px] opacity-60 mb-1">${chat.timestamp || ""}</div>${chat.text}`;
-                    box.appendChild(msgDiv);
+                    let div = document.createElement("div");
+                    div.className = `chat-msg ${chat.sender === 'user' ? 'msg-user' : 'msg-vivid'} p-3`;
+                    div.innerHTML = `<div class="text-[8px] opacity-50 mb-1">${chat.timestamp || ""}</div>${chat.text}`;
+                    box.appendChild(div);
                 });
             }
             box.scrollTop = box.scrollHeight;
@@ -370,111 +472,102 @@
             let inp = document.getElementById("chatInput");
             let msg = inp.value.trim();
             if(!msg) return;
-            
-            // Save user message
-            let userMsg = { text: msg, sender: 'user', timestamp: new Date().toLocaleTimeString() };
+            let timestamp = new Date().toLocaleTimeString();
+            let userMsg = { text: msg, sender: 'user', timestamp };
             userChats[currentUser.email].push(userMsg);
             saveChats();
             refreshChatBox();
             inp.value = "";
-            
-            // Auto response + store
+            // Auto reply
             setTimeout(() => {
-                let botReply = { text: "✅ Query received! Our team will respond in 'Resolved Queries' within 24 hrs. Join WhatsApp for instant updates!", sender: 'vivid', timestamp: new Date().toLocaleTimeString() };
-                userChats[currentUser.email].push(botReply);
+                let reply = { text: "✅ Received! Our team will review and update in Resolved Queries soon. Join WhatsApp channel for instant updates!", sender: 'vivid', timestamp: new Date().toLocaleTimeString() };
+                userChats[currentUser.email].push(reply);
                 saveChats();
                 refreshChatBox();
-                // Also simulate resolved query addition (optional)
             }, 800);
         }
         
-        function renderChatHistoryUI() {
+        function showChatHistory() {
+            setViewTitle("📜 MY CHAT HISTORY", false);
             const section = document.getElementById("chat-history-section");
-            if(!section) return;
+            section.innerHTML = "";
             const chats = userChats[currentUser.email] || [];
-            if(chats.length === 0) {
-                section.innerHTML = `<div class="glass-card p-10 text-center opacity-60"><i class="fas fa-comment-slash text-3xl mb-2"></i><p class="text-xs uppercase">No chat history</p></div>`;
-                return;
+            if(chats.length === 0) section.innerHTML = "<div class='glass-card p-10 text-center opacity-60'><i class='fas fa-comment-slash'></i><p class='text-xs mt-2'>No chats yet</p></div>";
+            else {
+                chats.slice().reverse().forEach(chat => {
+                    section.innerHTML += `<div class="glass-card p-4 border-l-4 ${chat.sender === 'user' ? 'border-blue-500' : 'border-green-500'}">
+                        <div class="flex justify-between text-[9px] text-slate-400"><span class="font-bold">${chat.sender === 'user' ? currentUser.name : 'Vivid Support'}</span><span>${chat.timestamp}</span></div>
+                        <p class="text-sm mt-1">${chat.text}</p>
+                    </div>`;
+                });
             }
-            section.innerHTML = `<div class="glass-card p-5 mb-4"><h3 class="font-bold text-xs uppercase tracking-wider text-blue-400">📜 Your Chat History</h3></div>`;
-            chats.slice().reverse().forEach(chat => {
-                section.innerHTML += `
-                    <div class="glass-card p-4 ${chat.sender === 'user' ? 'border-l-4 border-blue-500' : 'border-l-4 border-green-500'}">
-                        <div class="flex justify-between text-[9px] text-slate-400 mb-1">
-                            <span class="font-bold uppercase">${chat.sender === 'user' ? currentUser.name : 'Vivid Support'}</span>
-                            <span>${chat.timestamp}</span>
-                        </div>
-                        <p class="text-sm text-white">${chat.text}</p>
-                    </div>
-                `;
-            });
+            section.innerHTML += `<button onclick="renderCourseGrid()" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← Back to Home</button>`;
+            showOnly("chat-history-section");
         }
         
-        // Course Navigation (Fixed subject click -> forward)
-        let activeCourseIdx = 0, activeSubjectIdx = 0;
+        // Course Navigation (Original Logic)
+        let activeCourseIdx = 0, activeSubIdx = 0;
         
         function renderCourseGrid() {
-            setViewTitle("📚 ALL COURSES", true);
+            setViewTitle("🎓 AVAILABLE COURSES", true);
             const container = document.getElementById("course-list");
             container.innerHTML = "";
-            MASTER_DATA.courses.forEach((c, idx) => {
+            MASTER_COURSES.courses.forEach((c, idx) => {
                 let card = document.createElement("div");
-                card.className = "glass-card p-5 flex items-center justify-between subject-card animate-fade";
+                card.className = "glass-card p-5 flex items-center justify-between cursor-pointer active:scale-95 transition";
                 card.onclick = () => loadSubjects(idx);
-                card.innerHTML = `<div class="flex gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center"><i class="fas fa-layer-group text-blue-500"></i></div><div><h4 class="font-bold text-white">${c.name}</h4><span class="text-[9px] text-slate-400">${c.subjects.length} subjects</span></div></div><i class="fas fa-chevron-right text-slate-500"></i>`;
+                card.innerHTML = `<div class="flex gap-4"><div class="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center"><i class="fas fa-graduation-cap text-blue-500"></i></div><div><h4 class="font-bold text-white">${c.name}</h4><span class="text-[9px] text-slate-400">${c.subjects.length} subjects</span></div></div><i class="fas fa-chevron-right text-slate-500"></i>`;
                 container.appendChild(card);
             });
-            document.getElementById("item-count").innerText = MASTER_DATA.courses.length + " Courses";
+            document.getElementById("item-count").innerText = MASTER_COURSES.courses.length + " Courses";
             showOnly("course-list");
         }
         
         function loadSubjects(courseIdx) {
             activeCourseIdx = courseIdx;
-            const course = MASTER_DATA.courses[courseIdx];
+            const course = MASTER_COURSES.courses[courseIdx];
             setViewTitle(course.name, false);
-            const subContainer = document.getElementById("subject-section");
-            subContainer.innerHTML = "";
+            const subDiv = document.getElementById("subject-section");
+            subDiv.innerHTML = "";
             course.subjects.forEach((sub, sidx) => {
-                let subCard = document.createElement("div");
-                subCard.className = "glass-card p-5 flex justify-between items-center subject-card";
-                subCard.onclick = () => loadCategoryOptions(sidx);
-                subCard.innerHTML = `<div class="flex gap-3"><i class="fas fa-book-open text-blue-400"></i><span class="font-bold text-sm">${sub.name}</span></div><i class="fas fa-arrow-right text-xs"></i>`;
-                subContainer.appendChild(subCard);
+                let card = document.createElement("div");
+                card.className = "glass-card p-5 flex justify-between items-center cursor-pointer";
+                card.onclick = () => loadCategories(sidx);
+                card.innerHTML = `<div class="flex gap-3"><i class="fas fa-book-open text-blue-400"></i><span class="font-bold text-sm">${sub.name}</span></div><i class="fas fa-arrow-right text-xs"></i>`;
+                subDiv.appendChild(card);
             });
-            subContainer.innerHTML += `<button onclick="renderCourseGrid()" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase tracking-wider text-slate-400">← Back to Courses</button>`;
+            subDiv.innerHTML += `<button onclick="renderCourseGrid()" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← All Courses</button>`;
             showOnly("subject-section");
         }
         
-        function loadCategoryOptions(subIdx) {
-            activeSubjectIdx = subIdx;
-            setViewTitle("Select Content Type", false);
-            const catContainer = document.getElementById("category-section");
-            catContainer.innerHTML = `
-                <div onclick="loadContentItems('chapters')" class="glass-card p-6 flex items-center gap-4 cursor-pointer"><i class="fas fa-video text-2xl text-blue-500"></i><div><p class="font-bold text-white">Video Lectures & Notes</p><span class="text-[9px] text-slate-400">Chapters / Modules</span></div></div>
-                <div onclick="loadContentItems('tests')" class="glass-card p-6 flex items-center gap-4 cursor-pointer"><i class="fas fa-clipboard-list text-2xl text-pink-500"></i><div><p class="font-bold text-white">Weekly Tests / Quizzes</p><span class="text-[9px] text-slate-400">Mock Exams</span></div></div>
+        function loadCategories(subIdx) {
+            activeSubIdx = subIdx;
+            setViewTitle("Choose Content", false);
+            const catDiv = document.getElementById("category-section");
+            catDiv.innerHTML = `
+                <div onclick="loadItems('CHAPTERS')" class="glass-card p-6 flex items-center gap-4 cursor-pointer"><i class="fas fa-video text-2xl text-blue-500"></i><div><p class="font-bold">Video Lectures & Notes</p><span class="text-[9px] text-slate-400">Chapters</span></div></div>
+                <div onclick="loadItems('WEEKLY TESTS')" class="glass-card p-6 flex items-center gap-4 cursor-pointer"><i class="fas fa-clipboard-list text-2xl text-pink-500"></i><div><p class="font-bold">Weekly Tests / Quizzes</p><span class="text-[9px] text-slate-400">Mock Exams</span></div></div>
                 <button onclick="loadSubjects(activeCourseIdx)" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← Back to Subjects</button>
             `;
             showOnly("category-section");
         }
         
-        function loadContentItems(type) {
-            const subject = MASTER_DATA.courses[activeCourseIdx].subjects[activeSubjectIdx];
-            const items = type === 'chapters' ? (subject.chapters || []) : (subject.weeklyTests || []);
-            setViewTitle(type === 'chapters' ? "📖 STUDY MATERIAL" : "📝 MOCK TESTS", false);
+        function loadItems(type) {
+            const subject = MASTER_COURSES.courses[activeCourseIdx].subjects[activeSubIdx];
+            const items = subject[type] || [];
+            setViewTitle(type === "CHAPTERS" ? "📖 STUDY MATERIAL" : "📝 MOCK TESTS", false);
             const contentDiv = document.getElementById("content-section");
             contentDiv.innerHTML = "";
-            if(items.length === 0) contentDiv.innerHTML = "<div class='glass-card p-12 text-center opacity-50'><i class='fas fa-folder-open text-3xl'></i><p class='text-xs mt-2'>Coming soon</p></div>";
+            if(items.length === 0) contentDiv.innerHTML = "<div class='glass-card p-12 text-center opacity-50'><i class='fas fa-folder-open text-3xl'></i><p class='text-xs mt-2'>No content yet</p></div>";
             items.forEach(item => {
-                let card = document.createElement("div");
-                card.className = "glass-card p-5 mb-3";
                 let btns = "";
-                if(item.url) btns += `<button onclick="safeRedirect('${item.url}')" class="btn-video text-[10px] px-4 py-3 rounded-xl font-bold uppercase flex-1 m-1">🎥 Watch</button>`;
-                if(item.notes_en) btns += `<button onclick="safeRedirect('${item.notes_en}')" class="btn-action bg-indigo-600/70 text-[10px] px-4 py-3 rounded-xl m-1">📄 Notes</button>`;
-                if(item.quiz) btns += `<button onclick="safeRedirect('${item.quiz}')" class="btn-action bg-pink-600/70 text-[10px] px-4 py-3 rounded-xl m-1">🧠 Quiz</button>`;
-                card.innerHTML = `<h5 class="font-bold text-white text-sm mb-3">${item.title}</h5><div class="flex flex-wrap gap-2">${btns || '<span class="text-[10px] text-slate-500">Resources soon</span>'}</div>`;
-                contentDiv.appendChild(card);
+                if(item.url) btns += `<button onclick="safeRedirect('${item.url}')" class="btn-video text-[10px] px-3 py-2 rounded-xl font-bold uppercase flex-1 m-1">🎥 Video</button>`;
+                if(item.notes_en) btns += `<button onclick="safeRedirect('${item.notes_en}')" class="btn-eng text-[10px] px-3 py-2 rounded-xl m-1">📄 Eng Notes</button>`;
+                if(item.notes_hi) btns += `<button onclick="safeRedirect('${item.notes_hi}')" class="btn-hindi text-[10px] px-3 py-2 rounded-xl m-1">📄 Hindi Notes</button>`;
+                if(item.quiz) btns += `<button onclick="safeRedirect('${item.quiz}')" class="btn-quiz text-[10px] px-3 py-2 rounded-xl m-1">🧠 Quiz</button>`;
+                contentDiv.innerHTML += `<div class="glass-card p-5 mb-3"><h5 class="font-bold text-white text-sm mb-2">${item.title}</h5><div class="flex flex-wrap gap-2">${btns || '<span class="text-[10px] text-slate-500">Resources coming soon</span>'}</div></div>`;
             });
-            contentDiv.innerHTML += `<button onclick="loadCategoryOptions(activeSubjectIdx)" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← Back</button>`;
+            contentDiv.innerHTML += `<button onclick="loadCategories(activeSubIdx)" class="mt-4 p-4 glass-card text-center text-[10px] font-bold uppercase">← Back</button>`;
             showOnly("content-section");
         }
         
@@ -482,25 +575,11 @@
             setViewTitle("✅ RESOLVED QUERIES", false);
             const section = document.getElementById("resolved-section");
             section.innerHTML = "";
-            (MASTER_DATA.resolved_queries || []).forEach(q => {
+            MASTER_COURSES.resolved_queries.forEach(q => {
                 section.innerHTML += `<div class="glass-card p-5 border-l-4 border-green-500"><p class="text-xs text-slate-300 italic">"${q.query}"</p><div class="mt-3 bg-blue-500/10 p-3 rounded-xl"><span class="text-[10px] font-bold text-blue-400">Vivid Answer:</span><p class="text-sm text-white">${q.solution}</p></div></div>`;
             });
             section.innerHTML += `<button onclick="renderCourseGrid()" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">Back to Home</button>`;
             showOnly("resolved-section");
-        }
-        
-        function showChatHistory() {
-            setViewTitle("💬 YOUR CHAT LOGS", false);
-            renderChatHistoryUI();
-            showOnly("chat-history-section");
-        }
-        
-        function navAction(type) {
-            toggleMenu();
-            if(type === 'HOME') renderCourseGrid();
-            if(type === 'RESOLVED') showResolvedQueries();
-            if(type === 'CHAT_HISTORY') showChatHistory();
-            if(type === 'WHATSAPP') window.open("https://whatsapp.com/channel/0029VaVividAcademy", "_blank");
         }
         
         function setViewTitle(title, showSearch) {
@@ -512,21 +591,40 @@
             const sections = ['course-list','subject-section','category-section','content-section','resolved-section','chat-history-section'];
             sections.forEach(s => document.getElementById(s).classList.add("hidden"));
             document.getElementById(id).classList.remove("hidden");
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            window.scrollTo({ top: 0 });
         }
         
         function safeRedirect(url) {
-            if(url === "#") { alert("Content will be uploaded soon!"); return; }
+            if(url === "#") { alert("Content will be uploaded soon! Join WhatsApp channel for updates."); return; }
             document.getElementById("redirect-overlay").classList.remove("hidden");
             setTimeout(() => { window.open(url, "_blank"); document.getElementById("redirect-overlay").classList.add("hidden"); }, 800);
         }
         
+        function navAction(type) {
+            toggleMenu();
+            if(type === 'HOME') renderCourseGrid();
+            if(type === 'RESOLVED') showResolvedQueries();
+            if(type === 'CHAT_HISTORY') showChatHistory();
+        }
+        
         function toggleMenu() { document.getElementById("side-menu").classList.toggle("active"); }
-        function filterCourses() { /* basic filter */ let val=document.getElementById("courseSearch").value.toUpperCase(); let items=document.getElementById("course-list").children; let cnt=0; for(let i=0;i<items.length;i++){let match=items[i].innerText.toUpperCase().includes(val); items[i].style.display=match?"": "none"; if(match) cnt++;} document.getElementById("item-count").innerText=cnt+" MATCHES"; }
+        function filterCourses() { 
+            let val = document.getElementById("courseSearch").value.toUpperCase();
+            let items = document.getElementById("course-list").children;
+            let cnt = 0;
+            for(let i=0; i<items.length; i++) {
+                let match = items[i].innerText.toUpperCase().includes(val);
+                items[i].style.display = match ? "" : "none";
+                if(match) cnt++;
+            }
+            document.getElementById("item-count").innerText = cnt + " Courses";
+        }
         document.getElementById("courseSearch").addEventListener("keyup", filterCourses);
+        function closeNotice() { document.getElementById("notice-modal").style.display = "none"; }
         
         loadStorage();
-        if(!currentUser) document.getElementById("login-modal").classList.remove("hidden");
+        if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
+        else showApp();
     </script>
 </body>
 </html>
