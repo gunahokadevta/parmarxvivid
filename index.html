@@ -115,7 +115,7 @@
             100% { opacity: 0; transform: translateY(-10px); display: none; }
         }
         
-        /* Top Right Menu Button - Fixed and Sticky */
+        /* Top Right Menu Button */
         .top-menu-btn {
             position: fixed;
             top: 16px;
@@ -147,10 +147,9 @@
             height: 2.5px;
             background: white;
             border-radius: 2px;
-            transition: 0.2s;
         }
         
-        /* Back Button for other pages */
+        /* Back Button */
         .back-button {
             position: fixed;
             top: 16px;
@@ -171,9 +170,8 @@
             font-size: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
-        .back-button:active { transform: scale(0.95); }
         
-        /* Notification Bell with Badge - Bottom Nav */
+        /* Notification Badge */
         .notif-nav-btn {
             position: relative;
             cursor: pointer;
@@ -196,7 +194,6 @@
             border: 2px solid #020617;
         }
         
-        /* Professional Notification Card */
         .notif-card {
             transition: all 0.2s ease;
         }
@@ -210,13 +207,11 @@
             color: #3b82f6 !important;
         }
         
-        /* Bottom Nav Icons */
         .bottom-nav-icon {
             transition: all 0.2s ease;
         }
         .bottom-nav-icon:active { transform: scale(0.95); }
         
-        /* WhatsApp Pulse Animation */
         @keyframes wa-pulse {
             0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
             70% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
@@ -226,7 +221,6 @@
             animation: wa-pulse 1.8s infinite;
         }
         
-        /* Image preview styling */
         .image-preview {
             max-width: 150px;
             max-height: 150px;
@@ -248,17 +242,11 @@
             background: rgba(59,130,246,0.3);
         }
         
-        /* Professional Signup Button */
         .signup-highlight {
             background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
         }
-        .signup-highlight:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
-        }
         
-        /* Chat input container */
         .chat-input-container {
             display: flex;
             gap: 8px;
@@ -276,12 +264,12 @@
 
     <div id="progress-container"><div id="progress-bar"></div></div>
 
-    <!-- TOP RIGHT MENU BUTTON - Fixed and Sticky -->
+    <!-- TOP RIGHT MENU BUTTON -->
     <div id="menuButton" class="top-menu-btn" onclick="toggleMenu()">
         <div class="menu-icon"><span></span><span></span><span></span></div>
     </div>
 
-    <!-- BACK BUTTON - Visible on other pages -->
+    <!-- BACK BUTTON -->
     <div id="backButton" class="back-button hidden" onclick="goBackToHome()">
         <i class="fas fa-arrow-left"></i>
     </div>
@@ -378,7 +366,7 @@
             <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.4em] mt-2">Excellence in Learning</p>
         </header>
 
-        <!-- WhatsApp Channel Priority Banner -->
+        <!-- WhatsApp Banner -->
         <a href="https://whatsapp.com/channel/0029VaVividAcademy" target="_blank" class="glass-card p-4 mb-6 flex items-center gap-4 border-l-[6px] border-[#25D366] wa-pulse bg-gradient-to-r from-[#25D366]/10 to-transparent">
             <div class="w-12 h-12 rounded-full bg-[#25D366]/20 flex items-center justify-center">
                 <i class="fab fa-whatsapp text-2xl text-[#25D366]"></i>
@@ -390,7 +378,7 @@
             <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
         </a>
 
-        <!-- Search Container -->
+        <!-- Search -->
         <div id="search-container" class="mb-6">
             <div class="glass-card flex items-center px-5 py-4">
                 <i class="fas fa-search text-blue-500 mr-3"></i>
@@ -440,15 +428,15 @@
                 <div id="live-chat-box" class="h-96 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
                 <div class="p-4 bg-slate-900/60 chat-input-container">
                     <label class="file-input-label"><i class="fas fa-image"></i></label>
-                    <input type="file" id="liveImageInput" accept="image/*" class="hidden" onchange="previewLiveImage(this)">
+                    <input type="file" id="liveImageInput" accept="image/*" class="hidden">
                     <input type="text" id="liveChatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500">
-                    <button onclick="sendLiveQueryWithImage()" class="btn-video w-12 h-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                    <button onclick="sendLiveQuery()" class="btn-video w-12 h-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
                 </div>
                 <div id="liveImagePreview" class="p-2 hidden"></div>
             </div>
         </div>
         
-        <!-- Chat Window (main page) -->
+        <!-- Chat Window -->
         <div class="glass-card mt-6 mb-20 overflow-hidden">
             <div class="p-4 bg-blue-600/10 border-b border-white/10 flex justify-between items-center">
                 <div class="flex items-center gap-2"><span class="online-dot"></span><span class="text-[11px] font-bold">💬 Live Support</span></div>
@@ -457,9 +445,9 @@
             <div id="chat-box" class="h-80 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
             <div class="p-4 bg-slate-900/60 chat-input-container">
                 <label class="file-input-label"><i class="fas fa-image"></i></label>
-                <input type="file" id="chatImageInput" accept="image/*" class="hidden" onchange="previewChatImage(this)">
+                <input type="file" id="chatImageInput" accept="image/*" class="hidden">
                 <input type="text" id="chatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500">
-                <button onclick="sendUserQueryWithImage()" class="btn-video w-12 h-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                <button onclick="sendUserQuery()" class="btn-video w-12 h-12 rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
             </div>
             <div id="chatImagePreview" class="p-2 hidden"></div>
         </div>
@@ -480,7 +468,6 @@
     </div>
 
     <script>
-        // Telegram Config
         const BOT_TOKEN = "8670403460:AAGyJQnVT62Sg0bhqGm0vUTE6id66PF1t5I";
         const ADMIN_CHAT_ID = "8305282917";
         
@@ -491,18 +478,14 @@
         let pollingInterval = null;
         let lastUpdateId = 0;
         let lastProcessedMsgIds = new Set();
-        let currentImageData = null;
-        let currentLiveImageData = null;
+        let currentImageFile = null;
+        let currentLiveImageFile = null;
         
-        // Load from GitHub db.json
         function loadData(retryCount = 0) {
             updateProgress(30);
             const dbUrl = 'https://raw.githubusercontent.com/gunahokadevta/parmarxvivid/main/db.json?v=' + Date.now();
             fetch(dbUrl)
-                .then(res => {
-                    if(!res.ok) throw new Error("HTTP " + res.status);
-                    return res.json();
-                })
+                .then(res => res.json())
                 .then(data => { 
                     mainData = data; 
                     updateProgress(100); 
@@ -510,7 +493,6 @@
                     updateNotificationBadge();
                 })
                 .catch(err => { 
-                    console.error("DB error:", err);
                     if(retryCount < 2) {
                         setTimeout(() => loadData(retryCount + 1), 1500);
                     } else {
@@ -523,7 +505,6 @@
             const navBadge = document.getElementById('nav-notif-badge');
             const userNotifViewed = currentUser ? (currentUser.notifViewed || false) : false;
             const currentCount = mainData?.notifications?.length || 0;
-            
             if(currentCount > 0 && !userNotifViewed) {
                 navBadge.innerText = currentCount;
                 navBadge.classList.remove('hidden');
@@ -535,19 +516,19 @@
         function updateProgress(percent) { document.getElementById('progress-bar').style.width = percent + '%'; }
         function closeNotice() { document.getElementById('notice-modal').style.display = 'none'; updateProgress(20); }
         
-        // User Management with username uniqueness check
+        // User Management with strict username uniqueness
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_v20");
+            let users = localStorage.getItem("vivid_users_final");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_v20");
+            let chats = localStorage.getItem("vivid_chats_final");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_v20");
+            let token = localStorage.getItem("vivid_token_final");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_v20", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_v20", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_final", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_final", JSON.stringify(userChats)); }
         
         function isValidUsername(username) { return /^[A-Za-z0-9]{3,12}$/.test(username); }
         
@@ -567,7 +548,7 @@
             if(!fullname || !username || !email || !pwd) { alert("All fields required"); return; }
             if(!isValidUsername(username)) { alert("Username must be 3-12 characters, letters and numbers only!"); return; }
             if(pwd.length < 5) { alert("Password min 5 characters"); return; }
-            if(isUsernameTaken(username)) { alert("Username already taken! Please choose another."); return; }
+            if(isUsernameTaken(username)) { alert("❌ Username already taken! Please choose another unique username."); return; }
             if(window.allUsers[email]) { alert("Email already registered."); return; }
             
             window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd, notifViewed: false };
@@ -575,7 +556,7 @@
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v20", email);
+            localStorage.setItem("vivid_token_final", email);
             showApp();
         }
         
@@ -593,7 +574,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v20", currentUser.email);
+            localStorage.setItem("vivid_token_final", currentUser.email);
             showApp();
         }
         
@@ -617,7 +598,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_v20"); 
+            localStorage.removeItem("vivid_token_final"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -634,38 +615,7 @@
             startPollingForAdminReplies();
         }
         
-        // Navigation UI
-        function updateNavigationButtons(isHomePage) {
-            const menuBtn = document.getElementById('menuButton');
-            const backBtn = document.getElementById('backButton');
-            if(isHomePage) {
-                menuBtn.classList.remove('hidden');
-                backBtn.classList.add('hidden');
-            } else {
-                menuBtn.classList.add('hidden');
-                backBtn.classList.remove('hidden');
-            }
-        }
-        
-        function goBackToHome() {
-            renderCourses();
-        }
-        
-        function closeMenu() {
-            document.getElementById("side-menu").classList.remove("active");
-            const menuBtn = document.getElementById('menuButton');
-            const currentPageIsHome = document.getElementById('search-container').style.display !== 'none';
-            if(currentPageIsHome) {
-                menuBtn.classList.remove('hidden');
-            }
-        }
-        
-        function closeInboxModal() {
-            document.getElementById("inbox-modal").classList.add("hidden");
-            document.body.style.overflow = 'auto';
-        }
-        
-        // Image preview functions
+        // Image handling
         function previewChatImage(input) {
             const preview = document.getElementById('chatImagePreview');
             if(input.files && input.files[0]) {
@@ -673,7 +623,7 @@
                 reader.onload = function(e) {
                     preview.innerHTML = `<img src="${e.target.result}" class="image-preview"><button onclick="clearChatImage()" class="text-xs text-red-400 ml-2">Remove</button>`;
                     preview.classList.remove('hidden');
-                    currentImageData = e.target.result;
+                    currentImageFile = input.files[0];
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -686,27 +636,48 @@
                 reader.onload = function(e) {
                     preview.innerHTML = `<img src="${e.target.result}" class="image-preview"><button onclick="clearLiveImage()" class="text-xs text-red-400 ml-2">Remove</button>`;
                     preview.classList.remove('hidden');
-                    currentLiveImageData = e.target.result;
+                    currentLiveImageFile = input.files[0];
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
         
         function clearChatImage() {
-            currentImageData = null;
+            currentImageFile = null;
             document.getElementById('chatImagePreview').innerHTML = '';
             document.getElementById('chatImagePreview').classList.add('hidden');
             document.getElementById('chatImageInput').value = '';
         }
         
         function clearLiveImage() {
-            currentLiveImageData = null;
+            currentLiveImageFile = null;
             document.getElementById('liveImagePreview').innerHTML = '';
             document.getElementById('liveImagePreview').classList.add('hidden');
             document.getElementById('liveImageInput').value = '';
         }
         
-        // ========== COURSE NAVIGATION ==========
+        // File input listeners
+        document.getElementById('chatImageInput')?.addEventListener('change', function(e) { previewChatImage(this); });
+        document.getElementById('liveImageInput')?.addEventListener('change', function(e) { previewLiveImage(this); });
+        
+        // Navigation
+        function updateNavigationButtons(isHomePage) {
+            const menuBtn = document.getElementById('menuButton');
+            const backBtn = document.getElementById('backButton');
+            if(isHomePage) {
+                menuBtn.classList.remove('hidden');
+                backBtn.classList.add('hidden');
+            } else {
+                menuBtn.classList.add('hidden');
+                backBtn.classList.remove('hidden');
+            }
+        }
+        
+        function goBackToHome() { renderCourses(); }
+        function closeMenu() { document.getElementById("side-menu").classList.remove("active"); const currentPageIsHome = document.getElementById('search-container').style.display !== 'none'; if(currentPageIsHome) document.getElementById('menuButton').classList.remove('hidden'); }
+        function closeInboxModal() { document.getElementById("inbox-modal").classList.add("hidden"); document.body.style.overflow = 'auto'; }
+        
+        // Course Navigation
         function renderCourses() { 
             updateProgress(30);
             document.getElementById('view-title').innerText = "AVAILABLE COURSES"; 
@@ -801,15 +772,12 @@
         
         function toggleSection(id) { 
             const sections = ['course-list', 'subject-section', 'category-section', 'content-section', 'community-section', 'live-support-section'];
-            sections.forEach(d => {
-                const el = document.getElementById(d);
-                if(el) el.classList.add('hidden');
-            });
+            sections.forEach(d => { const el = document.getElementById(d); if(el) el.classList.add('hidden'); });
             document.getElementById(id).classList.remove('hidden'); 
             window.scrollTo({top: 0, behavior: 'smooth'}); 
         }
         
-        // ========== CHAT FUNCTIONS with Image Support ==========
+        // Chat Functions
         function refreshChatBox() {
             const box = document.getElementById("chat-box");
             box.innerHTML = "";
@@ -885,123 +853,119 @@
             }, 3500);
         }
         
-        async function sendUserQueryWithImage() {
+        async function sendUserQuery() {
             let inp = document.getElementById("chatInput");
             let msg = inp.value.trim();
-            if(!msg && !currentImageData) return;
+            if(!msg && !currentImageFile) return;
             let timestamp = new Date().toLocaleTimeString();
             let userMsg = { text: msg || "📷 Image shared", sender: 'user', timestamp: timestamp };
-            if(currentImageData) {
-                userMsg.image = currentImageData;
+            let imageToSend = currentImageFile;
+            if(imageToSend) {
+                const reader = new FileReader();
+                reader.readAsDataURL(imageToSend);
+                await new Promise(resolve => { reader.onload = resolve; });
+                userMsg.image = reader.result;
             }
             userChats[currentUser.email].push(userMsg);
             saveChats();
             refreshChatBox();
             refreshLiveChatBox();
             inp.value = "";
-            let imageToSend = currentImageData;
-            clearChatImage();
             
             addAutoDeleteMessage("✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", "vivid");
             
             try {
                 let userName = currentUser.name.substring(0, 20);
                 let userTag = currentUser.username;
-                let imagePart = imageToSend ? `%0A📷 *Image attached*` : '';
-                let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${(msg || "Image shared").substring(0, 300)}${imagePart}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
+                let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${(msg || "Image shared").substring(0, 300)}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
+                
                 if(imageToSend) {
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?chat_id=${ADMIN_CHAT_ID}&caption=📷 Image from @${userTag}&photo=${encodeURIComponent(imageToSend)}`);
+                    const formData = new FormData();
+                    formData.append('chat_id', ADMIN_CHAT_ID);
+                    formData.append('photo', imageToSend);
+                    formData.append('caption', `📷 Image from @${userTag}`);
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
                 }
-            } catch(e) { console.error("TG send fail"); }
+            } catch(e) { console.error("TG send fail", e); }
+            currentImageFile = null;
+            clearChatImage();
         }
         
-        async function sendLiveQueryWithImage() {
+        async function sendLiveQuery() {
             let inp = document.getElementById("liveChatInput");
             let msg = inp.value.trim();
-            if(!msg && !currentLiveImageData) return;
+            if(!msg && !currentLiveImageFile) return;
             let timestamp = new Date().toLocaleTimeString();
             let userMsg = { text: msg || "📷 Image shared", sender: 'user', timestamp: timestamp };
-            if(currentLiveImageData) {
-                userMsg.image = currentLiveImageData;
+            let imageToSend = currentLiveImageFile;
+            if(imageToSend) {
+                const reader = new FileReader();
+                reader.readAsDataURL(imageToSend);
+                await new Promise(resolve => { reader.onload = resolve; });
+                userMsg.image = reader.result;
             }
             userChats[currentUser.email].push(userMsg);
             saveChats();
             refreshChatBox();
             refreshLiveChatBox();
             inp.value = "";
-            let imageToSend = currentLiveImageData;
-            clearLiveImage();
             
             addAutoDeleteMessage("✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", "vivid");
             
             try {
                 let userName = currentUser.name.substring(0, 20);
                 let userTag = currentUser.username;
-                let imagePart = imageToSend ? `%0A📷 *Image attached*` : '';
-                let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${(msg || "Image shared").substring(0, 300)}${imagePart}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
+                let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${(msg || "Image shared").substring(0, 300)}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
+                
                 if(imageToSend) {
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?chat_id=${ADMIN_CHAT_ID}&caption=📷 Image from @${userTag}&photo=${encodeURIComponent(imageToSend)}`);
+                    const formData = new FormData();
+                    formData.append('chat_id', ADMIN_CHAT_ID);
+                    formData.append('photo', imageToSend);
+                    formData.append('caption', `📷 Image from @${userTag}`);
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
                 }
-            } catch(e) { console.error("TG send fail"); }
+            } catch(e) { console.error("TG send fail", e); }
+            currentLiveImageFile = null;
+            clearLiveImage();
         }
         
         function startPollingForAdminReplies() {
             if(pollingInterval) clearInterval(pollingInterval);
             pollingInterval = setInterval(async () => {
                 if(!currentUser) return;
-                await fetchAdminReplies();
-            }, 5000);
-        }
-        
-        async function fetchAdminReplies() {
-            try {
-                const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId}&timeout=5`;
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if(data.ok && data.result && data.result.length > 0) {
-                    for(let update of data.result) {
-                        lastUpdateId = update.update_id + 1;
-                        const msg = update.message;
-                        if(msg && msg.text && msg.message_id) {
-                            const msgId = msg.message_id;
-                            if(lastProcessedMsgIds.has(msgId)) continue;
-                            
-                            const messageText = msg.text;
-                            const userTag = currentUser.username;
-                            const isForThisUser = messageText.includes(`@${userTag}`);
-                            
-                            if(isForThisUser) {
-                                lastProcessedMsgIds.add(msgId);
-                                let replyContent = messageText.replace(new RegExp(`@${userTag}`, 'gi'), '').trim();
-                                if(replyContent === "") replyContent = messageText;
-                                
-                                const existingMsgs = userChats[currentUser.email] || [];
-                                const alreadyExists = existingMsgs.some(chat => 
-                                    chat.sender === 'admin' && chat.text === `👑 Admin: ${replyContent}` && 
-                                    Math.abs(new Date(chat.timestamp) - new Date()) < 120000
-                                );
-                                
-                                if(!alreadyExists && replyContent.length > 0) {
-                                    const adminMsg = {
-                                        text: `👑 Admin: ${replyContent}`,
-                                        sender: 'admin',
-                                        timestamp: new Date().toLocaleTimeString(),
-                                        isAdminReply: true
-                                    };
-                                    userChats[currentUser.email].push(adminMsg);
-                                    saveChats();
-                                    refreshChatBox();
-                                    refreshLiveChatBox();
+                try {
+                    const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId}&timeout=5`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    if(data.ok && data.result) {
+                        for(let update of data.result) {
+                            lastUpdateId = update.update_id + 1;
+                            const msg = update.message;
+                            if(msg && msg.text && msg.message_id && !lastProcessedMsgIds.has(msg.message_id)) {
+                                const messageText = msg.text;
+                                const userTag = currentUser.username;
+                                if(messageText.includes(`@${userTag}`)) {
+                                    lastProcessedMsgIds.add(msg.message_id);
+                                    let replyContent = messageText.replace(new RegExp(`@${userTag}`, 'gi'), '').trim();
+                                    if(replyContent === "") replyContent = messageText;
+                                    const existingMsgs = userChats[currentUser.email] || [];
+                                    const alreadyExists = existingMsgs.some(chat => chat.sender === 'admin' && chat.text === `👑 Admin: ${replyContent}`);
+                                    if(!alreadyExists && replyContent.length > 0) {
+                                        const adminMsg = { text: `👑 Admin: ${replyContent}`, sender: 'admin', timestamp: new Date().toLocaleTimeString() };
+                                        userChats[currentUser.email].push(adminMsg);
+                                        saveChats();
+                                        refreshChatBox();
+                                        refreshLiveChatBox();
+                                    }
                                 }
                             }
                         }
+                        if(lastProcessedMsgIds.size > 100) lastProcessedMsgIds.clear();
                     }
-                    if(lastProcessedMsgIds.size > 100) lastProcessedMsgIds.clear();
-                }
-            } catch(e) { console.log("Polling error:", e); }
+                } catch(e) { console.log("Polling error:", e); }
+            }, 5000);
         }
         
         // Notifications
@@ -1010,10 +974,7 @@
             modal.classList.toggle('hidden');
             if(!modal.classList.contains('hidden')) {
                 renderNotifications();
-                if(currentUser) {
-                    currentUser.notifViewed = true;
-                    saveUsers();
-                }
+                if(currentUser) { currentUser.notifViewed = true; saveUsers(); }
                 document.getElementById('nav-notif-badge').classList.add('hidden');
                 document.body.style.overflow = 'hidden'; 
             } else {
@@ -1032,10 +993,7 @@
                 list.innerHTML += `
                     <div class="notif-card glass-card p-6 border-l-4 border-blue-500 bg-gradient-to-r from-blue-500/5 to-transparent">
                         <div class="flex justify-between items-start mb-3">
-                            <div class="flex items-center gap-2">
-                                <span class="text-blue-400 text-[11px] font-black uppercase bg-blue-500/20 px-3 py-1 rounded-full">${n.tag || 'UPDATE'}</span>
-                                <span class="text-slate-500 text-[10px]"><i class="far fa-clock mr-1"></i>${n.date || 'Just now'}</span>
-                            </div>
+                            <div class="flex items-center gap-2"><span class="text-blue-400 text-[11px] font-black uppercase bg-blue-500/20 px-3 py-1 rounded-full">${n.tag || 'UPDATE'}</span><span class="text-slate-500 text-[10px]"><i class="far fa-clock mr-1"></i>${n.date || 'Just now'}</span></div>
                         </div>
                         <p class="text-[14px] text-slate-200 leading-relaxed mb-4">${n.message}</p>
                         <div class="flex gap-3 pt-2 border-t border-white/10">
@@ -1051,21 +1009,12 @@
             if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0, fire: 0 };
             notifReactions[nid][type] += 1;
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
-            const btn = event.currentTarget;
-            btn.classList.add('reaction-active');
-            localStorage.setItem("vivid_reactions_v20", JSON.stringify(notifReactions));
+            localStorage.setItem("vivid_reactions_final", JSON.stringify(notifReactions));
         }
         
         function navAction(type) { 
             const menu = document.getElementById("side-menu");
-            if(menu.classList.contains("active")) {
-                menu.classList.remove("active");
-                const currentPageIsHome = document.getElementById('search-container').style.display !== 'none';
-                if(currentPageIsHome) {
-                    document.getElementById('menuButton').classList.remove('hidden');
-                }
-            }
-            
+            if(menu.classList.contains("active")) menu.classList.remove("active");
             if(type === 'HOME') renderCourses(); 
             if(type === 'COMMUNITY') { toggleSection('community-section'); document.getElementById('view-title').innerText = "🌍 COMMUNITY HUB"; document.getElementById('search-container').classList.add('hidden'); updateNavigationButtons(false); }
             if(type === 'LIVE_SUPPORT') { toggleSection('live-support-section'); document.getElementById('view-title').innerText = "💬 LIVE SUPPORT"; document.getElementById('search-container').classList.add('hidden'); updateNavigationButtons(false); refreshLiveChatBox(); }
@@ -1074,26 +1023,11 @@
         function toggleMenu() { 
             const menu = document.getElementById("side-menu");
             menu.classList.toggle("active");
-            if(menu.classList.contains("active")) {
-                document.getElementById('menuButton').classList.add('hidden');
-            } else {
-                const currentPageIsHome = document.getElementById('search-container').style.display !== 'none';
-                if(currentPageIsHome) {
-                    document.getElementById('menuButton').classList.remove('hidden');
-                }
-            }
+            if(menu.classList.contains("active")) document.getElementById('menuButton').classList.add('hidden');
+            else { const currentPageIsHome = document.getElementById('search-container').style.display !== 'none'; if(currentPageIsHome) document.getElementById('menuButton').classList.remove('hidden'); }
         }
         
-        // Add event listeners for file input buttons
-        document.querySelectorAll('.file-input-label').forEach((label, index) => {
-            label.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if(index === 0) document.getElementById('liveImageInput').click();
-                else document.getElementById('chatImageInput').click();
-            });
-        });
-        
-        let storedReactions = localStorage.getItem("vivid_reactions_v20");
+        let storedReactions = localStorage.getItem("vivid_reactions_final");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
