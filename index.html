@@ -230,7 +230,7 @@
 
     <div id="progress-container"><div id="progress-bar"></div></div>
 
-    <!-- TOP RIGHT MENU BUTTON - Fixed and Sticky (Always visible on Home) -->
+    <!-- TOP RIGHT MENU BUTTON - Fixed and Sticky -->
     <div id="menuButton" class="top-menu-btn" onclick="toggleMenu()">
         <div class="menu-icon"><span></span><span></span><span></span></div>
     </div>
@@ -240,7 +240,7 @@
         <i class="fas fa-arrow-left"></i>
     </div>
 
-    <!-- SIDE MENU (Notifications removed from here) -->
+    <!-- SIDE MENU - With Notifications included -->
     <div id="side-menu">
         <div class="flex justify-between items-center mb-8">
             <div><h3 class="font-black text-blue-500 text-base">VIVID</h3><p id="menuUserName" class="text-[9px] text-slate-500 mt-0.5">learner</p></div>
@@ -256,6 +256,7 @@
             <button onclick="navAction('HOME')" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-home w-5 text-blue-500"></i><span class="text-sm">Dashboard</span></button>
             <button onclick="navAction('LIVE_SUPPORT')" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-headset w-5 text-emerald-500"></i><span class="text-sm">Live Support</span></button>
             <button onclick="navAction('COMMUNITY')" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-users w-5 text-purple-500"></i><span class="text-sm">Community</span></button>
+            <button onclick="toggleInbox()" class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 w-full text-left"><i class="fas fa-bell w-5 text-pink-500"></i><span class="text-sm">Notifications</span></button>
         </nav>
         <div class="pt-6 mt-auto border-t border-white/10">
             <a href="https://whatsapp.com/channel/0029VaVividAcademy" target="_blank" class="flex items-center gap-3 bg-[#25D366]/10 p-3 rounded-xl"><i class="fab fa-whatsapp text-green-400 text-xl"></i><span class="text-[10px] font-bold uppercase">Join WhatsApp Channel</span></a>
@@ -277,7 +278,7 @@
         </div>
     </div>
 
-    <!-- NOTIFICATIONS MODAL - Professional Design (No back button needed) -->
+    <!-- NOTIFICATIONS MODAL -->
     <div id="inbox-modal" class="fixed inset-0 modal-overlay hidden flex flex-col z-[10003]">
         <div class="bg-gradient-to-r from-slate-900 to-slate-950 backdrop-blur-xl p-5 flex justify-between items-center border-b border-white/10">
             <div>
@@ -476,45 +477,22 @@
             }
         }
         
-        // Check for new notifications periodically
-        function checkForNewNotifications() {
-            if(!mainData) return;
-            const currentCount = mainData.notifications?.length || 0;
-            if(currentCount > lastNotificationCount && notifViewed) {
-                // New notification arrived after user viewed
-                notifViewed = false;
-                lastNotificationCount = currentCount;
-                updateNotificationBadge();
-            } else {
-                lastNotificationCount = currentCount;
-            }
-        }
-        
-        // Start polling for new notifications
-        function startNotificationPolling() {
-            setInterval(() => {
-                if(mainData) {
-                    checkForNewNotifications();
-                }
-            }, 10000);
-        }
-        
         function updateProgress(percent) { document.getElementById('progress-bar').style.width = percent + '%'; }
         function closeNotice() { document.getElementById('notice-modal').style.display = 'none'; updateProgress(20); }
         
         // User Management
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_v16");
+            let users = localStorage.getItem("vivid_users_v17");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_v16");
+            let chats = localStorage.getItem("vivid_chats_v17");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_v16");
+            let token = localStorage.getItem("vivid_token_v17");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_v16", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_v16", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_v17", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_v17", JSON.stringify(userChats)); }
         
         function isValidUsername(username) { return /^[A-Za-z0-9]{3,12}$/.test(username); }
         
@@ -535,7 +513,7 @@
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v16", email);
+            localStorage.setItem("vivid_token_v17", email);
             showApp();
         }
         
@@ -553,7 +531,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v16", currentUser.email);
+            localStorage.setItem("vivid_token_v17", currentUser.email);
             showApp();
         }
         
@@ -577,7 +555,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_v16"); 
+            localStorage.removeItem("vivid_token_v17"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -592,7 +570,6 @@
             loadData();
             refreshChatBox();
             startPollingForAdminReplies();
-            startNotificationPolling();
         }
         
         // Navigation UI - Show/hide menu/back buttons
@@ -614,6 +591,12 @@
         
         function closeMenu() {
             document.getElementById("side-menu").classList.remove("active");
+            // Show menu button again when menu closes
+            const menuBtn = document.getElementById('menuButton');
+            const currentPageIsHome = document.getElementById('search-container').style.display !== 'none';
+            if(currentPageIsHome) {
+                menuBtn.classList.remove('hidden');
+            }
         }
         
         function closeInboxModal() {
@@ -939,13 +922,18 @@
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
             const btn = event.currentTarget;
             btn.classList.add('reaction-active');
-            localStorage.setItem("vivid_reactions_v16", JSON.stringify(notifReactions));
+            localStorage.setItem("vivid_reactions_v17", JSON.stringify(notifReactions));
         }
         
         function navAction(type) { 
             const menu = document.getElementById("side-menu");
             if(menu.classList.contains("active")) {
                 menu.classList.remove("active");
+                // Show menu button again when menu closes
+                const currentPageIsHome = document.getElementById('search-container').style.display !== 'none';
+                if(currentPageIsHome) {
+                    document.getElementById('menuButton').classList.remove('hidden');
+                }
             }
             
             if(type === 'HOME') renderCourses(); 
@@ -954,13 +942,24 @@
         }
         
         function toggleMenu() { 
-            document.getElementById("side-menu").classList.toggle("active"); 
+            const menu = document.getElementById("side-menu");
+            menu.classList.toggle("active");
+            // When menu opens, hide the menu button
+            if(menu.classList.contains("active")) {
+                document.getElementById('menuButton').classList.add('hidden');
+            } else {
+                // When menu closes, show menu button only if on home page
+                const currentPageIsHome = document.getElementById('search-container').style.display !== 'none';
+                if(currentPageIsHome) {
+                    document.getElementById('menuButton').classList.remove('hidden');
+                }
+            }
         }
         
-        let storedReactions = localStorage.getItem("vivid_reactions_v16");
+        let storedReactions = localStorage.getItem("vivid_reactions_v17");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-                                                                                                                                                                                                </html>
+    </html>
