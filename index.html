@@ -209,7 +209,7 @@
     <div id="side-menu">
         <div class="flex justify-between items-center mb-8">
             <div><h3 class="font-black text-blue-500 text-base">VIVID</h3><p id="menuUserName" class="text-[9px] text-slate-500 mt-0.5">learner</p></div>
-            <button onclick="toggleMenu()" class="w-9 h-9 rounded-full bg-white/5 text-slate-400 text-xl">&times;</button>
+            <button onclick="closeMenu()" class="w-9 h-9 rounded-full bg-white/5 text-slate-400 text-xl">&times;</button>
         </div>
         <div class="glass-card p-5 mb-7 text-center">
             <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-full flex items-center justify-center mb-3"><i class="fas fa-user-astronaut text-3xl text-blue-300"></i></div>
@@ -369,7 +369,7 @@
                 <button onclick="navAction('HOME')" class="flex flex-col items-center text-blue-400 transition bottom-nav-icon"><i class="fas fa-home text-xl"></i><span class="text-[8px]">Home</span></button>
                 <button onclick="navAction('LIVE_SUPPORT')" class="flex flex-col items-center text-slate-400 hover:text-emerald-400 transition bottom-nav-icon"><i class="fas fa-headset text-xl"></i><span class="text-[8px]">Support</span></button>
                 <button onclick="navAction('COMMUNITY')" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition bottom-nav-icon"><i class="fas fa-users text-xl"></i><span class="text-[8px]">Community</span></button>
-                <button onclick="toggleMenu()" class="flex flex-col items-center text-slate-400 hover:text-white transition bottom-nav-icon"><i class="fas fa-user text-xl"></i><span class="text-[8px]">Profile</span></button>
+                <button onclick="openProfile()" class="flex flex-col items-center text-slate-400 hover:text-white transition bottom-nav-icon"><i class="fas fa-user text-xl"></i><span class="text-[8px]">Profile</span></button>
             </div>
         </footer>
     </div>
@@ -417,17 +417,17 @@
         
         // User Management
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_v13");
+            let users = localStorage.getItem("vivid_users_v14");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_v13");
+            let chats = localStorage.getItem("vivid_chats_v14");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_v13");
+            let token = localStorage.getItem("vivid_token_v14");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_v13", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_v13", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_v14", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_v14", JSON.stringify(userChats)); }
         
         function isValidUsername(username) { return /^[A-Za-z0-9]{3,12}$/.test(username); }
         
@@ -448,7 +448,7 @@
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v13", email);
+            localStorage.setItem("vivid_token_v14", email);
             showApp();
         }
         
@@ -466,7 +466,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v13", currentUser.email);
+            localStorage.setItem("vivid_token_v14", currentUser.email);
             showApp();
         }
         
@@ -490,7 +490,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_v13"); 
+            localStorage.removeItem("vivid_token_v14"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -522,6 +522,14 @@
         
         function goBackToHome() {
             renderCourses();
+        }
+        
+        function closeMenu() {
+            document.getElementById("side-menu").classList.remove("active");
+        }
+        
+        function openProfile() {
+            document.getElementById("side-menu").classList.add("active");
         }
         
         // ========== COURSE NAVIGATION ==========
@@ -840,22 +848,29 @@
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
             const btn = event.currentTarget;
             btn.classList.add('reaction-active');
-            localStorage.setItem("vivid_reactions_v13", JSON.stringify(notifReactions));
+            localStorage.setItem("vivid_reactions_v14", JSON.stringify(notifReactions));
         }
         
         function navAction(type) { 
-            if(type !== 'HOME') toggleMenu(); 
+            // Only close menu if it's open, but don't toggle menu when clicking nav buttons
+            const menu = document.getElementById("side-menu");
+            if(menu.classList.contains("active")) {
+                menu.classList.remove("active");
+            }
+            
             if(type === 'HOME') renderCourses(); 
             if(type === 'COMMUNITY') { toggleSection('community-section'); document.getElementById('view-title').innerText = "🌍 COMMUNITY HUB"; document.getElementById('search-container').classList.add('hidden'); updateNavigationButtons(false); }
             if(type === 'LIVE_SUPPORT') { toggleSection('live-support-section'); document.getElementById('view-title').innerText = "💬 LIVE SUPPORT"; document.getElementById('search-container').classList.add('hidden'); updateNavigationButtons(false); refreshLiveChatBox(); }
         }
         
-        function toggleMenu() { document.getElementById("side-menu").classList.toggle("active"); }
+        function toggleMenu() { 
+            document.getElementById("side-menu").classList.toggle("active"); 
+        }
         
-        let storedReactions = localStorage.getItem("vivid_reactions_v13");
+        let storedReactions = localStorage.getItem("vivid_reactions_v14");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-            </html>
+                </html>
