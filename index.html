@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Vivid Academy | Live Support Portal</title>
+    <title>Vivid Academy | Live Support with Admin Replies</title>
     
     <meta name="theme-color" content="#020617">
-    <meta name="description" content="Premium SSC Educational Portal by Vivid - Live Admin Replies">
+    <meta name="description" content="Premium SSC Educational Portal - Admin replies appear instantly">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -36,21 +36,25 @@
         .glass-card:active { transform: scale(0.98); }
 
         .btn-video { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
-        .btn-eng { background: linear-gradient(135deg, #6366f1, #4f46e5); }
-        .btn-hindi { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-        .btn-quiz { background: linear-gradient(135deg, #ec4899, #db2777); }
         
         .modal-overlay { background: rgba(2, 6, 23, 0.96); backdrop-filter: blur(20px); z-index: 10000; }
         
         .chat-msg { max-width: 85%; border-radius: 22px; font-size: 13px; line-height: 1.45; margin-bottom: 12px; }
         .msg-vivid { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59,130,246,0.3); border-bottom-left-radius: 5px; color: #b9e0ff; }
         .msg-user { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.12); border-bottom-right-radius: 5px; margin-left: auto; color: #fff; }
-        .msg-admin { background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34,197,94,0.3); border-bottom-left-radius: 5px; color: #b9ffd0; }
+        .msg-admin { background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(34, 197, 94, 0.15)); border: 1px solid rgba(34,197,94,0.4); border-bottom-left-radius: 5px; color: #c6ffd9; }
 
         .hidden { display: none !important; }
         
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade { animation: fadeUp 0.4s ease forwards; }
+        
+        @keyframes replyFlash {
+            0% { background: rgba(34, 197, 94, 0); border-color: rgba(34,197,94,0.2); }
+            50% { background: rgba(34, 197, 94, 0.3); border-color: rgba(34,197,94,0.8); }
+            100% { background: rgba(34, 197, 94, 0.1); border-color: rgba(34,197,94,0.4); }
+        }
+        .admin-reply-new { animation: replyFlash 0.8s ease 2; }
         
         #side-menu { transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1); z-index: 10001; position: fixed; top: 0; right: 0; bottom: 0; width: 290px; background: rgba(2, 6, 23, 0.98); backdrop-filter: blur(28px); border-left: 1px solid rgba(255,255,255,0.08); padding: 28px 20px; }
         #side-menu.active { transform: translateX(0); }
@@ -79,19 +83,23 @@
         .loader-spinner { width: 40px; height: 40px; border: 3px solid rgba(59,130,246,0.2); border-top: 3px solid #3b82f6; border-radius: 50%; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        #notif-dot { min-width: 20px; height: 20px; font-size: 10px; font-weight: bold; top: -4px; right: -6px; border: 2px solid #020617; }
-        
         .reaction-btn { transition: all 0.1s; cursor: pointer; }
         .reaction-btn:active { transform: scale(0.9); }
         
-        .course-card, .subject-card, .category-card { cursor: pointer; }
+        .course-card, .subject-card { cursor: pointer; }
         
-        /* Reply indicator animation */
-        @keyframes softPulse {
-            0% { opacity: 0.6; }
-            100% { opacity: 1; }
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
         }
-        .new-reply { animation: softPulse 0.5s ease 2; }
+        @keyframes pulse {
+            0% { opacity: 0.4; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
     </style>
 </head>
 <body>
@@ -127,12 +135,11 @@
             <h2 class="text-2xl font-black mb-3 text-white">⚠️ SECURITY ALERT</h2>
             <div class="text-[13px] text-slate-300 space-y-3 leading-relaxed mb-6 text-left bg-blue-500/5 p-4 rounded-2xl">
                 <p>🔒 <span class="text-blue-400 font-bold">VIVID ACADEMY</span> is 100% FREE educational platform.</p>
-                <p>🚫 We never charge any fees. No paid batches, no premium access.</p>
-                <p>💰 If anyone demands money using our name — <span class="text-red-400 font-bold">it's a SCAM</span>. Report immediately.</p>
-                <p>📢 Only official channel: <span class="text-green-400">WhatsApp / Telegram</span> linked below.</p>
+                <p>🚫 We never charge any fees. No paid batches.</p>
+                <p>💰 If anyone demands money — <span class="text-red-400 font-bold">SCAM</span>.</p>
             </div>
             <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="btn-video block py-3 rounded-xl text-sm font-bold uppercase mb-2">✅ VERIFIED WHATSAPP CHANNEL</a>
-            <button onclick="closeNotice()" class="bg-slate-800/60 py-3 rounded-xl text-xs font-bold w-full">I Understand & Proceed</button>
+            <button onclick="closeNotice()" class="bg-slate-800/60 py-3 rounded-xl text-xs font-bold w-full">I Understand</button>
         </div>
     </div>
 
@@ -159,7 +166,7 @@
                 <input type="text" id="loginIdentifier" placeholder="Username or Email" class="auth-input mb-3">
                 <input type="password" id="loginPassword" placeholder="Password" class="auth-input mb-4">
                 <button onclick="handleLogin()" class="auth-btn mb-3 text-white">Log In</button>
-                <div class="flex justify-between text-[11px] text-slate-400 px-1"><span onclick="showForgot()" class="cursor-pointer hover:text-blue-400">Forgot password?</span><span onclick="switchToSignup()" class="cursor-pointer hover:text-blue-400">Don't have an account? <b class="text-blue-500">Sign up</b></span></div>
+                <div class="flex justify-between text-[11px] text-slate-400 px-1"><span onclick="showForgot()" class="cursor-pointer hover:text-blue-400">Forgot password?</span><span onclick="switchToSignup()" class="cursor-pointer hover:text-blue-400">Sign up</span></div>
             </div>
             <div id="signup-form" class="hidden">
                 <input type="text" id="signupFullname" placeholder="Full Name" maxlength="25" class="auth-input mb-3">
@@ -167,13 +174,13 @@
                 <input type="email" id="signupEmail" placeholder="Email" class="auth-input mb-3">
                 <input type="password" id="signupPassword" placeholder="Password (min 5 chars)" class="auth-input mb-4">
                 <button onclick="handleSignup()" class="auth-btn mb-3">Sign Up</button>
-                <div class="text-center text-[11px]"><span onclick="switchToLogin()" class="cursor-pointer text-blue-400">← Already have account? Log in</span></div>
+                <div class="text-center text-[11px]"><span onclick="switchToLogin()" class="cursor-pointer text-blue-400">← Already have account?</span></div>
             </div>
             <div id="forgot-form" class="hidden">
-                <p class="text-xs text-slate-400 mb-4 text-center">Enter your registered email to reset password</p>
+                <p class="text-xs text-slate-400 mb-4 text-center">Enter your email to reset password</p>
                 <input type="email" id="forgotEmail" placeholder="Email address" class="auth-input mb-4">
                 <button onclick="resetPasswordHandler()" class="auth-btn mb-2">Reset Password</button>
-                <div class="text-center"><span onclick="switchToLogin()" class="cursor-pointer text-blue-400 text-xs">← Back to Login</span></div>
+                <div class="text-center"><span onclick="switchToLogin()" class="cursor-pointer text-blue-400 text-xs">← Back</span></div>
             </div>
         </div>
     </div>
@@ -183,25 +190,24 @@
         <header class="text-center py-6 relative">
             <button onclick="toggleMenu()" class="absolute right-0 top-6 w-11 h-11 glass-card flex items-center justify-center text-blue-500"><i class="fas fa-user-circle text-xl"></i></button>
             <h1 class="text-3xl font-black tracking-tighter">VIVID <span class="text-blue-500">ACADEMY</span></h1>
-            <p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">SSC • BANK • RAILWAY • DEFENCE</p>
+            <p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">SSC • BANK • RAILWAY</p>
         </header>
 
         <!-- Search Bar -->
-        <div class="mb-6"><div class="glass-card flex items-center px-5 py-4"><i class="fas fa-search text-blue-500 mr-3"></i><input type="text" id="courseSearch" placeholder="Search courses or subjects..." class="bg-transparent w-full outline-none text-white text-sm"></div></div>
+        <div class="mb-6"><div class="glass-card flex items-center px-5 py-4"><i class="fas fa-search text-blue-500 mr-3"></i><input type="text" id="courseSearch" placeholder="Search courses..." class="bg-transparent w-full outline-none text-white text-sm"></div></div>
 
         <div class="flex justify-between items-center mb-4"><h2 id="view-title" class="text-[10px] font-black uppercase tracking-wider text-blue-400">COURSES</h2><span id="item-count" class="text-[9px] bg-blue-500/20 px-2 py-0.5 rounded-full">0</span></div>
 
-        <!-- Dynamic Sections -->
         <div id="course-list" class="grid gap-4"></div>
         <div id="subject-section" class="hidden grid gap-4"></div>
         <div id="category-section" class="hidden grid gap-4"></div>
         <div id="content-section" class="hidden grid gap-4"></div>
         <div id="chat-history-section" class="hidden grid gap-4"></div>
         
-        <!-- Persistent Chat Window with Live Admin Reply System -->
+        <!-- Chat Window -->
         <div class="glass-card mt-6 mb-20 overflow-hidden">
             <div class="p-4 bg-blue-600/10 border-b border-white/10 flex justify-between items-center">
-                <div class="flex items-center gap-2"><div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-[11px] font-bold">💬 Vivid Support Desk</span></div>
+                <div class="flex items-center gap-2"><span class="online-dot"></span><span class="text-[11px] font-bold">💬 Live Support</span></div>
                 <span class="text-[8px] text-slate-500">Admin replies appear here</span>
             </div>
             <div id="chat-box" class="h-80 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
@@ -214,8 +220,8 @@
         <!-- Bottom Nav -->
         <footer class="fixed bottom-0 left-0 w-full p-3 bg-slate-950/90 backdrop-blur-2xl border-t border-white/10 z-[9998]">
             <div class="flex justify-around items-center max-w-md mx-auto">
-                <button onclick="navAction('HOME')" class="flex flex-col items-center text-slate-400 hover:text-blue-400"><i class="fas fa-home text-xl"></i><span class="text-[8px] mt-0.5">Home</span></button>
-                <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="flex flex-col items-center text-green-400 hover:text-green-300 transition"><i class="fab fa-whatsapp text-2xl"></i><span class="text-[8px]">Channel</span></a>
+                <button onclick="navAction('HOME')" class="flex flex-col items-center text-slate-400 hover:text-blue-400"><i class="fas fa-home text-xl"></i><span class="text-[8px]">Home</span></button>
+                <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="flex flex-col items-center text-green-400"><i class="fab fa-whatsapp text-2xl"></i><span class="text-[8px]">Channel</span></a>
                 <button onclick="navAction('CHAT_HISTORY')" class="flex flex-col items-center text-slate-400 hover:text-purple-400"><i class="fas fa-comments text-xl"></i><span class="text-[8px]">Chats</span></button>
                 <button onclick="toggleMenu()" class="flex flex-col items-center text-slate-400 hover:text-white"><i class="fas fa-user text-xl"></i><span class="text-[8px]">Profile</span></button>
             </div>
@@ -227,13 +233,13 @@
         const BOT_TOKEN = "8670403460:AAGyJQnVT62Sg0bhqGm0vUTE6id66PF1t5I";
         const ADMIN_CHAT_ID = "8305282917";
         
-        // Global variables
         let mainData = null;
         let currentUser = null;
         let userChats = {};
         let notifReactions = {};
         let activeCourseIdx = 0, activeSubIdx = 0;
         let pollingInterval = null;
+        let lastUpdateId = 0;
         
         // Load from GitHub db.json
         function loadCoursesFromDB() {
@@ -247,7 +253,6 @@
                     loadNotifications();
                 })
                 .catch(err => { 
-                    console.error("DB error", err); 
                     document.getElementById("course-list").innerHTML = `<div class="glass-card p-10 text-center text-red-400 text-xs">⚠️ Failed to load courses. Check internet.</div>`;
                 });
         }
@@ -257,17 +262,17 @@
         
         // User Management
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_v4");
+            let users = localStorage.getItem("vivid_users_v5");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_v4");
+            let chats = localStorage.getItem("vivid_chats_v5");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_v4");
+            let token = localStorage.getItem("vivid_token_v5");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_v4", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_v4", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_v5", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_v5", JSON.stringify(userChats)); }
         
         function handleSignup() {
             let fullname = document.getElementById("signupFullname").value.trim().slice(0, 25);
@@ -282,7 +287,7 @@
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v4", email);
+            localStorage.setItem("vivid_token_v5", email);
             showApp();
         }
         
@@ -300,7 +305,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v4", currentUser.email);
+            localStorage.setItem("vivid_token_v5", currentUser.email);
             showApp();
         }
         
@@ -320,10 +325,11 @@
         function showForgot() { document.getElementById("login-form").classList.add("hidden"); document.getElementById("signup-form").classList.add("hidden"); document.getElementById("forgot-form").classList.remove("hidden"); }
         function switchToSignup() { document.getElementById("login-form").classList.add("hidden"); document.getElementById("forgot-form").classList.add("hidden"); document.getElementById("signup-form").classList.remove("hidden"); }
         function switchToLogin() { document.getElementById("signup-form").classList.add("hidden"); document.getElementById("forgot-form").classList.add("hidden"); document.getElementById("login-form").classList.remove("hidden"); }
+        
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_v4"); 
+            localStorage.removeItem("vivid_token_v5"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -337,7 +343,167 @@
             document.getElementById("sideUserEmail").innerText = currentUser.email.substring(0,22);
             loadCoursesFromDB();
             refreshChatBox();
-            startAdminReplyPolling();
+            startPollingForAdminReplies();
+        }
+        
+        // ========== POLLING FOR ADMIN REPLIES ==========
+        function startPollingForAdminReplies() {
+            if(pollingInterval) clearInterval(pollingInterval);
+            // Poll every 5 seconds for new messages from bot
+            pollingInterval = setInterval(async () => {
+                if(!currentUser) return;
+                await fetchAdminReplies();
+            }, 5000);
+        }
+        
+        async function fetchAdminReplies() {
+            try {
+                // Get updates from Telegram with offset
+                const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId}&timeout=5`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if(data.ok && data.result && data.result.length > 0) {
+                    for(let update of data.result) {
+                        lastUpdateId = update.update_id + 1;
+                        const msg = update.message;
+                        if(msg && msg.text) {
+                            const messageText = msg.text;
+                            const userTag = currentUser.username || currentUser.email.split('@')[0];
+                            
+                            // Check if message is for this user (contains @username)
+                            // Also check if it's not from the bot itself
+                            const isForThisUser = messageText.includes(`@${userTag}`) || 
+                                                  messageText.toLowerCase().includes(currentUser.email.toLowerCase()) ||
+                                                  (messageText.startsWith("Reply to") && messageText.includes(userTag));
+                            
+                            if(isForThisUser) {
+                                // Extract the reply content (remove the @mention part)
+                                let replyContent = messageText;
+                                // Remove @username from reply
+                                replyContent = replyContent.replace(new RegExp(`@${userTag}`, 'gi'), '').trim();
+                                if(replyContent === "") replyContent = messageText;
+                                
+                                // Check if we already have this message in chat history
+                                const existingMsgs = userChats[currentUser.email] || [];
+                                const alreadyExists = existingMsgs.some(chat => 
+                                    chat.sender === 'admin' && chat.text === replyContent && 
+                                    Math.abs(new Date(chat.timestamp) - new Date()) < 60000
+                                );
+                                
+                                if(!alreadyExists && replyContent.length > 0) {
+                                    const adminMsg = {
+                                        text: `👑 Admin: ${replyContent}`,
+                                        sender: 'admin',
+                                        timestamp: new Date().toLocaleTimeString(),
+                                        isAdminReply: true
+                                    };
+                                    userChats[currentUser.email].push(adminMsg);
+                                    saveChats();
+                                    refreshChatBoxWithFlash();
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch(e) {
+                console.log("Polling error:", e);
+            }
+        }
+        
+        function refreshChatBoxWithFlash() {
+            const box = document.getElementById("chat-box");
+            box.innerHTML = "";
+            const chats = userChats[currentUser.email] || [];
+            if(chats.length === 0) {
+                let w = document.createElement("div"); 
+                w.className = "chat-msg msg-vivid p-3"; 
+                w.innerHTML = "👋 Ask your doubts! Admin will reply with @yourusername and it will appear here automatically."; 
+                box.appendChild(w);
+            } else {
+                chats.forEach((chat, idx) => {
+                    let div = document.createElement("div");
+                    let msgClass = chat.sender === 'user' ? 'msg-user' : (chat.sender === 'admin' ? 'msg-admin' : 'msg-vivid');
+                    div.className = `chat-msg ${msgClass} p-3`;
+                    let senderName = chat.sender === 'user' ? 'You' : (chat.sender === 'admin' ? '✨ Vivid Admin' : '🤖 Vivid Bot');
+                    div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${chat.text}`;
+                    box.appendChild(div);
+                    
+                    // Add flash effect for new admin messages
+                    if(chat.sender === 'admin' && idx === chats.length - 1 && !chat.seen) {
+                        div.classList.add("admin-reply-new");
+                        chat.seen = true;
+                        saveChats();
+                    }
+                });
+            }
+            box.scrollTop = box.scrollHeight;
+        }
+        
+        function refreshChatBox() {
+            const box = document.getElementById("chat-box");
+            box.innerHTML = "";
+            const chats = userChats[currentUser.email] || [];
+            if(chats.length === 0) {
+                let w = document.createElement("div"); 
+                w.className = "chat-msg msg-vivid p-3"; 
+                w.innerHTML = "👋 Ask your doubts! Admin will reply with @yourusername and it will appear here automatically."; 
+                box.appendChild(w);
+            } else {
+                chats.forEach(chat => {
+                    let div = document.createElement("div");
+                    let msgClass = chat.sender === 'user' ? 'msg-user' : (chat.sender === 'admin' ? 'msg-admin' : 'msg-vivid');
+                    div.className = `chat-msg ${msgClass} p-3`;
+                    let senderName = chat.sender === 'user' ? 'You' : (chat.sender === 'admin' ? '✨ Vivid Admin' : '🤖 Vivid Bot');
+                    div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${chat.text}`;
+                    box.appendChild(div);
+                });
+            }
+            box.scrollTop = box.scrollHeight;
+        }
+        
+        async function sendUserQuery() {
+            let inp = document.getElementById("chatInput");
+            let msg = inp.value.trim();
+            if(!msg) return;
+            let timestamp = new Date().toLocaleTimeString();
+            let userMsg = { text: msg, sender: 'user', timestamp };
+            userChats[currentUser.email].push(userMsg);
+            saveChats();
+            refreshChatBox();
+            inp.value = "";
+            
+            // Send to Telegram with user tag for easy admin reply
+            try {
+                let userName = currentUser.name.substring(0, 20);
+                let userTag = currentUser.username || currentUser.email.split('@')[0];
+                let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${msg.substring(0, 300)}%0A🕒 *Time:* ${new Date().toLocaleString()}%0A%0A━━━━━━━━━━━━━━━━%0A💡 *TO REPLY:* Send message starting with @${userTag} and your reply will appear instantly in user's chat!%0A%0AExample: @${userTag} Here is your answer...`;
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
+            } catch(e) { console.error("TG send fail"); }
+            
+            // Auto response
+            let autoMsg = { text: "✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", sender: 'vivid', timestamp: new Date().toLocaleTimeString(), hiddenFromHistory: true };
+            userChats[currentUser.email].push(autoMsg);
+            saveChats();
+            refreshChatBox();
+        }
+        
+        function showChatHistory() {
+            setViewTitle("📜 MY CHAT HISTORY", false);
+            const section = document.getElementById("chat-history-section");
+            section.innerHTML = "";
+            const chats = userChats[currentUser.email] || [];
+            const visibleChats = chats.filter(c => !c.hiddenFromHistory);
+            if(visibleChats.length === 0) section.innerHTML = "<div class='glass-card p-10 text-center opacity-60'><i class='fas fa-comment-slash text-3xl'></i><p class='text-xs mt-2'>No chats yet</p></div>";
+            else {
+                visibleChats.slice().reverse().forEach(chat => {
+                    let senderDisplay = chat.sender === 'user' ? currentUser.name : (chat.sender === 'admin' ? 'Vivid Admin' : 'Vivid Support');
+                    let borderColor = chat.sender === 'user' ? 'border-blue-500' : (chat.sender === 'admin' ? 'border-green-500' : 'border-purple-500');
+                    section.innerHTML += `<div class="glass-card p-4 border-l-4 ${borderColor}"><div class="flex justify-between text-[9px] text-slate-400"><span class="font-bold">${senderDisplay}</span><span>${chat.timestamp}</span></div><p class="text-sm mt-1">${chat.text}</p></div>`;
+                });
+            }
+            section.innerHTML += `<button onclick="renderCourseGrid()" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← Back to Home</button>`;
+            showOnly("chat-history-section");
         }
         
         // Course Navigation
@@ -410,138 +576,9 @@
         }
         
         function safeRedirect(url) { 
-            if(!url || url === "#") { alert("Content will be added soon! Join WhatsApp channel for updates."); return; }
+            if(!url || url === "#") { alert("Content coming soon!"); return; }
             document.getElementById("redirect-overlay").classList.remove("hidden"); 
             setTimeout(() => { window.open(url, "_blank"); document.getElementById("redirect-overlay").classList.add("hidden"); }, 700); 
-        }
-        
-        // ========== LIVE ADMIN REPLY SYSTEM ==========
-        // Track last message count to detect new admin replies
-        let lastMessageCount = 0;
-        
-        function startAdminReplyPolling() {
-            if(pollingInterval) clearInterval(pollingInterval);
-            // Poll every 8 seconds for new messages from bot (simulate admin replies)
-            pollingInterval = setInterval(async () => {
-                if(!currentUser) return;
-                await checkForAdminReplies();
-            }, 8000);
-        }
-        
-        async function checkForAdminReplies() {
-            try {
-                // Fetch last 50 messages from bot updates (simulate webhook - we'll use getUpdates)
-                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=-1&limit=30`);
-                const data = await response.json();
-                if(data.ok && data.result) {
-                    // Look for messages that mention the user's username or email
-                    const userTag = currentUser.username || currentUser.email.split('@')[0];
-                    for(let update of data.result.reverse()) {
-                        const msg = update.message;
-                        if(msg && msg.text && msg.from && msg.from.id != ADMIN_CHAT_ID) {
-                            const text = msg.text;
-                            // Check if this message is a reply to this user (contains @username or email reference)
-                            if(text.includes(`@${userTag}`) || text.toLowerCase().includes(currentUser.email.toLowerCase())) {
-                                // Extract the actual reply content (remove the @mention)
-                                let replyText = text.replace(new RegExp(`@${userTag}`, 'gi'), '').trim();
-                                if(replyText === "") replyText = text;
-                                
-                                // Check if we already have this reply stored
-                                const existingReplies = userChats[currentUser.email] || [];
-                                const alreadyExists = existingReplies.some(chat => chat.sender === 'admin' && chat.text === replyText && chat.timestamp.includes(new Date().toLocaleTimeString().slice(0,5)));
-                                
-                                if(!alreadyExists && replyText.length > 0) {
-                                    // Add admin reply to chat
-                                    const adminMsg = { 
-                                        text: `👑 Admin: ${replyText}`, 
-                                        sender: 'admin', 
-                                        timestamp: new Date().toLocaleTimeString(),
-                                        isAdminReply: true
-                                    };
-                                    userChats[currentUser.email].push(adminMsg);
-                                    saveChats();
-                                    refreshChatBox();
-                                    
-                                    // Show notification
-                                    const chatBox = document.getElementById("chat-box");
-                                    const lastMsg = chatBox.lastChild;
-                                    if(lastMsg) lastMsg.classList.add("new-reply");
-                                    
-                                    // Also send a confirmation to admin that reply was delivered
-                                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=✅ Reply delivered to @${userTag}`);
-                                }
-                            }
-                        }
-                    }
-                }
-            } catch(e) { console.log("Polling error:", e); }
-        }
-        
-        function refreshChatBox() {
-            const box = document.getElementById("chat-box");
-            box.innerHTML = "";
-            const chats = userChats[currentUser.email] || [];
-            if(chats.length === 0) {
-                let w = document.createElement("div"); 
-                w.className = "chat-msg msg-vivid p-3"; 
-                w.innerHTML = "👋 Ask your doubts! Admin will reply directly here. You'll see @username replies instantly."; 
-                box.appendChild(w);
-            } else {
-                chats.forEach(chat => {
-                    if(chat.hiddenFromHistory) return;
-                    let div = document.createElement("div");
-                    let msgClass = chat.sender === 'user' ? 'msg-user' : (chat.sender === 'admin' ? 'msg-admin' : 'msg-vivid');
-                    div.className = `chat-msg ${msgClass} p-3`;
-                    let senderName = chat.sender === 'user' ? 'You' : (chat.sender === 'admin' ? 'Vivid Admin' : 'Vivid Bot');
-                    div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${chat.text}`;
-                    box.appendChild(div);
-                });
-            }
-            box.scrollTop = box.scrollHeight;
-        }
-        
-        async function sendUserQuery() {
-            let inp = document.getElementById("chatInput");
-            let msg = inp.value.trim();
-            if(!msg) return;
-            let timestamp = new Date().toLocaleTimeString();
-            let userMsg = { text: msg, sender: 'user', timestamp };
-            userChats[currentUser.email].push(userMsg);
-            saveChats();
-            refreshChatBox();
-            inp.value = "";
-            
-            // Send to Telegram with user tag
-            try {
-                let userName = currentUser.name.substring(0, 20);
-                let userTag = currentUser.username || currentUser.email.split('@')[0];
-                let fullMsg = `📩 *NEW QUERY FROM VIVID PORTAL*%0A👤 *User:* ${userName} (@${userTag})%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${msg.substring(0, 300)}%0A🕒 *Time:* ${new Date().toLocaleString()}%0A%0A💡 *To reply:* Send message starting with @${userTag} and your reply will appear in user's chat automatically!`;
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
-            } catch(e) { console.error("TG send fail"); }
-            
-            // Auto acknowledge (not saved to history)
-            let ackMsg = { text: "✅ Query sent! Admin will reply here shortly. You'll see the response when admin types @yourusername.", sender: 'vivid', timestamp: new Date().toLocaleTimeString(), hiddenFromHistory: true };
-            userChats[currentUser.email].push(ackMsg);
-            saveChats();
-            refreshChatBox();
-        }
-        
-        function showChatHistory() {
-            setViewTitle("📜 MY CHAT HISTORY", false);
-            const section = document.getElementById("chat-history-section");
-            section.innerHTML = "";
-            const chats = userChats[currentUser.email] || [];
-            const visibleChats = chats.filter(c => !c.hiddenFromHistory);
-            if(visibleChats.length === 0) section.innerHTML = "<div class='glass-card p-10 text-center opacity-60'><i class='fas fa-comment-slash text-3xl'></i><p class='text-xs mt-2'>No chats yet</p></div>";
-            else {
-                visibleChats.slice().reverse().forEach(chat => {
-                    let senderDisplay = chat.sender === 'user' ? currentUser.name : (chat.sender === 'admin' ? 'Vivid Admin' : 'Vivid Support');
-                    let borderColor = chat.sender === 'user' ? 'border-blue-500' : (chat.sender === 'admin' ? 'border-green-500' : 'border-purple-500');
-                    section.innerHTML += `<div class="glass-card p-4 border-l-4 ${borderColor}"><div class="flex justify-between text-[9px] text-slate-400"><span class="font-bold">${senderDisplay}</span><span>${chat.timestamp}</span></div><p class="text-sm mt-1">${chat.text}</p></div>`;
-                });
-            }
-            section.innerHTML += `<button onclick="renderCourseGrid()" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← Back to Home</button>`;
-            showOnly("chat-history-section");
         }
         
         // Notifications
@@ -555,10 +592,10 @@
         function toggleInbox() {
             const modal = document.getElementById("inbox-modal");
             modal.classList.toggle("hidden");
-            if(!modal.classList.contains("hidden")) renderNotificationsWithReactions();
+            if(!modal.classList.contains("hidden")) renderNotifications();
         }
         
-        function renderNotificationsWithReactions() {
+        function renderNotifications() {
             const container = document.getElementById("inbox-list");
             if(!mainData || !mainData.notifications) { container.innerHTML = "<div class='text-center py-20 text-slate-500'>No announcements</div>"; return; }
             container.innerHTML = "";
@@ -582,7 +619,7 @@
             if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0 };
             notifReactions[nid][type] += 1;
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
-            localStorage.setItem("vivid_reactions_v4", JSON.stringify(notifReactions));
+            localStorage.setItem("vivid_reactions_v5", JSON.stringify(notifReactions));
         }
         
         // Utility
@@ -621,7 +658,7 @@
         }
         document.getElementById("courseSearch")?.addEventListener("keyup", filterCourses);
         
-        let storedReactions = localStorage.getItem("vivid_reactions_v4");
+        let storedReactions = localStorage.getItem("vivid_reactions_v5");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
