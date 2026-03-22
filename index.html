@@ -86,7 +86,7 @@
         .reaction-btn { transition: all 0.1s; cursor: pointer; }
         .reaction-btn:active { transform: scale(0.9); }
         
-        .course-card, .subject-card { cursor: pointer; }
+        .course-card, .subject-card, .category-card { cursor: pointer; }
         
         .online-dot {
             width: 8px;
@@ -99,6 +99,14 @@
         @keyframes pulse {
             0% { opacity: 0.4; transform: scale(0.8); }
             100% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .fade-out {
+            animation: fadeOutMsg 0.5s ease forwards;
+        }
+        @keyframes fadeOutMsg {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); display: none; }
         }
     </style>
 </head>
@@ -170,7 +178,7 @@
             </div>
             <div id="signup-form" class="hidden">
                 <input type="text" id="signupFullname" placeholder="Full Name" maxlength="25" class="auth-input mb-3">
-                <input type="text" id="signupUsername" placeholder="Username (unique)" maxlength="15" class="auth-input mb-3">
+                <input type="text" id="signupUsername" placeholder="Username (unique, letters/numbers only)" maxlength="12" class="auth-input mb-3" pattern="[A-Za-z0-9]+">
                 <input type="email" id="signupEmail" placeholder="Email" class="auth-input mb-3">
                 <input type="password" id="signupPassword" placeholder="Password (min 5 chars)" class="auth-input mb-4">
                 <button onclick="handleSignup()" class="auth-btn mb-3">Sign Up</button>
@@ -217,13 +225,13 @@
             </div>
         </div>
         
-        <!-- Bottom Nav -->
+        <!-- Bottom Nav - Default to Home on load -->
         <footer class="fixed bottom-0 left-0 w-full p-3 bg-slate-950/90 backdrop-blur-2xl border-t border-white/10 z-[9998]">
             <div class="flex justify-around items-center max-w-md mx-auto">
-                <button onclick="navAction('HOME')" class="flex flex-col items-center text-slate-400 hover:text-blue-400"><i class="fas fa-home text-xl"></i><span class="text-[8px]">Home</span></button>
-                <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="flex flex-col items-center text-green-400"><i class="fab fa-whatsapp text-2xl"></i><span class="text-[8px]">Channel</span></a>
-                <button onclick="navAction('CHAT_HISTORY')" class="flex flex-col items-center text-slate-400 hover:text-purple-400"><i class="fas fa-comments text-xl"></i><span class="text-[8px]">Chats</span></button>
-                <button onclick="toggleMenu()" class="flex flex-col items-center text-slate-400 hover:text-white"><i class="fas fa-user text-xl"></i><span class="text-[8px]">Profile</span></button>
+                <button onclick="navAction('HOME')" class="flex flex-col items-center text-blue-400 transition"><i class="fas fa-home text-xl"></i><span class="text-[8px]">Home</span></button>
+                <a href="https://whatsapp.com/channel/0029VbBjUBM0wajzBk92iw2q" target="_blank" class="flex flex-col items-center text-slate-400 hover:text-green-400 transition"><i class="fab fa-whatsapp text-2xl"></i><span class="text-[8px]">Channel</span></a>
+                <button onclick="navAction('CHAT_HISTORY')" class="flex flex-col items-center text-slate-400 hover:text-purple-400 transition"><i class="fas fa-comments text-xl"></i><span class="text-[8px]">Chats</span></button>
+                <button onclick="toggleMenu()" class="flex flex-col items-center text-slate-400 hover:text-white transition"><i class="fas fa-user text-xl"></i><span class="text-[8px]">Profile</span></button>
             </div>
         </footer>
     </div>
@@ -240,6 +248,7 @@
         let activeCourseIdx = 0, activeSubIdx = 0;
         let pollingInterval = null;
         let lastUpdateId = 0;
+        let autoMsgTimeout = null;
         
         // Load from GitHub db.json
         function loadCoursesFromDB() {
@@ -260,39 +269,50 @@
         function updateProgress(p) { document.getElementById("progress-fill").style.width = p + "%"; }
         function closeNotice() { document.getElementById("notice-modal").style.display = "none"; }
         
-        // User Management
+        // User Management with username restrictions
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_v5");
+            let users = localStorage.getItem("vivid_users_v6");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_v5");
+            let chats = localStorage.getItem("vivid_chats_v6");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_v5");
+            let token = localStorage.getItem("vivid_token_v6");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_v5", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_v5", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_v6", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_v6", JSON.stringify(userChats)); }
+        
+        function isValidUsername(username) {
+            return /^[A-Za-z0-9]{3,12}$/.test(username);
+        }
         
         function handleSignup() {
             let fullname = document.getElementById("signupFullname").value.trim().slice(0, 25);
-            let username = document.getElementById("signupUsername").value.trim().slice(0, 15);
+            let username = document.getElementById("signupUsername").value.trim().toLowerCase();
             let email = document.getElementById("signupEmail").value.trim().toLowerCase();
             let pwd = document.getElementById("signupPassword").value.trim();
             if(!fullname || !username || !email || !pwd) { alert("All fields required"); return; }
+            if(!isValidUsername(username)) { alert("Username must be 3-12 characters, letters and numbers only!"); return; }
             if(pwd.length < 5) { alert("Password min 5 characters"); return; }
-            if(window.allUsers[email]) { alert("Email already registered."); return; }
+            
+            // Check if username taken
+            for(let key in window.allUsers) {
+                if(window.allUsers[key].username === username) { alert("Username already taken!"); return; }
+                if(window.allUsers[key].email === email) { alert("Email already registered."); return; }
+            }
+            
             window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd };
             saveUsers();
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v5", email);
+            localStorage.setItem("vivid_token_v6", email);
             showApp();
         }
         
         function handleLogin() {
-            let identifier = document.getElementById("loginIdentifier").value.trim();
+            let identifier = document.getElementById("loginIdentifier").value.trim().toLowerCase();
             let pwd = document.getElementById("loginPassword").value.trim();
             let user = null;
             for(let key in window.allUsers) {
@@ -305,7 +325,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_v5", currentUser.email);
+            localStorage.setItem("vivid_token_v6", currentUser.email);
             showApp();
         }
         
@@ -329,7 +349,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_v5"); 
+            localStorage.removeItem("vivid_token_v6"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -346,10 +366,29 @@
             startPollingForAdminReplies();
         }
         
-        // ========== POLLING FOR ADMIN REPLIES ==========
+        // Auto-delete confirmation message after 3 seconds
+        function addAutoDeleteMessage(text, sender) {
+            const timestamp = new Date().toLocaleTimeString();
+            const tempMsg = { text: text, sender: sender, timestamp: timestamp, isTemp: true };
+            userChats[currentUser.email].push(tempMsg);
+            saveChats();
+            refreshChatBox();
+            
+            // Delete after 3 seconds
+            setTimeout(() => {
+                const chats = userChats[currentUser.email];
+                const index = chats.findIndex(c => c.text === text && c.timestamp === timestamp && c.isTemp);
+                if(index !== -1) {
+                    chats.splice(index, 1);
+                    saveChats();
+                    refreshChatBox();
+                }
+            }, 3500);
+        }
+        
+        // Polling for admin replies
         function startPollingForAdminReplies() {
             if(pollingInterval) clearInterval(pollingInterval);
-            // Poll every 5 seconds for new messages from bot
             pollingInterval = setInterval(async () => {
                 if(!currentUser) return;
                 await fetchAdminReplies();
@@ -358,7 +397,6 @@
         
         async function fetchAdminReplies() {
             try {
-                // Get updates from Telegram with offset
                 const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId}&timeout=5`;
                 const response = await fetch(url);
                 const data = await response.json();
@@ -369,26 +407,18 @@
                         const msg = update.message;
                         if(msg && msg.text) {
                             const messageText = msg.text;
-                            const userTag = currentUser.username || currentUser.email.split('@')[0];
+                            const userTag = currentUser.username;
                             
-                            // Check if message is for this user (contains @username)
-                            // Also check if it's not from the bot itself
-                            const isForThisUser = messageText.includes(`@${userTag}`) || 
-                                                  messageText.toLowerCase().includes(currentUser.email.toLowerCase()) ||
-                                                  (messageText.startsWith("Reply to") && messageText.includes(userTag));
+                            const isForThisUser = messageText.includes(`@${userTag}`);
                             
                             if(isForThisUser) {
-                                // Extract the reply content (remove the @mention part)
-                                let replyContent = messageText;
-                                // Remove @username from reply
-                                replyContent = replyContent.replace(new RegExp(`@${userTag}`, 'gi'), '').trim();
+                                let replyContent = messageText.replace(new RegExp(`@${userTag}`, 'gi'), '').trim();
                                 if(replyContent === "") replyContent = messageText;
                                 
-                                // Check if we already have this message in chat history
                                 const existingMsgs = userChats[currentUser.email] || [];
                                 const alreadyExists = existingMsgs.some(chat => 
-                                    chat.sender === 'admin' && chat.text === replyContent && 
-                                    Math.abs(new Date(chat.timestamp) - new Date()) < 60000
+                                    chat.sender === 'admin' && chat.text === `👑 Admin: ${replyContent}` && 
+                                    Math.abs(new Date(chat.timestamp) - new Date()) < 120000
                                 );
                                 
                                 if(!alreadyExists && replyContent.length > 0) {
@@ -406,9 +436,7 @@
                         }
                     }
                 }
-            } catch(e) {
-                console.log("Polling error:", e);
-            }
+            } catch(e) { console.log("Polling error:", e); }
         }
         
         function refreshChatBoxWithFlash() {
@@ -429,7 +457,6 @@
                     div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${chat.text}`;
                     box.appendChild(div);
                     
-                    // Add flash effect for new admin messages
                     if(chat.sender === 'admin' && idx === chats.length - 1 && !chat.seen) {
                         div.classList.add("admin-reply-new");
                         chat.seen = true;
@@ -473,19 +500,16 @@
             refreshChatBox();
             inp.value = "";
             
-            // Send to Telegram with user tag for easy admin reply
+            // Add auto-delete confirmation (not saved to history permanently)
+            addAutoDeleteMessage("✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", "vivid");
+            
+            // Send to Telegram
             try {
                 let userName = currentUser.name.substring(0, 20);
-                let userTag = currentUser.username || currentUser.email.split('@')[0];
+                let userTag = currentUser.username;
                 let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${msg.substring(0, 300)}%0A🕒 *Time:* ${new Date().toLocaleString()}%0A%0A━━━━━━━━━━━━━━━━%0A💡 *TO REPLY:* Send message starting with @${userTag} and your reply will appear instantly in user's chat!%0A%0AExample: @${userTag} Here is your answer...`;
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
             } catch(e) { console.error("TG send fail"); }
-            
-            // Auto response
-            let autoMsg = { text: "✅ Message sent! Admin will reply here using @yourusername. Replies appear automatically.", sender: 'vivid', timestamp: new Date().toLocaleTimeString(), hiddenFromHistory: true };
-            userChats[currentUser.email].push(autoMsg);
-            saveChats();
-            refreshChatBox();
         }
         
         function showChatHistory() {
@@ -493,7 +517,7 @@
             const section = document.getElementById("chat-history-section");
             section.innerHTML = "";
             const chats = userChats[currentUser.email] || [];
-            const visibleChats = chats.filter(c => !c.hiddenFromHistory);
+            const visibleChats = chats.filter(c => !c.isTemp);
             if(visibleChats.length === 0) section.innerHTML = "<div class='glass-card p-10 text-center opacity-60'><i class='fas fa-comment-slash text-3xl'></i><p class='text-xs mt-2'>No chats yet</p></div>";
             else {
                 visibleChats.slice().reverse().forEach(chat => {
@@ -506,7 +530,7 @@
             showOnly("chat-history-section");
         }
         
-        // Course Navigation
+        // Course Navigation - Supporting your db.json structure
         function renderCourseGrid() {
             if(!mainData || !mainData.courses) return;
             setViewTitle("📚 AVAILABLE COURSES", true);
@@ -530,6 +554,13 @@
         function loadSubjects(courseIdx) {
             activeCourseIdx = courseIdx;
             const course = mainData.courses[courseIdx];
+            if(!course.subjects || course.subjects.length === 0) {
+                setViewTitle(course.name, false);
+                const subDiv = document.getElementById("subject-section");
+                subDiv.innerHTML = `<div class="glass-card p-10 text-center text-slate-400">No subjects available</div><button onclick="renderCourseGrid()" class="mt-6 p-4 glass-card text-center text-[10px] font-bold uppercase">← All Courses</button>`;
+                showOnly("subject-section");
+                return;
+            }
             setViewTitle(course.name, false);
             const subDiv = document.getElementById("subject-section");
             subDiv.innerHTML = "";
@@ -619,7 +650,7 @@
             if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0 };
             notifReactions[nid][type] += 1;
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
-            localStorage.setItem("vivid_reactions_v5", JSON.stringify(notifReactions));
+            localStorage.setItem("vivid_reactions_v6", JSON.stringify(notifReactions));
         }
         
         // Utility
@@ -637,7 +668,7 @@
         }
         
         function navAction(type) { 
-            toggleMenu(); 
+            if(type !== 'HOME') toggleMenu(); 
             if(type === 'HOME') renderCourseGrid(); 
             if(type === 'CHAT_HISTORY') showChatHistory(); 
         }
@@ -658,10 +689,10 @@
         }
         document.getElementById("courseSearch")?.addEventListener("keyup", filterCourses);
         
-        let storedReactions = localStorage.getItem("vivid_reactions_v5");
+        let storedReactions = localStorage.getItem("vivid_reactions_v6");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-</html>
+    </html>
