@@ -91,6 +91,7 @@
         .reaction-btn { transition: all 0.2s; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 40px; background: rgba(255,255,255,0.05); }
         .reaction-btn:hover { background: rgba(255,255,255,0.12); transform: scale(1.02); }
         .reaction-btn:active { transform: scale(0.95); }
+        .reaction-btn.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
         
         .course-card, .subject-card, .category-card { cursor: pointer; }
         
@@ -310,7 +311,7 @@
             <div class="text-[13px] text-slate-300 space-y-3 leading-relaxed mb-6 text-left bg-blue-500/5 p-4 rounded-2xl">
                 <p>🔒 <span class="text-blue-400 font-bold">VIVID ACADEMY</span> is 100% FREE educational platform.</p>
                 <p>🚫 We never charge any fees. No paid batches.</p>
-                <p>💰 If anyone demands money — <span class="text-red-400 font-bold">SCAM</span>.</p>
+                <p>💰 If anyone demands money -- <span class="text-red-400 font-bold">SCAM</span>.</p>
             </div>
             <a href="https://whatsapp.com/channel/0029VaVividAcademy" target="_blank" class="btn-video block py-3 rounded-xl text-sm font-bold uppercase mb-2">✅ VERIFIED WHATSAPP CHANNEL</a>
             <button onclick="closeNotice()" class="bg-slate-800/60 py-3 rounded-xl text-xs font-bold w-full">I Understand</button>
@@ -479,7 +480,7 @@
         let mainData = null, curC = null, curS = null;
         let currentUser = null;
         let userChats = {};
-        let notifReactions = {};
+        let notifReactions = {}; // { notifId: { like: { count, users: [] }, love: { count, users: [] }, fire: { count, users: [] } } }
         let pollingInterval = null;
         let lastUpdateId = 0;
         let lastProcessedMsgIds = new Set();
@@ -518,19 +519,21 @@
         function updateProgress(percent) { document.getElementById('progress-bar').style.width = percent + '%'; }
         function closeNotice() { document.getElementById('notice-modal').style.display = 'none'; updateProgress(20); }
         
-        // User Management with strict username uniqueness (cross-device)
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_final3");
+            let users = localStorage.getItem("vivid_users_final4");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_final3");
+            let chats = localStorage.getItem("vivid_chats_final4");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_final3");
+            let reactions = localStorage.getItem("vivid_reactions_final4");
+            if(reactions) notifReactions = JSON.parse(reactions);
+            let token = localStorage.getItem("vivid_token_final4");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_final3", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_final3", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_final4", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_final4", JSON.stringify(userChats)); }
+        function saveReactions() { localStorage.setItem("vivid_reactions_final4", JSON.stringify(notifReactions)); }
         
         function isValidUsername(username) { return /^[A-Za-z0-9]{3,12}$/.test(username); }
         
@@ -558,7 +561,7 @@
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_final3", email);
+            localStorage.setItem("vivid_token_final4", email);
             showApp();
         }
         
@@ -576,7 +579,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_final3", currentUser.email);
+            localStorage.setItem("vivid_token_final4", currentUser.email);
             showApp();
         }
         
@@ -600,7 +603,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_final3"); 
+            localStorage.removeItem("vivid_token_final4"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -617,7 +620,6 @@
             startPollingForAdminReplies();
         }
         
-        // Navigation
         function updateNavigationButtons(isHomePage) {
             const menuBtn = document.getElementById('menuButton');
             const backBtn = document.getElementById('backButton');
@@ -634,7 +636,6 @@
         function closeMenu() { document.getElementById("side-menu").classList.remove("active"); if(document.getElementById('search-container').style.display !== 'none') document.getElementById('menuButton').classList.remove('hidden'); }
         function closeInboxModal() { document.getElementById("inbox-modal").classList.add("hidden"); document.body.style.overflow = 'auto'; }
         
-        // Image handling
         function previewChatImage(input) {
             const preview = document.getElementById('chatImagePreview');
             if(input.files && input.files[0]) {
@@ -661,25 +662,12 @@
             }
         }
         
-        function clearChatImage() {
-            currentImageFile = null;
-            document.getElementById('chatImagePreview').innerHTML = '';
-            document.getElementById('chatImagePreview').classList.add('hidden');
-            document.getElementById('chatImageInput').value = '';
-        }
+        function clearChatImage() { currentImageFile = null; document.getElementById('chatImagePreview').innerHTML = ''; document.getElementById('chatImagePreview').classList.add('hidden'); document.getElementById('chatImageInput').value = ''; }
+        function clearLiveImage() { currentLiveImageFile = null; document.getElementById('liveImagePreview').innerHTML = ''; document.getElementById('liveImagePreview').classList.add('hidden'); document.getElementById('liveImageInput').value = ''; }
         
-        function clearLiveImage() {
-            currentLiveImageFile = null;
-            document.getElementById('liveImagePreview').innerHTML = '';
-            document.getElementById('liveImagePreview').classList.add('hidden');
-            document.getElementById('liveImageInput').value = '';
-        }
-        
-        // File input listeners - using for attribute and separate event listeners
         document.getElementById('chatImageInput')?.addEventListener('change', function(e) { previewChatImage(this); });
         document.getElementById('liveImageInput')?.addEventListener('change', function(e) { previewLiveImage(this); });
         
-        // Course Navigation
         function renderCourses() { 
             updateProgress(30);
             document.getElementById('view-title').innerText = "AVAILABLE COURSES"; 
@@ -982,7 +970,7 @@
             }, 5000);
         }
         
-        // Notifications
+        // Notifications with per-user reactions (one reaction per notification per user)
         function toggleInbox() {
             const modal = document.getElementById('inbox-modal');
             modal.classList.toggle('hidden');
@@ -1002,8 +990,9 @@
             list.innerHTML = msgs.length ? '' : '<div class="glass-card p-12 text-center opacity-60"><i class="fas fa-bell-slash text-4xl mb-3"></i><p class="text-xs">No announcements yet</p></div>';
             msgs.slice().reverse().forEach((n, idx) => {
                 let nid = `notif_${idx}`;
-                if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0, fire: 0 };
+                if(!notifReactions[nid]) notifReactions[nid] = { like: { count: 0, users: [] }, love: { count: 0, users: [] }, fire: { count: 0, users: [] } };
                 let reacts = notifReactions[nid];
+                let userHasReacted = reacts.like.users.includes(currentUser.username) || reacts.love.users.includes(currentUser.username) || reacts.fire.users.includes(currentUser.username);
                 list.innerHTML += `
                     <div class="notif-card glass-card p-6 border-l-4 border-blue-500 bg-gradient-to-r from-blue-500/5 to-transparent">
                         <div class="flex justify-between items-start mb-3">
@@ -1011,19 +1000,36 @@
                         </div>
                         <p class="text-[14px] text-slate-200 leading-relaxed mb-4">${n.message}</p>
                         <div class="flex gap-3 pt-2 border-t border-white/10">
-                            <div class="reaction-btn ${reacts.like > 0 ? 'reaction-active' : ''}" onclick="addReaction('${nid}', 'like')"><i class="far fa-thumbs-up"></i> <span id="${nid}_like">${reacts.like}</span></div>
-                            <div class="reaction-btn ${reacts.love > 0 ? 'reaction-active' : ''}" onclick="addReaction('${nid}', 'love')"><i class="far fa-heart"></i> <span id="${nid}_love">${reacts.love}</span></div>
-                            <div class="reaction-btn ${reacts.fire > 0 ? 'reaction-active' : ''}" onclick="addReaction('${nid}', 'fire')"><i class="far fa-fire"></i> <span id="${nid}_fire">${reacts.fire}</span></div>
+                            <div class="reaction-btn ${reacts.like.users.includes(currentUser.username) ? 'reaction-active' : ''} ${userHasReacted && !reacts.like.users.includes(currentUser.username) ? 'disabled' : ''}" onclick="addReaction('${nid}', 'like')"><i class="far fa-thumbs-up"></i> <span id="${nid}_like">${reacts.like.count}</span></div>
+                            <div class="reaction-btn ${reacts.love.users.includes(currentUser.username) ? 'reaction-active' : ''} ${userHasReacted && !reacts.love.users.includes(currentUser.username) ? 'disabled' : ''}" onclick="addReaction('${nid}', 'love')"><i class="far fa-heart"></i> <span id="${nid}_love">${reacts.love.count}</span></div>
+                            <div class="reaction-btn ${reacts.fire.users.includes(currentUser.username) ? 'reaction-active' : ''} ${userHasReacted && !reacts.fire.users.includes(currentUser.username) ? 'disabled' : ''}" onclick="addReaction('${nid}', 'fire')"><i class="far fa-fire"></i> <span id="${nid}_fire">${reacts.fire.count}</span></div>
                         </div>
                     </div>`;
             });
         }
         
         function addReaction(nid, type) {
-            if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0, fire: 0 };
-            notifReactions[nid][type] += 1;
-            document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
-            localStorage.setItem("vivid_reactions_final3", JSON.stringify(notifReactions));
+            if(!notifReactions[nid]) notifReactions[nid] = { like: { count: 0, users: [] }, love: { count: 0, users: [] }, fire: { count: 0, users: [] } };
+            let reactionData = notifReactions[nid][type];
+            let userEmail = currentUser.username;
+            
+            // Check if user already reacted to ANY reaction type
+            let hasReacted = notifReactions[nid].like.users.includes(userEmail) || 
+                            notifReactions[nid].love.users.includes(userEmail) || 
+                            notifReactions[nid].fire.users.includes(userEmail);
+            
+            if(hasReacted && !reactionData.users.includes(userEmail)) {
+                alert("You can only react once per announcement!");
+                return;
+            }
+            
+            if(!reactionData.users.includes(userEmail)) {
+                reactionData.users.push(userEmail);
+                reactionData.count++;
+                document.getElementById(`${nid}_${type}`).innerText = reactionData.count;
+                saveReactions();
+                renderNotifications();
+            }
         }
         
         function navAction(type) { 
@@ -1041,10 +1047,10 @@
             else { if(document.getElementById('search-container').style.display !== 'none') document.getElementById('menuButton').classList.remove('hidden'); }
         }
         
-        let storedReactions = localStorage.getItem("vivid_reactions_final3");
+        let storedReactions = localStorage.getItem("vivid_reactions_final4");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-                        </html>
+    </html>
