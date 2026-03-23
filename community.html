@@ -232,9 +232,9 @@
     </div>
 
     <script>
-        // Telegram Config
+        // Telegram Config - Group ID without -100 prefix for API
         const BOT_TOKEN = "8670403460:AAGyJQnVT62Sg0bhqGm0vUTE6id66PF1t5I";
-        const CHANNEL_ID = "-1003723477120";
+        const GROUP_ID = "-1003747990318";  // Your group ID with -100 prefix
         
         // Admin Credentials
         const ADMIN_USERNAME = "ellorvii69";
@@ -246,6 +246,8 @@
         let bannedUsers = [];
         let chatEnabled = true;
         let currentImageFile = null;
+        let pollingInterval = null;
+        let lastUpdateId = 0;
         
         function loadCommunityData() {
             const savedMessages = localStorage.getItem("vivid_community_messages");
@@ -262,20 +264,100 @@
             localStorage.setItem("vivid_community_chat_enabled", chatEnabled);
         }
         
-        async function sendToTelegramChannel(username, message, imageData = null) {
+        // Send message to Telegram Group
+        async function sendToTelegramGroup(username, message, isAdmin, imageData = null) {
             try {
-                const userDisplay = username === ADMIN_USERNAME ? `👑 ${username} (Admin)` : `👤 ${username}`;
-                let text = `📢 *VIVID COMMUNITY* 📢\n\n${userDisplay}:\n${message.substring(0, 800)}`;
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHANNEL_ID}&text=${encodeURIComponent(text)}&parse_mode=Markdown`);
+                const userTag = username === ADMIN_USERNAME ? `👑 ADMIN ${username}` : `👤 ${username}`;
+                let text = `📢 *VIVID COMMUNITY* 📢\n\n${userTag}:\n${message.substring(0, 800)}`;
+                
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}&parse_mode=Markdown`);
+                
                 if(imageData) {
                     const formData = new FormData();
-                    formData.append('chat_id', CHANNEL_ID);
+                    formData.append('chat_id', GROUP_ID);
                     const blob = await fetch(imageData).then(r => r.blob());
                     formData.append('photo', blob, 'image.jpg');
                     formData.append('caption', `📷 Image from ${username}`);
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
                 }
-            } catch(e) { console.error("Telegram error:", e); }
+            } catch(e) { console.error("Telegram send error:", e); }
+        }
+        
+        // Fetch messages from Telegram Group and sync to community
+        async function fetchTelegramMessages() {
+            try {
+                const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId}&timeout=10`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if(data.ok && data.result && data.result.length > 0) {
+                    for(let update of data.result) {
+                        lastUpdateId = update.update_id + 1;
+                        const msg = update.message;
+                        if(msg && msg.text && msg.from) {
+                            // Skip bot's own messages
+                            if(msg.from.username === "vivid_academy_bot") continue;
+                            
+                            const senderName = msg.from.first_name || msg.from.username || "User";
+                            const messageText = msg.text;
+                            const timestamp = new Date(msg.date * 1000).toISOString();
+                            
+                            // Check if this message is already in our community
+                            const alreadyExists = messages.some(m => 
+                                m.text === messageText && 
+                                Math.abs(new Date(m.timestamp) - new Date(timestamp)) < 5000
+                            );
+                            
+                            if(!alreadyExists && messageText && !messageText.startsWith("/")) {
+                                // Add message from Telegram to community
+                                const isAdminFromTelegram = (senderName === "ellorvii69" || msg.from.username === "ellorvii69");
+                                const newMsg = {
+                                    id: Date.now(),
+                                    username: senderName,
+                                    text: messageText,
+                                    timestamp: timestamp,
+                                    isAdmin: isAdminFromTelegram,
+                                    reactions: {},
+                                    image: null,
+                                    fromTelegram: true
+                                };
+                                
+                                messages.push(newMsg);
+                                saveCommunityData();
+                                renderMessages();
+                            }
+                        }
+                        
+                        // Handle photo messages
+                        if(msg && msg.photo && msg.caption) {
+                            const senderName = msg.from.first_name || msg.from.username || "User";
+                            const caption = msg.caption;
+                            const timestamp = new Date(msg.date * 1000).toISOString();
+                            
+                            const alreadyExists = messages.some(m => 
+                                m.text === `📷 ${caption}` && 
+                                Math.abs(new Date(m.timestamp) - new Date(timestamp)) < 5000
+                            );
+                            
+                            if(!alreadyExists && caption) {
+                                const newMsg = {
+                                    id: Date.now(),
+                                    username: senderName,
+                                    text: `📷 ${caption}`,
+                                    timestamp: timestamp,
+                                    isAdmin: (senderName === "ellorvii69"),
+                                    reactions: {},
+                                    image: null,
+                                    fromTelegram: true
+                                };
+                                messages.push(newMsg);
+                                saveCommunityData();
+                                renderMessages();
+                            }
+                        }
+                    }
+                }
+            } catch(e) { console.error("Fetch telegram error:", e); }
         }
         
         function loginToCommunity() {
@@ -305,6 +387,7 @@
         }
         
         function logoutFromCommunity() {
+            if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null;
             localStorage.removeItem("vivid_community_user");
             location.reload();
@@ -334,7 +417,8 @@
                 return;
             }
             container.innerHTML = "";
-            messages.forEach((msg, idx) => {
+            messages.slice().reverse().forEach((msg, idx) => {
+                const originalIdx = messages.length - 1 - idx;
                 const isCurrentUser = currentUser && msg.username === currentUser.username;
                 const canDelete = (currentUser && (currentUser.isAdmin || isCurrentUser));
                 const msgDiv = document.createElement("div");
@@ -344,7 +428,7 @@
                     reactionsHtml = '<div class="flex gap-2 mt-2 flex-wrap">';
                     for(let [emoji, users] of Object.entries(msg.reactions)) {
                         if(users.length > 0) {
-                            reactionsHtml += `<button onclick="addReaction(${idx}, '${emoji}')" class="reaction-btn text-xs flex items-center gap-1 ${users.includes(currentUser?.username) ? 'reaction-active' : ''}">${emoji} <span class="text-[10px]">${users.length}</span></button>`;
+                            reactionsHtml += `<button onclick="addReaction(${originalIdx}, '${emoji}')" class="reaction-btn text-xs flex items-center gap-1 ${users.includes(currentUser?.username) ? 'reaction-active' : ''}">${emoji} <span class="text-[10px]">${users.length}</span></button>`;
                         }
                     }
                     reactionsHtml += '</div>';
@@ -358,18 +442,19 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="font-bold text-sm ${msg.isAdmin ? 'text-red-400' : 'text-blue-400'}">${escapeHtml(msg.username)}</span>
                             ${msg.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+                            ${msg.fromTelegram ? '<span class="text-[9px] bg-green-500/20 px-2 py-0.5 rounded-full ml-1">📱 Telegram</span>' : ''}
                             <span class="text-[9px] text-slate-500">${new Date(msg.timestamp).toLocaleString()}</span>
                         </div>
-                        ${canDelete ? `<button onclick="deleteMessage(${idx})" class="text-slate-500 hover:text-red-400 text-xs"><i class="fas fa-trash"></i></button>` : ''}
+                        ${canDelete ? `<button onclick="deleteMessage(${originalIdx})" class="text-slate-500 hover:text-red-400 text-xs"><i class="fas fa-trash"></i></button>` : ''}
                     </div>
                     <p class="text-sm text-slate-200 mt-1 break-words">${escapeHtml(msg.text)}</p>
                     ${imageHtml}
                     ${reactionsHtml}
                     <div class="flex gap-3 mt-2">
-                        <button onclick="addReaction(${idx}, '👍')" class="text-xs text-slate-400 hover:text-blue-400">👍 Like</button>
-                        <button onclick="addReaction(${idx}, '❤️')" class="text-xs text-slate-400 hover:text-red-400">❤️ Love</button>
-                        <button onclick="addReaction(${idx}, '🔥')" class="text-xs text-slate-400 hover:text-orange-400">🔥 Fire</button>
-                        <button onclick="addReaction(${idx}, '😂')" class="text-xs text-slate-400 hover:text-yellow-400">😂 Haha</button>
+                        <button onclick="addReaction(${originalIdx}, '👍')" class="text-xs text-slate-400 hover:text-blue-400">👍 Like</button>
+                        <button onclick="addReaction(${originalIdx}, '❤️')" class="text-xs text-slate-400 hover:text-red-400">❤️ Love</button>
+                        <button onclick="addReaction(${originalIdx}, '🔥')" class="text-xs text-slate-400 hover:text-orange-400">🔥 Fire</button>
+                        <button onclick="addReaction(${originalIdx}, '😂')" class="text-xs text-slate-400 hover:text-yellow-400">😂 Haha</button>
                         ${currentUser && currentUser.isAdmin ? `<button onclick="banUser('${msg.username}')" class="text-xs text-red-400 hover:text-red-300 ml-auto">🚫 Ban User</button>` : ''}
                     </div>
                 `;
@@ -386,11 +471,7 @@
             const text = input.value.trim();
             if(!text && !currentImageFile) return;
             
-            let imageToSend = null;
-            if(currentImageFile) {
-                imageToSend = currentImageFile;
-            }
-            
+            let imageToSend = currentImageFile;
             const newMsg = {
                 id: Date.now(),
                 username: currentUser.username,
@@ -398,7 +479,8 @@
                 timestamp: new Date().toISOString(),
                 isAdmin: currentUser.isAdmin,
                 reactions: {},
-                image: currentImageFile || null
+                image: currentImageFile || null,
+                fromTelegram: false
             };
             
             messages.push(newMsg);
@@ -413,7 +495,7 @@
                 document.getElementById("imageInput").value = '';
             }
             
-            await sendToTelegramChannel(currentUser.username, newMsg.text, imageToSend);
+            await sendToTelegramGroup(currentUser.username, newMsg.text, currentUser.isAdmin, imageToSend);
             const container = document.getElementById("messagesContainer");
             container.scrollTop = container.scrollHeight;
         }
@@ -579,9 +661,13 @@
             renderMessages();
             updateOnlineCount();
             setInterval(updateOnlineCount, 30000);
+            
+            // Start polling for Telegram messages every 3 seconds
+            if(pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = setInterval(fetchTelegramMessages, 3000);
         }
         
         init();
     </script>
 </body>
-</html>
+    </html>
