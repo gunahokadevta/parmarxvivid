@@ -264,6 +264,20 @@
             width: 44px;
             height: 44px;
         }
+        
+        /* Large Notice Modal Styles */
+        .large-notice {
+            max-width: 480px;
+            width: 90%;
+        }
+        .notice-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        @media (max-width: 480px) {
+            .notice-title { font-size: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -303,18 +317,26 @@
         </div>
     </div>
 
-    <!-- NOTICE MODAL -->
+    <!-- LARGE NOTICE MODAL - As per image -->
     <div id="notice-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-5 z-[10002]">
-        <div class="glass-card p-7 text-center max-w-sm w-full border-t-4 border-blue-500 animate-fade">
-            <i class="fas fa-shield-heart text-blue-500 text-5xl mb-3"></i>
-            <h2 class="text-2xl font-black mb-3 text-white">⚠️ SECURITY ALERT</h2>
-            <div class="text-[13px] text-slate-300 space-y-3 leading-relaxed mb-6 text-left bg-blue-500/5 p-4 rounded-2xl">
-                <p>🔒 <span class="text-blue-400 font-bold">VIVID ACADEMY</span> is 100% FREE educational platform.</p>
-                <p>🚫 We never charge any fees. No paid batches.</p>
-                <p>💰 If anyone demands money -- <span class="text-red-400 font-bold">SCAM</span>.</p>
+        <div class="glass-card p-8 text-center large-notice border-t-4 border-blue-500 animate-fade">
+            <div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-5">
+                <i class="fas fa-shield-heart text-blue-400 text-4xl"></i>
             </div>
-            <a href="https://whatsapp.com/channel/0029VaVividAcademy" target="_blank" class="btn-video block py-3 rounded-xl text-sm font-bold uppercase mb-2">✅ VERIFIED WHATSAPP CHANNEL</a>
-            <button onclick="closeNotice()" class="bg-slate-800/60 py-3 rounded-xl text-xs font-bold w-full">I Understand</button>
+            <h2 class="text-2xl md:text-3xl font-black mb-4 text-white uppercase tracking-tight">⚠️ IMPORTANT NOTICE</h2>
+            <div class="text-[15px] text-slate-200 space-y-4 leading-relaxed mb-6 text-left bg-blue-500/5 p-5 rounded-2xl border border-blue-500/20">
+                <p>All courses and materials on this website are provided <span class="text-blue-400 font-bold">completely free of cost</span> by <span class="text-blue-400 font-bold">VIVID</span>.</p>
+                <p>We do not charge any fees. If anyone asks you for money claiming to represent us, <span class="text-red-400 font-bold uppercase">PLEASE DO NOT PAY</span>.</p>
+                <p>Ask for a refund immediately and report the matter to us. This is the only official platform managed by <span class="text-blue-400 font-bold">VIVID</span>.</p>
+            </div>
+            <div class="flex flex-col gap-3">
+                <a href="https://whatsapp.com/channel/0029VaVividAcademy" target="_blank" class="btn-video py-4 rounded-xl text-sm font-bold uppercase tracking-wider text-white hover:brightness-110 shadow-lg">
+                    🔔 JOIN OFFICIAL CHANNEL
+                </a>
+                <button onclick="closeNotice()" class="bg-slate-800/60 py-3 rounded-xl text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-white transition">
+                    I HAVE ALREADY JOINED
+                </button>
+            </div>
         </div>
     </div>
 
@@ -350,7 +372,7 @@
             </div>
             <div id="signup-form" class="hidden">
                 <input type="text" id="signupFullname" placeholder="Full Name" maxlength="25" class="auth-input mb-3">
-                <input type="text" id="signupUsername" placeholder="Username (3-12 chars, letters/numbers)" maxlength="12" class="auth-input mb-3">
+                <input type="text" id="signupUsername" placeholder="Username (7-13 chars, must include a number)" maxlength="13" class="auth-input mb-3">
                 <input type="email" id="signupEmail" placeholder="Email" class="auth-input mb-3">
                 <input type="password" id="signupPassword" placeholder="Password (min 5 chars)" class="auth-input mb-4">
                 <button onclick="handleSignup()" class="auth-btn signup-highlight mb-3">Sign Up</button>
@@ -480,7 +502,7 @@
         let mainData = null, curC = null, curS = null;
         let currentUser = null;
         let userChats = {};
-        let notifReactions = {}; // { notifId: { like: { count, users: [] }, love: { count, users: [] }, fire: { count, users: [] } } }
+        let notifReactions = {};
         let pollingInterval = null;
         let lastUpdateId = 0;
         let lastProcessedMsgIds = new Set();
@@ -520,22 +542,25 @@
         function closeNotice() { document.getElementById('notice-modal').style.display = 'none'; updateProgress(20); }
         
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_final4");
+            let users = localStorage.getItem("vivid_users_final5");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_final4");
+            let chats = localStorage.getItem("vivid_chats_final5");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let reactions = localStorage.getItem("vivid_reactions_final4");
+            let reactions = localStorage.getItem("vivid_reactions_final5");
             if(reactions) notifReactions = JSON.parse(reactions);
-            let token = localStorage.getItem("vivid_token_final4");
+            let token = localStorage.getItem("vivid_token_final5");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_final4", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_final4", JSON.stringify(userChats)); }
-        function saveReactions() { localStorage.setItem("vivid_reactions_final4", JSON.stringify(notifReactions)); }
+        function saveUsers() { localStorage.setItem("vivid_users_final5", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_final5", JSON.stringify(userChats)); }
+        function saveReactions() { localStorage.setItem("vivid_reactions_final5", JSON.stringify(notifReactions)); }
         
-        function isValidUsername(username) { return /^[A-Za-z0-9]{3,12}$/.test(username); }
+        // Updated username validation: 7-13 chars, must contain at least one number
+        function isValidUsername(username) { 
+            return /^(?=.*[0-9])[A-Za-z0-9]{7,13}$/.test(username); 
+        }
         
         function isUsernameTaken(username, excludeEmail = null) {
             for(let key in window.allUsers) {
@@ -551,7 +576,10 @@
             let email = document.getElementById("signupEmail").value.trim().toLowerCase();
             let pwd = document.getElementById("signupPassword").value.trim();
             if(!fullname || !username || !email || !pwd) { alert("All fields required"); return; }
-            if(!isValidUsername(username)) { alert("Username must be 3-12 characters, letters and numbers only!"); return; }
+            if(!isValidUsername(username)) { 
+                alert("❌ Username must be 7-13 characters, letters and numbers only, and must include at least one number!\n\nExample: rahul123, student7, vivid2025"); 
+                return; 
+            }
             if(pwd.length < 5) { alert("Password min 5 characters"); return; }
             if(isUsernameTaken(username)) { alert("❌ Username '" + username + "' already taken! Please choose another unique username."); return; }
             if(window.allUsers[email]) { alert("Email already registered."); return; }
@@ -561,7 +589,7 @@
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_final4", email);
+            localStorage.setItem("vivid_token_final5", email);
             showApp();
         }
         
@@ -579,7 +607,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_final4", currentUser.email);
+            localStorage.setItem("vivid_token_final5", currentUser.email);
             showApp();
         }
         
@@ -603,7 +631,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_final4"); 
+            localStorage.removeItem("vivid_token_final5"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -767,7 +795,7 @@
             window.scrollTo({top: 0, behavior: 'smooth'}); 
         }
         
-        // Chat Functions
+        // Chat Functions (same as before)
         function refreshChatBox() {
             const box = document.getElementById("chat-box");
             box.innerHTML = "";
@@ -970,7 +998,7 @@
             }, 5000);
         }
         
-        // Notifications with per-user reactions (one reaction per notification per user)
+        // Notifications with per-user reactions
         function toggleInbox() {
             const modal = document.getElementById('inbox-modal');
             modal.classList.toggle('hidden');
@@ -1013,7 +1041,6 @@
             let reactionData = notifReactions[nid][type];
             let userEmail = currentUser.username;
             
-            // Check if user already reacted to ANY reaction type
             let hasReacted = notifReactions[nid].like.users.includes(userEmail) || 
                             notifReactions[nid].love.users.includes(userEmail) || 
                             notifReactions[nid].fire.users.includes(userEmail);
@@ -1047,10 +1074,10 @@
             else { if(document.getElementById('search-container').style.display !== 'none') document.getElementById('menuButton').classList.remove('hidden'); }
         }
         
-        let storedReactions = localStorage.getItem("vivid_reactions_final4");
+        let storedReactions = localStorage.getItem("vivid_reactions_final5");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-    </html>
+                                                                                                     </html>
