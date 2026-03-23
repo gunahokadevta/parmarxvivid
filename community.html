@@ -20,7 +20,6 @@
             min-height: 100vh; 
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #1e1b4b; }
         ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
@@ -92,10 +91,14 @@
         .file-input-label {
             cursor: pointer;
             background: rgba(255,255,255,0.05);
-            padding: 8px 12px;
-            border-radius: 20px;
+            padding: 10px 14px;
+            border-radius: 28px;
             font-size: 14px;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
         }
         .file-input-label:hover {
             background: rgba(59,130,246,0.3);
@@ -108,6 +111,35 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade { animation: fadeIn 0.3s ease; }
+        
+        /* Message input container - mobile friendly */
+        .message-input-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+        }
+        .message-input-container input {
+            flex: 1;
+            min-width: 0;
+        }
+        .message-input-container button {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-video {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-radius: 28px;
+            font-weight: bold;
+            transition: transform 0.1s;
+        }
+        .btn-video:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body class="p-4">
@@ -146,20 +178,20 @@
         </div>
         
         <!-- Messages Container -->
-        <div id="messagesContainer" class="glass-card h-[60vh] overflow-y-auto p-4 mb-4 space-y-3">
+        <div id="messagesContainer" class="glass-card h-[55vh] overflow-y-auto p-4 mb-4 space-y-3">
             <div class="text-center text-slate-500 text-xs py-10">
                 <i class="fas fa-comments text-3xl mb-2 opacity-30"></i>
                 <p>No messages yet. Be the first to say hello!</p>
             </div>
         </div>
         
-        <!-- Message Input -->
-        <div id="messageInputArea" class="glass-card p-4">
-            <div class="flex gap-2 items-center">
-                <label class="file-input-label" for="imageInput"><i class="fas fa-image"></i></label>
+        <!-- Message Input - Fixed for mobile -->
+        <div id="messageInputArea" class="glass-card p-3">
+            <div class="message-input-container">
+                <label class="file-input-label" for="imageInput"><i class="fas fa-image text-lg"></i></label>
                 <input type="file" id="imageInput" accept="image/*" class="hidden">
-                <input type="text" id="messageInput" placeholder="Type your message..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500">
-                <button onclick="sendMessage()" class="btn-video px-5 py-3 rounded-2xl text-sm font-bold"><i class="fas fa-paper-plane"></i></button>
+                <input type="text" id="messageInput" placeholder="Type your message..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 w-full">
+                <button onclick="sendMessage()" class="btn-video text-white"><i class="fas fa-paper-plane"></i></button>
             </div>
             <div id="imagePreview" class="mt-2 hidden"></div>
             <div id="chatDisabledMsg" class="text-center text-xs text-red-400 mt-2 hidden">
@@ -199,6 +231,10 @@
     </div>
 
     <script>
+        // Telegram Config - Send all messages to channel
+        const BOT_TOKEN = "8670403460:AAGyJQnVT62Sg0bhqGm0vUTE6id66PF1t5I";
+        const CHANNEL_ID = "-1003723477120";
+        
         // Admin Credentials
         const ADMIN_USERNAME = "ellorvii69";
         const ADMIN_PASSWORD = "vivid03ellorvii";
@@ -228,6 +264,27 @@
             localStorage.setItem("vivid_community_chat_enabled", chatEnabled);
         }
         
+        // Send message to Telegram Channel
+        async function sendToTelegramChannel(username, message, imageData = null) {
+            try {
+                const userDisplay = username === ADMIN_USERNAME ? `👑 ${username} (Admin)` : `👤 ${username}`;
+                let text = `📢 *VIVID COMMUNITY* 📢\n\n${userDisplay}:\n${message.substring(0, 800)}`;
+                
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHANNEL_ID}&text=${encodeURIComponent(text)}&parse_mode=Markdown`);
+                
+                if(imageData) {
+                    // Send image to channel
+                    const formData = new FormData();
+                    formData.append('chat_id', CHANNEL_ID);
+                    formData.append('photo', imageData);
+                    formData.append('caption', `📷 Image from ${username}`);
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
+                }
+            } catch(e) {
+                console.error("Telegram send error:", e);
+            }
+        }
+        
         // Login
         function loginToCommunity() {
             const username = prompt("Enter your username (3-15 chars, letters/numbers):");
@@ -239,13 +296,11 @@
                 return loginToCommunity();
             }
             
-            // Check if user is banned
             if(bannedUsers.includes(username.toLowerCase())) {
                 alert("❌ You are banned from this community!");
                 return false;
             }
             
-            // Check if admin login
             const isAdmin = (username === ADMIN_USERNAME);
             let password = null;
             if(isAdmin) {
@@ -272,18 +327,22 @@
             location.reload();
         }
         
-        // Check if user is logged in
         function checkLogin() {
             const savedUser = localStorage.getItem("vivid_community_user");
             if(savedUser) {
                 currentUser = JSON.parse(savedUser);
-                // Verify admin status on reload
                 if(currentUser.username === ADMIN_USERNAME && !currentUser.isAdmin) {
                     currentUser.isAdmin = true;
                 }
                 return true;
             }
             return false;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
         
         // Render messages
@@ -301,7 +360,6 @@
             
             container.innerHTML = "";
             messages.forEach((msg, idx) => {
-                const isAdminMsg = msg.isAdmin;
                 const isCurrentUser = currentUser && msg.username === currentUser.username;
                 const canDelete = (currentUser && (currentUser.isAdmin || isCurrentUser));
                 
@@ -309,10 +367,8 @@
                 msgDiv.className = `message-card p-3 rounded-2xl ${isCurrentUser ? 'bg-blue-500/10 border-l-4 border-blue-500' : 'bg-white/5'} animate-fade`;
                 msgDiv.id = `msg-${idx}`;
                 
-                // Reactions HTML
                 let reactionsHtml = '';
                 if(msg.reactions && Object.keys(msg.reactions).length > 0) {
-                    const reactionTypes = { '👍': 'thumbs-up', '❤️': 'heart', '🔥': 'fire', '😂': 'laugh', '😮': 'surprise' };
                     reactionsHtml = '<div class="flex gap-2 mt-2 flex-wrap">';
                     for(let [emoji, users] of Object.entries(msg.reactions)) {
                         if(users.length > 0) {
@@ -324,7 +380,6 @@
                     reactionsHtml += '</div>';
                 }
                 
-                // Image display
                 let imageHtml = '';
                 if(msg.image) {
                     imageHtml = `<div class="mt-2"><img src="${msg.image}" class="image-preview" onclick="showImageModal('${msg.image}')"></div>`;
@@ -333,7 +388,7 @@
                 msgDiv.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="font-bold text-sm ${msg.isAdmin ? 'text-red-400' : 'text-blue-400'}">${msg.username}</span>
+                            <span class="font-bold text-sm ${msg.isAdmin ? 'text-red-400' : 'text-blue-400'}">${escapeHtml(msg.username)}</span>
                             ${msg.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
                             <span class="text-[9px] text-slate-500">${new Date(msg.timestamp).toLocaleString()}</span>
                         </div>
@@ -355,14 +410,8 @@
             container.scrollTop = container.scrollHeight;
         }
         
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        // Send message with image
-        function sendMessage() {
+        // Send message
+        async function sendMessage() {
             if(!currentUser) {
                 alert("Please login first!");
                 location.reload();
@@ -388,8 +437,10 @@
                 image: null
             };
             
+            let imageToSend = null;
             if(currentImageFile) {
                 newMsg.image = currentImageFile;
+                imageToSend = currentImageFile;
                 currentImageFile = null;
                 document.getElementById("imagePreview").innerHTML = '';
                 document.getElementById("imagePreview").classList.add("hidden");
@@ -401,7 +452,9 @@
             renderMessages();
             input.value = "";
             
-            // Scroll to bottom
+            // Send to Telegram Channel
+            await sendToTelegramChannel(currentUser.username, newMsg.text, imageToSend);
+            
             const container = document.getElementById("messagesContainer");
             container.scrollTop = container.scrollHeight;
         }
@@ -422,7 +475,6 @@
             
             const userReacted = msg.reactions[emoji].includes(currentUser.username);
             
-            // Remove user's existing reaction from any emoji
             for(let e in msg.reactions) {
                 const index = msg.reactions[e].indexOf(currentUser.username);
                 if(index !== -1) {
@@ -430,9 +482,10 @@
                 }
             }
             
-            // Add new reaction if not already there
             if(!userReacted) {
                 msg.reactions[emoji].push(currentUser.username);
+                // Send reaction to Telegram
+                sendToTelegramChannel("System", `${currentUser.username} reacted ${emoji} to: ${msg.text.substring(0, 50)}`);
             }
             
             saveCommunityData();
@@ -449,12 +502,13 @@
                 messages.splice(messageIndex, 1);
                 saveCommunityData();
                 renderMessages();
+                sendToTelegramChannel("System", `Message from ${msg.username} was deleted by ${currentUser.username}`);
             } else {
                 alert("You can only delete your own messages!");
             }
         }
         
-        // Ban user (admin only)
+        // Ban user
         function banUser(username) {
             if(!currentUser || !currentUser.isAdmin) {
                 alert("Only admin can ban users!");
@@ -474,11 +528,11 @@
             bannedUsers.push(username);
             saveCommunityData();
             
-            // Remove all messages from banned user
             messages = messages.filter(msg => msg.username !== username);
             saveCommunityData();
             renderMessages();
             
+            sendToTelegramChannel("System", `User ${username} has been banned by admin`);
             alert(`✅ User "${username}" has been banned!`);
         }
         
@@ -489,12 +543,13 @@
             if(index !== -1) {
                 bannedUsers.splice(index, 1);
                 saveCommunityData();
+                sendToTelegramChannel("System", `User ${username} has been unbanned`);
                 alert(`✅ User "${username}" has been unbanned!`);
                 showBannedUsers();
             }
         }
         
-        // Toggle group chat (admin only)
+        // Toggle group chat
         function toggleGroupChat() {
             if(!currentUser || !currentUser.isAdmin) return;
             chatEnabled = !chatEnabled;
@@ -505,11 +560,13 @@
                 btn.innerHTML = "✅ Chat Active";
                 btn.className = "text-xs px-3 py-1 rounded-full bg-green-500/20 text-green-400";
                 if(disabledMsg) disabledMsg.classList.add("hidden");
+                sendToTelegramChannel("System", "Chat has been enabled by admin");
                 alert("Chat has been enabled!");
             } else {
                 btn.innerHTML = "⛔ Chat Disabled";
                 btn.className = "text-xs px-3 py-1 rounded-full bg-red-500/20 text-red-400";
                 if(disabledMsg) disabledMsg.classList.remove("hidden");
+                sendToTelegramChannel("System", "Chat has been disabled by admin");
                 alert("Chat has been disabled!");
             }
         }
@@ -528,7 +585,7 @@
                     const div = document.createElement("div");
                     div.className = "flex justify-between items-center p-3 bg-white/5 rounded-xl";
                     div.innerHTML = `
-                        <span class="text-sm">🚫 ${user}</span>
+                        <span class="text-sm">🚫 ${escapeHtml(user)}</span>
                         <button onclick="unbanUser('${user}')" class="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full">Unban</button>
                     `;
                     listDiv.appendChild(div);
@@ -543,7 +600,6 @@
             const modal = document.getElementById("membersModal");
             const listDiv = document.getElementById("membersList");
             
-            // Get unique users from messages
             const uniqueUsers = new Set();
             messages.forEach(msg => uniqueUsers.add(msg.username));
             const membersList = Array.from(uniqueUsers);
@@ -559,7 +615,7 @@
                     div.innerHTML = `
                         <div class="flex items-center gap-2">
                             <i class="fas fa-user-circle text-blue-400"></i>
-                            <span class="text-sm">${user}</span>
+                            <span class="text-sm">${escapeHtml(user)}</span>
                             ${user === ADMIN_USERNAME ? '<span class="text-[9px] bg-red-500/20 px-2 py-0.5 rounded-full">ADMIN</span>' : ''}
                             ${isBanned ? '<span class="text-[9px] bg-red-500/20 px-2 py-0.5 rounded-full">BANNED</span>' : ''}
                         </div>
@@ -615,7 +671,6 @@
         function updateOnlineCount() {
             const onlineSpan = document.getElementById("onlineCount");
             if(onlineSpan) {
-                // Simulate online users count
                 const onlineCount = Math.floor(Math.random() * 15) + 1;
                 onlineSpan.innerText = `${onlineCount} online`;
             }
@@ -629,13 +684,11 @@
                 if(loginToCommunity()) {
                     location.reload();
                 } else {
-                    // If login fails, show message
                     document.body.innerHTML = '<div class="flex items-center justify-center h-screen"><div class="glass-card p-8 text-center"><i class="fas fa-lock text-4xl mb-4 text-red-400"></i><p class="text-sm">Login required to join community</p><button onclick="location.reload()" class="mt-4 btn-video px-6 py-2 rounded-xl text-sm">Try Again</button></div></div>';
                 }
                 return;
             }
             
-            // Show admin controls if user is admin
             if(currentUser && currentUser.isAdmin) {
                 document.getElementById("adminControls").classList.remove("hidden");
                 const disabledMsg = document.getElementById("chatDisabledMsg");
@@ -644,13 +697,11 @@
                 document.getElementById("chatDisabledMsg").classList.remove("hidden");
             }
             
-            // Add image input listener
             const imageInput = document.getElementById("imageInput");
             if(imageInput) {
                 imageInput.addEventListener("change", function(e) { previewImage(this); });
             }
             
-            // Enter key to send
             const messageInput = document.getElementById("messageInput");
             if(messageInput) {
                 messageInput.addEventListener("keypress", function(e) {
@@ -666,4 +717,4 @@
         init();
     </script>
 </body>
-                  </html>
+</html>
