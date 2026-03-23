@@ -322,7 +322,7 @@
         </div>
     </div>
 
-    <!-- COMPACT NOTICE MODAL - Balanced and Professional -->
+    <!-- COMPACT NOTICE MODAL -->
     <div id="notice-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[10002]">
         <div class="glass-card notice-modal-content text-center border-t-4 border-blue-500 animate-fade">
             <div class="w-14 h-14 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -438,17 +438,17 @@
             <button onclick="toggleSection('category-section')" class="mt-6 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase mb-10 text-center">BACK</button>
         </div>
         
-        <!-- Community Section -->
-        <div id="community-section" class="hidden grid gap-4">
-            <div class="glass-card p-8 text-center">
-                <i class="fas fa-users text-5xl text-blue-500 mb-4"></i>
-                <h3 class="text-xl font-bold text-white">Vivid Community</h3>
-                <p class="text-sm text-slate-400 mt-2">Coming soon...</p>
-                <div class="mt-6 p-4 bg-blue-500/10 rounded-2xl">
-                    <p class="text-xs text-slate-300">Community features will be available here. Stay tuned!</p>
+        <!-- Community Section - Now loads external community.html -->
+        <div id="community-section" class="hidden">
+            <div class="mb-4">
+                <button onclick="goBackToHomeFromCommunity()" class="p-3 glass-card inline-flex items-center gap-2 text-sm font-semibold"><i class="fas fa-arrow-left"></i> Back to Home</button>
+            </div>
+            <div id="community-content" class="glass-card overflow-hidden" style="min-height: 70vh;">
+                <div class="text-center py-12">
+                    <div class="loader-spinner mx-auto mb-4"></div>
+                    <p class="text-sm text-slate-400">Loading community...</p>
                 </div>
             </div>
-            <button onclick="renderCourses()" class="mt-6 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase">← BACK TO HOME</button>
         </div>
         
         <!-- Live Support Section -->
@@ -665,6 +665,7 @@
         }
         
         function goBackToHome() { renderCourses(); }
+        function goBackToHomeFromCommunity() { renderCourses(); }
         function closeMenu() { document.getElementById("side-menu").classList.remove("active"); if(document.getElementById('search-container').style.display !== 'none') document.getElementById('menuButton').classList.remove('hidden'); }
         function closeInboxModal() { document.getElementById("inbox-modal").classList.add("hidden"); document.body.style.overflow = 'auto'; }
         
@@ -799,7 +800,42 @@
             window.scrollTo({top: 0, behavior: 'smooth'}); 
         }
         
-        // Chat Functions
+        // ========== COMMUNITY SECTION LOADER ==========
+        function loadCommunity() {
+            const communityContent = document.getElementById('community-content');
+            if(communityContent) {
+                communityContent.innerHTML = `<div class="text-center py-12"><div class="loader-spinner mx-auto mb-4"></div><p class="text-sm text-slate-400">Loading community...</p></div>`;
+                
+                // Load community.html from GitHub
+                fetch('https://raw.githubusercontent.com/gunahokadevta/parmarxvivid/main/community.html?v=' + Date.now())
+                    .then(res => {
+                        if(!res.ok) throw new Error("Community page not found");
+                        return res.text();
+                    })
+                    .then(html => {
+                        communityContent.innerHTML = html;
+                        // Inject any scripts if needed
+                        const scripts = communityContent.querySelectorAll('script');
+                        scripts.forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            newScript.textContent = oldScript.textContent;
+                            document.body.appendChild(newScript);
+                        });
+                    })
+                    .catch(err => {
+                        console.error("Community load error:", err);
+                        communityContent.innerHTML = `
+                            <div class="text-center py-12">
+                                <i class="fas fa-users text-5xl text-blue-500 mb-4 opacity-50"></i>
+                                <p class="text-sm text-slate-300 mb-2">Community hub is being set up!</p>
+                                <p class="text-xs text-slate-500">Join our WhatsApp channel for updates</p>
+                                <a href="https://whatsapp.com/channel/0029VaVividAcademy" target="_blank" class="inline-block mt-4 px-5 py-2 bg-green-500/20 text-green-400 rounded-xl text-xs font-bold">Join WhatsApp Community →</a>
+                            </div>
+                        `;
+                    });
+            }
+        }
+        
         function refreshChatBox() {
             const box = document.getElementById("chat-box");
             box.innerHTML = "";
@@ -1002,7 +1038,6 @@
             }, 5000);
         }
         
-        // Notifications with per-user reactions
         function toggleInbox() {
             const modal = document.getElementById('inbox-modal');
             modal.classList.toggle('hidden');
@@ -1067,7 +1102,13 @@
             const menu = document.getElementById("side-menu");
             if(menu.classList.contains("active")) menu.classList.remove("active");
             if(type === 'HOME') renderCourses(); 
-            if(type === 'COMMUNITY') { toggleSection('community-section'); document.getElementById('view-title').innerText = "🌍 COMMUNITY HUB"; document.getElementById('search-container').classList.add('hidden'); updateNavigationButtons(false); }
+            if(type === 'COMMUNITY') { 
+                loadCommunity();
+                toggleSection('community-section'); 
+                document.getElementById('view-title').innerText = "🌍 COMMUNITY HUB"; 
+                document.getElementById('search-container').classList.add('hidden'); 
+                updateNavigationButtons(false); 
+            }
             if(type === 'LIVE_SUPPORT') { toggleSection('live-support-section'); document.getElementById('view-title').innerText = "💬 LIVE SUPPORT"; document.getElementById('search-container').classList.add('hidden'); updateNavigationButtons(false); refreshLiveChatBox(); }
         }
         
@@ -1084,4 +1125,4 @@
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-        </html>
+    </html>
