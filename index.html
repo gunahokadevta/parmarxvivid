@@ -138,24 +138,21 @@
         .menu-icon { width: 20px; height: 14px; display: flex; flex-direction: column; justify-content: space-between; }
         .menu-icon span { width: 100%; height: 2px; background: white; border-radius: 2px; }
         
-        .back-button {
-            position: fixed;
-            top: 16px;
-            left: 16px;
+        /* Back button - only shown in notifications modal now */
+        .notif-back-button {
             width: 40px;
             height: 40px;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255,255,255,0.1);
             border-radius: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            z-index: 10005;
             color: white;
             font-size: 18px;
+            transition: all 0.2s;
         }
+        .notif-back-button:hover { background: rgba(255,255,255,0.2); }
         
         .notif-nav-btn { position: relative; cursor: pointer; }
         .notif-badge-nav {
@@ -182,11 +179,7 @@
         @keyframes wa-pulse { 0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); } }
         .wa-pulse { animation: wa-pulse 1.8s infinite; }
         
-        .image-preview { max-width: 150px; max-height: 150px; border-radius: 12px; margin-top: 8px; cursor: pointer; transition: transform 0.2s; }
-        .image-preview:hover { transform: scale(1.02); }
-        .file-preview-link { display: inline-flex; align-items: center; gap: 8px; background: rgba(59,130,246,0.2); padding: 8px 12px; border-radius: 12px; margin-top: 8px; font-size: 12px; color: #60a5fa; text-decoration: none; }
-        .file-preview-link:hover { background: rgba(59,130,246,0.4); }
-        
+        .image-preview { max-width: 150px; max-height: 150px; border-radius: 12px; margin-top: 8px; cursor: pointer; }
         .file-input-label {
             cursor: pointer;
             background: rgba(255,255,255,0.05);
@@ -212,16 +205,17 @@
         
         .notice-modal-content { max-width: 420px; width: 90%; padding: 1.5rem; }
         .notice-text { font-size: 13px; line-height: 1.5; }
-        
-        /* File type badge */
-        .file-badge { display: inline-block; background: rgba(0,0,0,0.5); border-radius: 20px; padding: 2px 8px; font-size: 10px; margin-left: 8px; }
     </style>
 </head>
 <body>
 
     <div id="progress-container"><div id="progress-bar"></div></div>
-    <div id="menuButton" class="top-menu-btn" onclick="toggleMenu()"><div class="menu-icon"><span></span><span></span><span></span></div></div>
-    <div id="backButton" class="back-button hidden" onclick="goBackToHome()"><i class="fas fa-arrow-left"></i></div>
+
+    <div id="menuButton" class="top-menu-btn" onclick="toggleMenu()">
+        <div class="menu-icon"><span></span><span></span><span></span></div>
+    </div>
+
+    <!-- BACK BUTTON REMOVED FROM MAIN APP - only in notifications now -->
 
     <div id="side-menu">
         <div class="flex justify-between items-center mb-8">
@@ -260,10 +254,11 @@
         </div>
     </div>
 
+    <!-- NOTIFICATIONS MODAL WITH BACK BUTTON ONLY HERE -->
     <div id="inbox-modal" class="fixed inset-0 modal-overlay hidden flex flex-col z-[10003]">
         <div class="bg-gradient-to-r from-slate-900 to-slate-950 backdrop-blur-xl p-5 flex justify-between items-center border-b border-white/10">
             <div class="flex items-center gap-3">
-                <button onclick="closeInboxModal()" class="w-10 h-10 rounded-full bg-white/10 text-slate-400 text-xl hover:bg-white/20 transition"><i class="fas fa-arrow-left"></i></button>
+                <button onclick="closeInboxModal()" class="notif-back-button"><i class="fas fa-arrow-left"></i></button>
                 <div><h3 class="font-black text-xl"><i class="fas fa-bell text-blue-500 mr-2"></i> Announcements</h3><p class="text-[9px] text-slate-500 mt-1">Stay updated with latest news</p></div>
             </div>
         </div>
@@ -307,7 +302,12 @@
             <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.4em] mt-2">Excellence in Learning</p>
         </header>
 
-        <div id="search-container" class="mb-6"><div class="glass-card flex items-center px-5 py-4"><i class="fas fa-search text-blue-500 mr-3"></i><input type="text" id="courseSearch" placeholder="Search courses..." class="bg-transparent w-full outline-none text-white text-sm" onkeyup="filterCourses()"></div></div>
+        <div id="search-container" class="mb-6">
+            <div class="glass-card flex items-center px-5 py-4">
+                <i class="fas fa-search text-blue-500 mr-3"></i>
+                <input type="text" id="courseSearch" placeholder="Search courses..." class="bg-transparent w-full outline-none text-white text-sm" onkeyup="filterCourses()">
+            </div>
+        </div>
 
         <h2 id="view-title" class="text-[10px] font-black mb-4 uppercase tracking-wider text-blue-400 border-b border-blue-500/20 pb-2">AVAILABLE COURSES</h2>
         <div id="course-list" class="grid gap-4"></div>
@@ -319,15 +319,15 @@
         
         <div id="live-support-section" class="hidden">
             <div class="glass-card overflow-hidden">
-                <div class="p-4 bg-blue-600/10 border-b border-white/10 flex justify-between items-center"><div class="flex items-center gap-2"><span class="online-dot"></span><span class="text-[11px] font-bold">💬 Live Support</span></div><span class="text-[8px] text-slate-500">Share images, PDFs, videos</span></div>
+                <div class="p-4 bg-blue-600/10 border-b border-white/10 flex justify-between items-center"><div class="flex items-center gap-2"><span class="online-dot"></span><span class="text-[11px] font-bold">💬 Live Support</span></div><span class="text-[8px] text-slate-500">Share images - Admin replies here</span></div>
                 <div id="live-chat-box" class="h-96 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
                 <div class="p-4 bg-slate-900/60 chat-input-container">
-                    <label class="file-input-label" for="liveFileInput"><i class="fas fa-paperclip"></i></label>
-                    <input type="file" id="liveFileInput" accept="image/*,application/pdf,video/*" class="hidden">
-                    <input type="text" id="liveChatInput" placeholder="Ask your doubt or share file..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500">
+                    <label class="file-input-label" for="liveImageInput"><i class="fas fa-image"></i> Image</label>
+                    <input type="file" id="liveImageInput" accept="image/*" class="hidden">
+                    <input type="text" id="liveChatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500">
                     <button onclick="sendLiveQuery()" class="btn-video rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
                 </div>
-                <div id="liveFilePreview" class="p-2 hidden"></div>
+                <div id="liveImagePreview" class="p-2 hidden"></div>
             </div>
         </div>
         
@@ -344,7 +344,6 @@
     <script>
         const BOT_TOKEN = "8670403460:AAGyJQnVT62Sg0bhqGm0vUTE6id66PF1t5I";
         const ADMIN_CHAT_ID = "8305282917";
-        // IMGBB API for file uploads (images, PDFs, videos as binary)
         const IMGBB_API_KEY = "e193a0d9f0d2e422658a18447fa94d34";
         
         let mainData = null, curC = null, curS = null;
@@ -354,9 +353,9 @@
         let pollingInterval = null;
         let lastUpdateId = 0;
         let lastProcessedMsgIds = new Set();
-        let currentFile = null;
+        let currentLiveImageFile = null;
         
-        async function uploadFileToImgbb(file) {
+        async function uploadImageToImgbb(file) {
             const formData = new FormData();
             formData.append('image', file);
             formData.append('key', IMGBB_API_KEY);
@@ -366,25 +365,6 @@
                 if(data.success) return data.data.url;
                 else throw new Error('Upload failed');
             } catch(e) { console.error('Upload error:', e); return null; }
-        }
-        
-        function getFileTypeIcon(fileName, mimeType) {
-            if(mimeType?.startsWith('image/')) return '<i class="fas fa-image text-blue-400 mr-2"></i>';
-            if(mimeType === 'application/pdf') return '<i class="fas fa-file-pdf text-red-400 mr-2"></i>';
-            if(mimeType?.startsWith('video/')) return '<i class="fas fa-video text-purple-400 mr-2"></i>';
-            return '<i class="fas fa-file text-slate-400 mr-2"></i>';
-        }
-        
-        function generateFilePreview(url, fileType, fileName) {
-            if(fileType?.startsWith('image/')) {
-                return `<img src="${url}" class="image-preview" onclick="window.open('${url}','_blank')" style="max-width:200px; border-radius:12px; cursor:pointer;">`;
-            } else if(fileType === 'application/pdf') {
-                return `<a href="${url}" target="_blank" class="file-preview-link"><i class="fas fa-file-pdf text-red-400 text-xl"></i><span>📄 ${fileName || 'PDF Document'} (Click to open)</span></a>`;
-            } else if(fileType?.startsWith('video/')) {
-                return `<video controls class="rounded-xl mt-2 max-w-full" style="max-height:180px;"><source src="${url}" type="${fileType}">Your browser doesn't support video.</video>`;
-            } else {
-                return `<a href="${url}" target="_blank" class="file-preview-link"><i class="fas fa-download"></i><span>📁 ${fileName || 'Download File'}</span></a>`;
-            }
         }
         
         function loadData(retryCount = 0) {
@@ -482,41 +462,30 @@
             startPollingForAdminReplies();
         }
         
-        function updateNavigationButtons(isHomePage) {
-            const menuBtn = document.getElementById('menuButton');
-            const backBtn = document.getElementById('backButton');
-            if(isHomePage) { menuBtn.classList.remove('hidden'); backBtn.classList.add('hidden'); } 
-            else { menuBtn.classList.add('hidden'); backBtn.classList.remove('hidden'); }
-        }
-        
-        function goBackToHome() { renderCourses(); }
-        function closeMenu() { document.getElementById("side-menu").classList.remove("active"); if(document.getElementById('search-container').style.display !== 'none') document.getElementById('menuButton').classList.remove('hidden'); }
+        function closeMenu() { document.getElementById("side-menu").classList.remove("active"); }
         function closeInboxModal() { document.getElementById("inbox-modal").classList.add("hidden"); document.body.style.overflow = 'auto'; }
         
-        function previewFile(input) {
-            const preview = document.getElementById('liveFilePreview');
+        function previewLiveImage(input) {
+            const preview = document.getElementById('liveImagePreview');
             if(input.files && input.files[0]) {
-                const file = input.files[0];
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    if(file.type.startsWith('image/')) preview.innerHTML = `<img src="${e.target.result}" class="image-preview"><button onclick="clearFile()" class="text-xs text-red-400 ml-2 mt-2">Remove</button>`;
-                    else preview.innerHTML = `<div class="bg-slate-800/60 p-3 rounded-xl flex items-center gap-3"><i class="fas ${file.type.includes('pdf') ? 'fa-file-pdf text-red-400' : (file.type.includes('video') ? 'fa-video text-purple-400' : 'fa-file text-blue-400')} text-2xl"></i><span class="text-xs">${file.name.substring(0,30)}</span><button onclick="clearFile()" class="text-red-400 ml-2">✖</button></div>`;
+                    preview.innerHTML = `<img src="${e.target.result}" class="image-preview"><button onclick="clearLiveImage()" class="text-xs text-red-400 ml-2 mt-2 block">Remove</button>`;
                     preview.classList.remove('hidden');
                 };
-                reader.readAsDataURL(file);
-                currentFile = file;
+                reader.readAsDataURL(input.files[0]);
+                currentLiveImageFile = input.files[0];
             }
         }
         
-        function clearFile() { currentFile = null; document.getElementById('liveFilePreview').innerHTML = ''; document.getElementById('liveFilePreview').classList.add('hidden'); document.getElementById('liveFileInput').value = ''; }
+        function clearLiveImage() { currentLiveImageFile = null; document.getElementById('liveImagePreview').innerHTML = ''; document.getElementById('liveImagePreview').classList.add('hidden'); document.getElementById('liveImageInput').value = ''; }
         
-        document.getElementById('liveFileInput')?.addEventListener('change', function(e) { previewFile(this); });
+        document.getElementById('liveImageInput')?.addEventListener('change', function(e) { previewLiveImage(this); });
         
         function renderCourses() { 
             updateProgress(30);
             document.getElementById('view-title').innerText = "AVAILABLE COURSES"; 
             document.getElementById('search-container').classList.remove('hidden');
-            updateNavigationButtons(true);
             const list = document.getElementById('course-list'); list.innerHTML = ''; 
             mainData.courses.forEach((c, i) => { 
                 let action = c.directLink ? `handleOpen('${c.directLink}')` : `selectCourse(${i})`;
@@ -533,9 +502,9 @@
             document.getElementById('no-results').classList.toggle('hidden', found);
         }
 
-        function selectCourse(i) { curC = i; updateProgress(50); document.getElementById('search-container').classList.add('hidden'); document.getElementById('view-title').innerText = mainData.courses[i].name; updateNavigationButtons(false); const list = document.getElementById('subject-list'); list.innerHTML = ''; mainData.courses[i].subjects.forEach((s, si) => { list.innerHTML += `<div onclick="showCategories(${si})" class="glass-card p-5 flex justify-between items-center cursor-pointer active:scale-95 subject-card"><span class="font-bold text-sm uppercase text-slate-200">${s.name}</span><i class="fas fa-arrow-right text-blue-500"></i></div>`; }); toggleSection('subject-section'); }
-        function showCategories(si) { curS = si; updateProgress(75); document.getElementById('view-title').innerText = mainData.courses[curC].subjects[si].name; updateNavigationButtons(false); document.getElementById('category-list').innerHTML = `<div onclick="showItems('CHAPTERS')" class="glass-card p-6 border-l-4 border-blue-600 cursor-pointer flex items-center active:scale-95 category-card"><i class="fas fa-book-open mr-4 text-blue-500 text-xl"></i> <span class="font-black text-sm uppercase text-white tracking-widest">📖 CHAPTERS CONTENT</span></div><div onclick="showItems('WEEKLY TESTS')" class="glass-card p-6 border-l-4 border-pink-600 cursor-pointer flex items-center active:scale-95 category-card"><i class="fas fa-vial mr-4 text-pink-500 text-xl"></i> <span class="font-black text-sm uppercase text-white tracking-widest">📝 MOCK TESTS</span></div>`; toggleSection('category-section'); }
-        function showItems(type) { const items = mainData.courses[curC].subjects[curS][type] || []; updateProgress(100); document.getElementById('view-title').innerText = type === "CHAPTERS" ? "📖 STUDY MATERIAL" : "📝 MOCK TESTS"; updateNavigationButtons(false); const list = document.getElementById('chapter-list'); list.innerHTML = ''; if(items.length === 0) list.innerHTML = "<div class='glass-card p-12 text-center opacity-50'><i class='fas fa-folder-open text-3xl'></i><p class='text-xs mt-2'>No content yet</p></div>"; else items.forEach((ch) => { list.innerHTML += `<div class="glass-card p-5 mb-4 text-left"><h4 class="font-bold mb-4 text-white text-sm uppercase border-b border-slate-700 pb-3 tracking-wide">${ch.title}</h4><div class="grid grid-cols-2 gap-3 text-[10px] font-black uppercase text-white">${ch.url ? `<button onclick="handleOpen('${ch.url}')" class="btn-video py-3 rounded-xl">🎥 VIDEO</button>` : ''}${ch.notes_en ? `<button onclick="handleOpen('${ch.notes_en}')" class="btn-eng py-3 rounded-xl">📄 ENG NOTES</button>` : ''}${ch.notes_hi ? `<button onclick="handleOpen('${ch.notes_hi}')" class="btn-hindi py-3 rounded-xl">📄 HINDI NOTES</button>` : ''}${ch.quiz ? `<button onclick="handleOpen('${ch.quiz}')" class="btn-quiz py-3 rounded-xl">🧠 QUIZ</button>` : ''}${ch.handwritten ? `<button onclick="handleOpen('${ch.handwritten}')" class="btn-ppt py-3 rounded-xl">📑 PDF/PPT</button>` : ''}</div></div>`; }); toggleSection('content-section'); }
+        function selectCourse(i) { curC = i; updateProgress(50); document.getElementById('search-container').classList.add('hidden'); document.getElementById('view-title').innerText = mainData.courses[i].name; const list = document.getElementById('subject-list'); list.innerHTML = ''; mainData.courses[i].subjects.forEach((s, si) => { list.innerHTML += `<div onclick="showCategories(${si})" class="glass-card p-5 flex justify-between items-center cursor-pointer active:scale-95 subject-card"><span class="font-bold text-sm uppercase text-slate-200">${s.name}</span><i class="fas fa-arrow-right text-blue-500"></i></div>`; }); toggleSection('subject-section'); }
+        function showCategories(si) { curS = si; updateProgress(75); document.getElementById('view-title').innerText = mainData.courses[curC].subjects[si].name; document.getElementById('category-list').innerHTML = `<div onclick="showItems('CHAPTERS')" class="glass-card p-6 border-l-4 border-blue-600 cursor-pointer flex items-center active:scale-95 category-card"><i class="fas fa-book-open mr-4 text-blue-500 text-xl"></i> <span class="font-black text-sm uppercase text-white tracking-widest">📖 CHAPTERS CONTENT</span></div><div onclick="showItems('WEEKLY TESTS')" class="glass-card p-6 border-l-4 border-pink-600 cursor-pointer flex items-center active:scale-95 category-card"><i class="fas fa-vial mr-4 text-pink-500 text-xl"></i> <span class="font-black text-sm uppercase text-white tracking-widest">📝 MOCK TESTS</span></div>`; toggleSection('category-section'); }
+        function showItems(type) { const items = mainData.courses[curC].subjects[curS][type] || []; updateProgress(100); document.getElementById('view-title').innerText = type === "CHAPTERS" ? "📖 STUDY MATERIAL" : "📝 MOCK TESTS"; const list = document.getElementById('chapter-list'); list.innerHTML = ''; if(items.length === 0) list.innerHTML = "<div class='glass-card p-12 text-center opacity-50'><i class='fas fa-folder-open text-3xl'></i><p class='text-xs mt-2'>No content yet</p></div>"; else items.forEach((ch) => { list.innerHTML += `<div class="glass-card p-5 mb-4 text-left"><h4 class="font-bold mb-4 text-white text-sm uppercase border-b border-slate-700 pb-3 tracking-wide">${ch.title}</h4><div class="grid grid-cols-2 gap-3 text-[10px] font-black uppercase text-white">${ch.url ? `<button onclick="handleOpen('${ch.url}')" class="btn-video py-3 rounded-xl">🎥 VIDEO</button>` : ''}${ch.notes_en ? `<button onclick="handleOpen('${ch.notes_en}')" class="btn-eng py-3 rounded-xl">📄 ENG NOTES</button>` : ''}${ch.notes_hi ? `<button onclick="handleOpen('${ch.notes_hi}')" class="btn-hindi py-3 rounded-xl">📄 HINDI NOTES</button>` : ''}${ch.quiz ? `<button onclick="handleOpen('${ch.quiz}')" class="btn-quiz py-3 rounded-xl">🧠 QUIZ</button>` : ''}${ch.handwritten ? `<button onclick="handleOpen('${ch.handwritten}')" class="btn-ppt py-3 rounded-xl">📑 PDF/PPT</button>` : ''}</div></div>`; }); toggleSection('content-section'); }
         
         function handleOpen(content) { if(!content) return; if(content.includes('<') && content.includes('>')) { const newWindow = window.open('', '_blank'); newWindow.document.write(content); newWindow.document.close(); } else safeRedirect(content); }
         function safeRedirect(url) { if(!url || url === "#") { alert("Content coming soon!"); return; } document.getElementById("redirect-overlay").classList.remove("hidden"); setTimeout(() => { window.open(url, "_blank"); document.getElementById("redirect-overlay").classList.add("hidden"); }, 700); }
@@ -547,8 +516,8 @@
             if(!box) return;
             box.innerHTML = "";
             const chats = userChats[currentUser.email] || [];
-            if(chats.length === 0) { let w = document.createElement("div"); w.className = "chat-msg msg-vivid p-3"; w.innerHTML = "👉 Share images, PDFs, videos or ask doubts! Admin will reply soon."; box.appendChild(w); }
-            else { chats.forEach(chat => { if(chat.isTemp) return; let div = document.createElement("div"); let msgClass = chat.sender === 'user' ? 'msg-user' : (chat.sender === 'admin' ? 'msg-admin' : 'msg-vivid'); div.className = `chat-msg ${msgClass} p-3`; let senderName = chat.sender === 'user' ? 'You' : (chat.sender === 'admin' ? '✨ Vivid Admin' : '🤖 Vivid Bot'); let content = chat.text || ''; if(chat.fileUrl && chat.fileType) { content += `<br>${generateFilePreview(chat.fileUrl, chat.fileType, chat.fileName)}`; } div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${content}`; box.appendChild(div); }); }
+            if(chats.length === 0) { let w = document.createElement("div"); w.className = "chat-msg msg-vivid p-3"; w.innerHTML = "👉 Share images or ask doubts! Admin will reply using @username."; box.appendChild(w); }
+            else { chats.forEach(chat => { if(chat.isTemp) return; let div = document.createElement("div"); let msgClass = chat.sender === 'user' ? 'msg-user' : (chat.sender === 'admin' ? 'msg-admin' : 'msg-vivid'); div.className = `chat-msg ${msgClass} p-3`; let senderName = chat.sender === 'user' ? 'You' : (chat.sender === 'admin' ? '✨ Vivid Admin' : '🤖 Vivid Bot'); let content = chat.text; if(chat.image) { content += `<br><img src="${chat.image}" class="image-preview" onclick="window.open('${chat.image}','_blank')" style="max-width:150px; border-radius:12px; margin-top:5px; cursor:pointer;">`; } div.innerHTML = `<div class="text-[8px] opacity-60 mb-1 flex justify-between"><span>${senderName}</span><span>${chat.timestamp || ""}</span></div>${content}`; box.appendChild(div); }); }
             box.scrollTop = box.scrollHeight;
         }
         
@@ -557,37 +526,36 @@
         async function sendLiveQuery() {
             let inp = document.getElementById("liveChatInput");
             let msg = inp.value.trim();
-            if(!msg && !currentFile) return;
+            if(!msg && !currentLiveImageFile) return;
             let timestamp = new Date().toLocaleTimeString();
             let uploadedUrl = null;
-            let fileType = null;
-            let fileName = null;
+            let imageFile = currentLiveImageFile;
             
-            if(currentFile) {
-                fileType = currentFile.type;
-                fileName = currentFile.name;
-                uploadedUrl = await uploadFileToImgbb(currentFile);
-                if(!uploadedUrl) { addAutoDeleteMessage("⚠️ File upload failed. Please try again.", "vivid"); return; }
+            if(imageFile) {
+                addAutoDeleteMessage("📤 Uploading image...", "vivid");
+                uploadedUrl = await uploadImageToImgbb(imageFile);
+                if(!uploadedUrl) { addAutoDeleteMessage("⚠️ Image upload failed. Please try again.", "vivid"); return; }
             }
             
-            let userMsg = { text: msg || (currentFile ? `📎 ${fileName}` : ""), sender: 'user', timestamp: timestamp };
-            if(uploadedUrl) { userMsg.fileUrl = uploadedUrl; userMsg.fileType = fileType; userMsg.fileName = fileName; }
+            let userMsg = { text: msg || "📷 Image shared", sender: 'user', timestamp: timestamp };
+            if(uploadedUrl) userMsg.image = uploadedUrl;
             userChats[currentUser.email].push(userMsg);
             saveChats();
             refreshLiveChatBox();
             inp.value = "";
             
-            addAutoDeleteMessage("✅ Sent! Admin will reply using @username. Replies appear automatically.", "vivid");
+            addAutoDeleteMessage("✅ Message sent! Admin will reply using @yourusername.", "vivid");
             
             try {
                 let userName = currentUser.name.substring(0, 20);
                 let userTag = currentUser.username;
-                let fileInfo = uploadedUrl ? `\n📎 *File:* ${fileName}\n🔗 *Link:* ${uploadedUrl}` : "";
-                let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${(msg || "Shared file").substring(0, 300)}${fileInfo}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
+                let imageInfo = uploadedUrl ? `\n📷 *Image:* ${uploadedUrl}` : "";
+                let fullMsg = `📩 *NEW QUERY FROM ${userName.toUpperCase()}*%0A%0A👤 *User:* ${userName}%0A🔖 *Tag:* @${userTag}%0A📧 *Email:* ${currentUser.email}%0A💬 *Message:* ${(msg || "Image shared").substring(0, 300)}${imageInfo}%0A🕒 *Time:* ${new Date().toLocaleString()}`;
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${ADMIN_CHAT_ID}&text=${fullMsg}&parse_mode=Markdown`);
-                if(uploadedUrl && fileType?.startsWith('image/')) { await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?chat_id=${ADMIN_CHAT_ID}&photo=${uploadedUrl}&caption=📷 From @${userTag}`); }
+                if(uploadedUrl) { await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?chat_id=${ADMIN_CHAT_ID}&photo=${uploadedUrl}&caption=📷 From @${userTag}`); }
             } catch(e) { console.error("TG send fail", e); }
-            clearFile();
+            currentLiveImageFile = null;
+            clearLiveImage();
         }
         
         function startPollingForAdminReplies() {
@@ -647,9 +615,9 @@
         
         function addReaction(nid, type) { if(!notifReactions[nid]) notifReactions[nid] = { like: { count: 0, users: [] }, love: { count: 0, users: [] }, fire: { count: 0, users: [] } }; let reactionData = notifReactions[nid][type]; let userEmail = currentUser.username; let hasReacted = notifReactions[nid].like.users.includes(userEmail) || notifReactions[nid].love.users.includes(userEmail) || notifReactions[nid].fire.users.includes(userEmail); if(hasReacted && !reactionData.users.includes(userEmail)) { alert("You can only react once!"); return; } if(!reactionData.users.includes(userEmail)) { reactionData.users.push(userEmail); reactionData.count++; document.getElementById(`${nid}_${type}`).innerText = reactionData.count; saveReactions(); renderNotifications(); } }
         
-        function navAction(type) { const menu = document.getElementById("side-menu"); if(menu.classList.contains("active")) menu.classList.remove("active"); if(type === 'HOME') renderCourses(); if(type === 'LIVE_SUPPORT') { toggleSection('live-support-section'); document.getElementById('view-title').innerText = "💬 LIVE SUPPORT"; document.getElementById('search-container').classList.add('hidden'); updateNavigationButtons(false); refreshLiveChatBox(); } }
+        function navAction(type) { const menu = document.getElementById("side-menu"); if(menu.classList.contains("active")) menu.classList.remove("active"); if(type === 'HOME') renderCourses(); if(type === 'LIVE_SUPPORT') { toggleSection('live-support-section'); document.getElementById('view-title').innerText = "💬 LIVE SUPPORT"; document.getElementById('search-container').classList.add('hidden'); refreshLiveChatBox(); } }
         
-        function toggleMenu() { const menu = document.getElementById("side-menu"); menu.classList.toggle("active"); if(menu.classList.contains("active")) document.getElementById('menuButton').classList.add('hidden'); else if(document.getElementById('search-container').style.display !== 'none') document.getElementById('menuButton').classList.remove('hidden'); }
+        function toggleMenu() { const menu = document.getElementById("side-menu"); menu.classList.toggle("active"); if(menu.classList.contains("active")) document.getElementById('menuButton').classList.add('hidden'); else document.getElementById('menuButton').classList.remove('hidden'); }
         
         let storedReactions = localStorage.getItem("vivid_reactions_final6");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
@@ -657,4 +625,4 @@
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-    </html>
+</html>
