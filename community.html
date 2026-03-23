@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Vivid Community | Social Hub</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: radial-gradient(circle at 30% 10%, #0f0c29, #020617, #0a0a2a); 
+            background-attachment: fixed;
+            color: #f1f5f9; 
+            min-height: 100vh; 
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #1e1b4b; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+
+        .glass-card { 
+            background: rgba(15, 23, 42, 0.7); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 24px; 
+        }
+
+        .message-card {
+            transition: all 0.2s;
+        }
+        .message-card:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .reaction-btn {
+            transition: all 0.1s;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+        }
+        .reaction-btn:hover {
+            background: rgba(59,130,246,0.3);
+            transform: scale(1.05);
+        }
+        .reaction-active {
+            background: rgba(59,130,246,0.4);
+            color: #3b82f6;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.4; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 12px;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+        
+        .modal-overlay {
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+        }
+        
+        .file-input-label {
+            cursor: pointer;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .file-input-label:hover {
+            background: rgba(59,130,246,0.3);
+        }
+        
+        .hidden { display: none !important; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade { animation: fadeIn 0.3s ease; }
+    </style>
+</head>
+<body class="p-4">
+
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="glass-card p-4 mb-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-users text-2xl text-blue-500"></i>
+                <div>
+                    <h1 class="text-xl font-black">Vivid Community</h1>
+                    <p class="text-[10px] text-slate-400">Connect with fellow aspirants</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="online-dot"></span>
+                    <span class="text-xs" id="onlineCount">0 online</span>
+                </div>
+                <button onclick="logoutFromCommunity()" class="text-xs text-red-400 hover:text-red-300">Logout</button>
+            </div>
+        </div>
+        
+        <!-- Admin Controls (only visible to admin) -->
+        <div id="adminControls" class="glass-card p-3 mb-4 hidden">
+            <div class="flex flex-wrap gap-2 items-center justify-between">
+                <div class="flex gap-2">
+                    <button onclick="toggleGroupChat()" id="toggleChatBtn" class="text-xs px-3 py-1 rounded-full bg-green-500/20 text-green-400">✅ Chat Active</button>
+                    <button onclick="showBannedUsers()" class="text-xs px-3 py-1 rounded-full bg-red-500/20 text-red-400">🚫 Banned Users</button>
+                    <button onclick="showAllMembers()" class="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-400">👥 All Members</button>
+                </div>
+                <div class="text-xs text-slate-400">
+                    <i class="fas fa-shield-alt"></i> Admin Panel
+                </div>
+            </div>
+        </div>
+        
+        <!-- Messages Container -->
+        <div id="messagesContainer" class="glass-card h-[60vh] overflow-y-auto p-4 mb-4 space-y-3">
+            <div class="text-center text-slate-500 text-xs py-10">
+                <i class="fas fa-comments text-3xl mb-2 opacity-30"></i>
+                <p>No messages yet. Be the first to say hello!</p>
+            </div>
+        </div>
+        
+        <!-- Message Input -->
+        <div id="messageInputArea" class="glass-card p-4">
+            <div class="flex gap-2 items-center">
+                <label class="file-input-label" for="imageInput"><i class="fas fa-image"></i></label>
+                <input type="file" id="imageInput" accept="image/*" class="hidden">
+                <input type="text" id="messageInput" placeholder="Type your message..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500">
+                <button onclick="sendMessage()" class="btn-video px-5 py-3 rounded-2xl text-sm font-bold"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            <div id="imagePreview" class="mt-2 hidden"></div>
+            <div id="chatDisabledMsg" class="text-center text-xs text-red-400 mt-2 hidden">
+                ⚠️ Chat is currently disabled by admin
+            </div>
+        </div>
+        
+        <!-- Banned Users Modal -->
+        <div id="bannedModal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[1000] p-4">
+            <div class="glass-card p-6 max-w-md w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg">🚫 Banned Users</h3>
+                    <button onclick="closeBannedModal()" class="text-2xl">&times;</button>
+                </div>
+                <div id="bannedList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+            </div>
+        </div>
+        
+        <!-- Members Modal -->
+        <div id="membersModal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[1000] p-4">
+            <div class="glass-card p-6 max-w-md w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg">👥 Community Members</h3>
+                    <button onclick="closeMembersModal()" class="text-2xl">&times;</button>
+                </div>
+                <div id="membersList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+            </div>
+        </div>
+        
+        <!-- Image Preview Modal -->
+        <div id="imageModal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[1001] p-4">
+            <div class="relative max-w-2xl max-h-[90vh]">
+                <img id="modalImage" src="" class="rounded-2xl max-w-full max-h-[90vh] object-contain">
+                <button onclick="closeImageModal()" class="absolute top-2 right-2 bg-black/50 w-10 h-10 rounded-full text-white text-2xl">&times;</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin Credentials
+        const ADMIN_USERNAME = "ellorvii69";
+        const ADMIN_PASSWORD = "vivid03ellorvii";
+        
+        // Community Data
+        let currentUser = null;
+        let messages = [];
+        let bannedUsers = [];
+        let chatEnabled = true;
+        let currentImageFile = null;
+        
+        // Load from localStorage
+        function loadCommunityData() {
+            const savedMessages = localStorage.getItem("vivid_community_messages");
+            if(savedMessages) messages = JSON.parse(savedMessages);
+            
+            const savedBanned = localStorage.getItem("vivid_community_banned");
+            if(savedBanned) bannedUsers = JSON.parse(savedBanned);
+            
+            const savedChatState = localStorage.getItem("vivid_community_chat_enabled");
+            if(savedChatState !== null) chatEnabled = savedChatState === "true";
+        }
+        
+        function saveCommunityData() {
+            localStorage.setItem("vivid_community_messages", JSON.stringify(messages));
+            localStorage.setItem("vivid_community_banned", JSON.stringify(bannedUsers));
+            localStorage.setItem("vivid_community_chat_enabled", chatEnabled);
+        }
+        
+        // Login
+        function loginToCommunity() {
+            const username = prompt("Enter your username (3-15 chars, letters/numbers):");
+            if(!username) return false;
+            
+            const usernameRegex = /^[A-Za-z0-9]{3,15}$/;
+            if(!usernameRegex.test(username)) {
+                alert("Username must be 3-15 characters, letters and numbers only!");
+                return loginToCommunity();
+            }
+            
+            // Check if user is banned
+            if(bannedUsers.includes(username.toLowerCase())) {
+                alert("❌ You are banned from this community!");
+                return false;
+            }
+            
+            // Check if admin login
+            const isAdmin = (username === ADMIN_USERNAME);
+            let password = null;
+            if(isAdmin) {
+                password = prompt("Enter admin password:");
+                if(password !== ADMIN_PASSWORD) {
+                    alert("Wrong admin password!");
+                    return false;
+                }
+            }
+            
+            currentUser = {
+                username: username,
+                isAdmin: isAdmin,
+                joinedAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem("vivid_community_user", JSON.stringify(currentUser));
+            return true;
+        }
+        
+        function logoutFromCommunity() {
+            currentUser = null;
+            localStorage.removeItem("vivid_community_user");
+            location.reload();
+        }
+        
+        // Check if user is logged in
+        function checkLogin() {
+            const savedUser = localStorage.getItem("vivid_community_user");
+            if(savedUser) {
+                currentUser = JSON.parse(savedUser);
+                // Verify admin status on reload
+                if(currentUser.username === ADMIN_USERNAME && !currentUser.isAdmin) {
+                    currentUser.isAdmin = true;
+                }
+                return true;
+            }
+            return false;
+        }
+        
+        // Render messages
+        function renderMessages() {
+            const container = document.getElementById("messagesContainer");
+            if(!container) return;
+            
+            if(messages.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-500 text-xs py-10">
+                    <i class="fas fa-comments text-3xl mb-2 opacity-30"></i>
+                    <p>No messages yet. Be the first to say hello!</p>
+                </div>`;
+                return;
+            }
+            
+            container.innerHTML = "";
+            messages.forEach((msg, idx) => {
+                const isAdminMsg = msg.isAdmin;
+                const isCurrentUser = currentUser && msg.username === currentUser.username;
+                const canDelete = (currentUser && (currentUser.isAdmin || isCurrentUser));
+                
+                const msgDiv = document.createElement("div");
+                msgDiv.className = `message-card p-3 rounded-2xl ${isCurrentUser ? 'bg-blue-500/10 border-l-4 border-blue-500' : 'bg-white/5'} animate-fade`;
+                msgDiv.id = `msg-${idx}`;
+                
+                // Reactions HTML
+                let reactionsHtml = '';
+                if(msg.reactions && Object.keys(msg.reactions).length > 0) {
+                    const reactionTypes = { '👍': 'thumbs-up', '❤️': 'heart', '🔥': 'fire', '😂': 'laugh', '😮': 'surprise' };
+                    reactionsHtml = '<div class="flex gap-2 mt-2 flex-wrap">';
+                    for(let [emoji, users] of Object.entries(msg.reactions)) {
+                        if(users.length > 0) {
+                            reactionsHtml += `<button onclick="addReaction(${idx}, '${emoji}')" class="reaction-btn text-xs flex items-center gap-1 ${users.includes(currentUser?.username) ? 'reaction-active' : ''}">
+                                ${emoji} <span class="text-[10px]">${users.length}</span>
+                            </button>`;
+                        }
+                    }
+                    reactionsHtml += '</div>';
+                }
+                
+                // Image display
+                let imageHtml = '';
+                if(msg.image) {
+                    imageHtml = `<div class="mt-2"><img src="${msg.image}" class="image-preview" onclick="showImageModal('${msg.image}')"></div>`;
+                }
+                
+                msgDiv.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-bold text-sm ${msg.isAdmin ? 'text-red-400' : 'text-blue-400'}">${msg.username}</span>
+                            ${msg.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+                            <span class="text-[9px] text-slate-500">${new Date(msg.timestamp).toLocaleString()}</span>
+                        </div>
+                        ${canDelete ? `<button onclick="deleteMessage(${idx})" class="text-slate-500 hover:text-red-400 text-xs"><i class="fas fa-trash"></i></button>` : ''}
+                    </div>
+                    <p class="text-sm text-slate-200 mt-1 break-words">${escapeHtml(msg.text)}</p>
+                    ${imageHtml}
+                    ${reactionsHtml}
+                    <div class="flex gap-3 mt-2">
+                        <button onclick="addReaction(${idx}, '👍')" class="text-xs text-slate-400 hover:text-blue-400">👍 Like</button>
+                        <button onclick="addReaction(${idx}, '❤️')" class="text-xs text-slate-400 hover:text-red-400">❤️ Love</button>
+                        <button onclick="addReaction(${idx}, '🔥')" class="text-xs text-slate-400 hover:text-orange-400">🔥 Fire</button>
+                        <button onclick="addReaction(${idx}, '😂')" class="text-xs text-slate-400 hover:text-yellow-400">😂 Haha</button>
+                        ${currentUser && currentUser.isAdmin ? `<button onclick="banUser('${msg.username}')" class="text-xs text-red-400 hover:text-red-300 ml-auto">🚫 Ban User</button>` : ''}
+                    </div>
+                `;
+                container.appendChild(msgDiv);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Send message with image
+        function sendMessage() {
+            if(!currentUser) {
+                alert("Please login first!");
+                location.reload();
+                return;
+            }
+            
+            if(!chatEnabled && !currentUser.isAdmin) {
+                alert("Chat is currently disabled by admin!");
+                return;
+            }
+            
+            const input = document.getElementById("messageInput");
+            const text = input.value.trim();
+            if(!text && !currentImageFile) return;
+            
+            const newMsg = {
+                id: Date.now(),
+                username: currentUser.username,
+                text: text || "📷 Shared an image",
+                timestamp: new Date().toISOString(),
+                isAdmin: currentUser.isAdmin,
+                reactions: {},
+                image: null
+            };
+            
+            if(currentImageFile) {
+                newMsg.image = currentImageFile;
+                currentImageFile = null;
+                document.getElementById("imagePreview").innerHTML = '';
+                document.getElementById("imagePreview").classList.add("hidden");
+                document.getElementById("imageInput").value = '';
+            }
+            
+            messages.push(newMsg);
+            saveCommunityData();
+            renderMessages();
+            input.value = "";
+            
+            // Scroll to bottom
+            const container = document.getElementById("messagesContainer");
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // Add reaction
+        function addReaction(messageIndex, emoji) {
+            if(!currentUser) return;
+            if(!chatEnabled && !currentUser.isAdmin) {
+                alert("Chat is disabled!");
+                return;
+            }
+            
+            const msg = messages[messageIndex];
+            if(!msg) return;
+            
+            if(!msg.reactions) msg.reactions = {};
+            if(!msg.reactions[emoji]) msg.reactions[emoji] = [];
+            
+            const userReacted = msg.reactions[emoji].includes(currentUser.username);
+            
+            // Remove user's existing reaction from any emoji
+            for(let e in msg.reactions) {
+                const index = msg.reactions[e].indexOf(currentUser.username);
+                if(index !== -1) {
+                    msg.reactions[e].splice(index, 1);
+                }
+            }
+            
+            // Add new reaction if not already there
+            if(!userReacted) {
+                msg.reactions[emoji].push(currentUser.username);
+            }
+            
+            saveCommunityData();
+            renderMessages();
+        }
+        
+        // Delete message
+        function deleteMessage(messageIndex) {
+            if(!currentUser) return;
+            const msg = messages[messageIndex];
+            if(!msg) return;
+            
+            if(currentUser.isAdmin || msg.username === currentUser.username) {
+                messages.splice(messageIndex, 1);
+                saveCommunityData();
+                renderMessages();
+            } else {
+                alert("You can only delete your own messages!");
+            }
+        }
+        
+        // Ban user (admin only)
+        function banUser(username) {
+            if(!currentUser || !currentUser.isAdmin) {
+                alert("Only admin can ban users!");
+                return;
+            }
+            
+            if(username === ADMIN_USERNAME) {
+                alert("Cannot ban the admin!");
+                return;
+            }
+            
+            if(bannedUsers.includes(username)) {
+                alert("User is already banned!");
+                return;
+            }
+            
+            bannedUsers.push(username);
+            saveCommunityData();
+            
+            // Remove all messages from banned user
+            messages = messages.filter(msg => msg.username !== username);
+            saveCommunityData();
+            renderMessages();
+            
+            alert(`✅ User "${username}" has been banned!`);
+        }
+        
+        // Unban user
+        function unbanUser(username) {
+            if(!currentUser || !currentUser.isAdmin) return;
+            const index = bannedUsers.indexOf(username);
+            if(index !== -1) {
+                bannedUsers.splice(index, 1);
+                saveCommunityData();
+                alert(`✅ User "${username}" has been unbanned!`);
+                showBannedUsers();
+            }
+        }
+        
+        // Toggle group chat (admin only)
+        function toggleGroupChat() {
+            if(!currentUser || !currentUser.isAdmin) return;
+            chatEnabled = !chatEnabled;
+            saveCommunityData();
+            const btn = document.getElementById("toggleChatBtn");
+            const disabledMsg = document.getElementById("chatDisabledMsg");
+            if(chatEnabled) {
+                btn.innerHTML = "✅ Chat Active";
+                btn.className = "text-xs px-3 py-1 rounded-full bg-green-500/20 text-green-400";
+                if(disabledMsg) disabledMsg.classList.add("hidden");
+                alert("Chat has been enabled!");
+            } else {
+                btn.innerHTML = "⛔ Chat Disabled";
+                btn.className = "text-xs px-3 py-1 rounded-full bg-red-500/20 text-red-400";
+                if(disabledMsg) disabledMsg.classList.remove("hidden");
+                alert("Chat has been disabled!");
+            }
+        }
+        
+        // Show banned users
+        function showBannedUsers() {
+            if(!currentUser || !currentUser.isAdmin) return;
+            const modal = document.getElementById("bannedModal");
+            const listDiv = document.getElementById("bannedList");
+            
+            if(bannedUsers.length === 0) {
+                listDiv.innerHTML = '<div class="text-center text-slate-500 py-8">No banned users</div>';
+            } else {
+                listDiv.innerHTML = '';
+                bannedUsers.forEach(user => {
+                    const div = document.createElement("div");
+                    div.className = "flex justify-between items-center p-3 bg-white/5 rounded-xl";
+                    div.innerHTML = `
+                        <span class="text-sm">🚫 ${user}</span>
+                        <button onclick="unbanUser('${user}')" class="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full">Unban</button>
+                    `;
+                    listDiv.appendChild(div);
+                });
+            }
+            modal.classList.remove("hidden");
+        }
+        
+        // Show all members
+        function showAllMembers() {
+            if(!currentUser || !currentUser.isAdmin) return;
+            const modal = document.getElementById("membersModal");
+            const listDiv = document.getElementById("membersList");
+            
+            // Get unique users from messages
+            const uniqueUsers = new Set();
+            messages.forEach(msg => uniqueUsers.add(msg.username));
+            const membersList = Array.from(uniqueUsers);
+            
+            if(membersList.length === 0) {
+                listDiv.innerHTML = '<div class="text-center text-slate-500 py-8">No members yet</div>';
+            } else {
+                listDiv.innerHTML = '';
+                membersList.forEach(user => {
+                    const isBanned = bannedUsers.includes(user);
+                    const div = document.createElement("div");
+                    div.className = `flex justify-between items-center p-3 bg-white/5 rounded-xl ${isBanned ? 'opacity-50' : ''}`;
+                    div.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-user-circle text-blue-400"></i>
+                            <span class="text-sm">${user}</span>
+                            ${user === ADMIN_USERNAME ? '<span class="text-[9px] bg-red-500/20 px-2 py-0.5 rounded-full">ADMIN</span>' : ''}
+                            ${isBanned ? '<span class="text-[9px] bg-red-500/20 px-2 py-0.5 rounded-full">BANNED</span>' : ''}
+                        </div>
+                        ${user !== ADMIN_USERNAME ? `<button onclick="banUser('${user}')" class="text-xs bg-red-500/20 text-red-400 px-3 py-1 rounded-full">Ban</button>` : ''}
+                    `;
+                    listDiv.appendChild(div);
+                });
+            }
+            modal.classList.remove("hidden");
+        }
+        
+        function closeBannedModal() {
+            document.getElementById("bannedModal").classList.add("hidden");
+        }
+        
+        function closeMembersModal() {
+            document.getElementById("membersModal").classList.add("hidden");
+        }
+        
+        function showImageModal(imgSrc) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            modalImg.src = imgSrc;
+            modal.classList.remove("hidden");
+        }
+        
+        function closeImageModal() {
+            document.getElementById("imageModal").classList.add("hidden");
+        }
+        
+        // Image preview
+        function previewImage(input) {
+            const preview = document.getElementById("imagePreview");
+            if(input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<div class="relative inline-block"><img src="${e.target.result}" class="max-w-[100px] max-h-[100px] rounded-lg"><button onclick="clearImage()" class="absolute -top-2 -right-2 bg-red-500 rounded-full w-6 h-6 text-xs">×</button></div>`;
+                    preview.classList.remove("hidden");
+                    currentImageFile = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function clearImage() {
+            currentImageFile = null;
+            document.getElementById("imagePreview").innerHTML = '';
+            document.getElementById("imagePreview").classList.add("hidden");
+            document.getElementById("imageInput").value = '';
+        }
+        
+        // Update online count
+        function updateOnlineCount() {
+            const onlineSpan = document.getElementById("onlineCount");
+            if(onlineSpan) {
+                // Simulate online users count
+                const onlineCount = Math.floor(Math.random() * 15) + 1;
+                onlineSpan.innerText = `${onlineCount} online`;
+            }
+        }
+        
+        // Initialize
+        function init() {
+            loadCommunityData();
+            
+            if(!checkLogin()) {
+                if(loginToCommunity()) {
+                    location.reload();
+                } else {
+                    // If login fails, show message
+                    document.body.innerHTML = '<div class="flex items-center justify-center h-screen"><div class="glass-card p-8 text-center"><i class="fas fa-lock text-4xl mb-4 text-red-400"></i><p class="text-sm">Login required to join community</p><button onclick="location.reload()" class="mt-4 btn-video px-6 py-2 rounded-xl text-sm">Try Again</button></div></div>';
+                }
+                return;
+            }
+            
+            // Show admin controls if user is admin
+            if(currentUser && currentUser.isAdmin) {
+                document.getElementById("adminControls").classList.remove("hidden");
+                const disabledMsg = document.getElementById("chatDisabledMsg");
+                if(!chatEnabled && disabledMsg) disabledMsg.classList.remove("hidden");
+            } else if(!chatEnabled) {
+                document.getElementById("chatDisabledMsg").classList.remove("hidden");
+            }
+            
+            // Add image input listener
+            const imageInput = document.getElementById("imageInput");
+            if(imageInput) {
+                imageInput.addEventListener("change", function(e) { previewImage(this); });
+            }
+            
+            // Enter key to send
+            const messageInput = document.getElementById("messageInput");
+            if(messageInput) {
+                messageInput.addEventListener("keypress", function(e) {
+                    if(e.key === "Enter") sendMessage();
+                });
+            }
+            
+            renderMessages();
+            updateOnlineCount();
+            setInterval(updateOnlineCount, 30000);
+        }
+        
+        init();
+    </script>
+</body>
+                  </html>
