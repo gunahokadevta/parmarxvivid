@@ -116,7 +116,6 @@
             100% { opacity: 0; transform: translateY(-10px); display: none; }
         }
         
-        /* Top Right Menu Button */
         .top-menu-btn {
             position: fixed;
             top: 16px;
@@ -150,7 +149,6 @@
             border-radius: 2px;
         }
         
-        /* Back Button */
         .back-button {
             position: fixed;
             top: 16px;
@@ -172,7 +170,6 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         
-        /* Notification Badge */
         .notif-nav-btn {
             position: relative;
             cursor: pointer;
@@ -265,7 +262,6 @@
             height: 44px;
         }
         
-        /* Compact Notice Modal - Well balanced */
         .notice-modal-content {
             max-width: 420px;
             width: 90%;
@@ -313,29 +309,16 @@
             border-radius: 12px;
             margin-left: 8px;
         }
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 13px;
-            z-index: 2000;
-            animation: fadeOut 2.5s ease forwards;
-        }
-        @keyframes fadeOut {
-            0% { opacity: 1; transform: translateX(-50%) translateY(0); }
-            70% { opacity: 1; }
-            100% { opacity: 0; transform: translateX(-50%) translateY(20px); visibility: hidden; }
-        }
         .community-input-container {
             display: flex;
             gap: 8px;
             align-items: center;
             width: 100%;
+        }
+        
+        /* Global community sync */
+        .community-message {
+            word-break: break-word;
         }
     </style>
 </head>
@@ -343,12 +326,10 @@
 
     <div id="progress-container"><div id="progress-bar"></div></div>
 
-    <!-- TOP RIGHT MENU BUTTON -->
     <div id="menuButton" class="top-menu-btn" onclick="toggleMenu()">
         <div class="menu-icon"><span></span><span></span><span></span></div>
     </div>
 
-    <!-- BACK BUTTON -->
     <div id="backButton" class="back-button hidden" onclick="goBackToHome()">
         <i class="fas fa-arrow-left"></i>
     </div>
@@ -492,17 +473,22 @@
             <button onclick="toggleSection('category-section')" class="mt-6 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase mb-10 text-center">BACK</button>
         </div>
         
-        <!-- COMMUNITY SECTION (Built-in with Telegram) -->
+        <!-- COMMUNITY SECTION (Global - All users see same messages) -->
         <div id="community-section" class="hidden">
             <div class="mb-4"><button onclick="goBackToHomeFromCommunity()" class="p-3 glass-card inline-flex items-center gap-2 text-sm font-semibold"><i class="fas fa-arrow-left"></i> Back to Home</button></div>
             
             <!-- Community Header -->
-            <div class="glass-card p-4 mb-4 flex justify-between items-center">
-                <div class="flex items-center gap-3"><i class="fas fa-users text-2xl text-blue-500"></i><div><h3 class="text-lg font-black">Vivid Community</h3><p class="text-[9px] text-slate-400">Connect with fellow aspirants</p></div></div>
-                <div class="flex items-center gap-3"><div class="flex items-center gap-2"><span class="online-dot"></span><span class="text-xs" id="communityOnlineCount">0 online</span></div><button onclick="logoutFromCommunity()" class="text-xs text-red-400 hover:text-red-300">Logout</button></div>
+            <div class="glass-card p-4 mb-4 text-center">
+                <div class="flex items-center justify-center gap-3">
+                    <i class="fas fa-users text-2xl text-blue-500"></i>
+                    <div>
+                        <h3 class="text-lg font-black">Vivid Community</h3>
+                        <p class="text-[9px] text-slate-400">Connect with fellow aspirants</p>
+                    </div>
+                </div>
             </div>
             
-            <!-- Admin Controls -->
+            <!-- Admin Controls (only visible to admin) -->
             <div id="communityAdminControls" class="glass-card p-3 mb-4 hidden">
                 <div class="flex flex-wrap gap-2 items-center justify-between">
                     <div class="flex gap-2">
@@ -515,7 +501,7 @@
             </div>
             
             <!-- Messages Container -->
-            <div id="communityMessagesContainer" class="glass-card h-[50vh] overflow-y-auto p-4 mb-4 space-y-3">
+            <div id="communityMessagesContainer" class="glass-card h-[55vh] overflow-y-auto p-4 mb-4 space-y-3">
                 <div class="text-center text-slate-500 text-xs py-10"><i class="fas fa-comments text-3xl mb-2 opacity-30"></i><p>No messages yet. Be the first to say hello!</p></div>
             </div>
             
@@ -577,25 +563,26 @@
         let currentImageFile = null;
         let currentLiveImageFile = null;
         
-        // Community Data
+        // Community Data - GLOBAL (shared across all users)
         let communityMessages = [];
         let communityBannedUsers = [];
         let communityChatEnabled = true;
         let communityCurrentImage = null;
+        let currentCommunityUser = null;
         
         function loadCommunityData() {
-            const saved = localStorage.getItem("vivid_community_messages");
+            const saved = localStorage.getItem("vivid_community_messages_global");
             if(saved) communityMessages = JSON.parse(saved);
-            const banned = localStorage.getItem("vivid_community_banned");
+            const banned = localStorage.getItem("vivid_community_banned_global");
             if(banned) communityBannedUsers = JSON.parse(banned);
-            const chatState = localStorage.getItem("vivid_community_chat_enabled");
+            const chatState = localStorage.getItem("vivid_community_chat_enabled_global");
             if(chatState !== null) communityChatEnabled = chatState === "true";
         }
         
         function saveCommunityData() {
-            localStorage.setItem("vivid_community_messages", JSON.stringify(communityMessages));
-            localStorage.setItem("vivid_community_banned", JSON.stringify(communityBannedUsers));
-            localStorage.setItem("vivid_community_chat_enabled", communityChatEnabled);
+            localStorage.setItem("vivid_community_messages_global", JSON.stringify(communityMessages));
+            localStorage.setItem("vivid_community_banned_global", JSON.stringify(communityBannedUsers));
+            localStorage.setItem("vivid_community_chat_enabled_global", communityChatEnabled);
         }
         
         function sendToTelegramGroup(username, message) {
@@ -604,18 +591,6 @@
             const img = new Image();
             img.src = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}`;
         }
-        
-        function checkCommunityLogin() {
-            const saved = localStorage.getItem("vivid_community_user");
-            if(saved) {
-                currentCommunityUser = JSON.parse(saved);
-                if(currentCommunityUser.username === ADMIN_USERNAME && !currentCommunityUser.isAdmin) currentCommunityUser.isAdmin = true;
-                return true;
-            }
-            return false;
-        }
-        
-        let currentCommunityUser = null;
         
         function loginToCommunity() {
             let username = prompt("Enter your username (3-15 chars, letters/numbers):");
@@ -626,16 +601,27 @@
             const isAdmin = (username === ADMIN_USERNAME);
             if(isAdmin) { if(prompt("Enter admin password:") !== ADMIN_PASSWORD) { alert("Wrong admin password!"); return false; } }
             currentCommunityUser = { username: username, isAdmin: isAdmin, joinedAt: new Date().toISOString() };
-            localStorage.setItem("vivid_community_user", JSON.stringify(currentCommunityUser));
+            localStorage.setItem("vivid_community_user_global", JSON.stringify(currentCommunityUser));
             return true;
         }
         
-        function logoutFromCommunity() { currentCommunityUser = null; localStorage.removeItem("vivid_community_user"); location.reload(); }
+        function checkCommunityLogin() {
+            const saved = localStorage.getItem("vivid_community_user_global");
+            if(saved) {
+                currentCommunityUser = JSON.parse(saved);
+                if(currentCommunityUser.username === ADMIN_USERNAME && !currentCommunityUser.isAdmin) currentCommunityUser.isAdmin = true;
+                return true;
+            }
+            return false;
+        }
         
         function renderCommunityMessages() {
             const container = document.getElementById("communityMessagesContainer");
             if(!container) return;
-            if(communityMessages.length === 0) { container.innerHTML = `<div class="text-center text-slate-500 text-xs py-10"><i class="fas fa-comments text-3xl mb-2 opacity-30"></i><p>No messages yet. Be the first to say hello!</p></div>`; return; }
+            if(communityMessages.length === 0) { 
+                container.innerHTML = `<div class="text-center text-slate-500 text-xs py-10"><i class="fas fa-comments text-3xl mb-2 opacity-30"></i><p>No messages yet. Be the first to say hello!</p></div>`; 
+                return; 
+            }
             container.innerHTML = "";
             communityMessages.slice().reverse().forEach((msg, idx) => {
                 const originalIdx = communityMessages.length - 1 - idx;
@@ -660,7 +646,7 @@
                         <div class="flex items-center gap-2 flex-wrap"><span class="font-bold text-sm ${msg.isAdmin ? 'text-red-400' : 'text-blue-400'}">${escapeHtml(msg.username)}</span>${msg.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}<span class="text-[9px] text-slate-500">${new Date(msg.timestamp).toLocaleString()}</span></div>
                         ${canDelete ? `<button onclick="deleteCommunityMessage(${originalIdx})" class="text-slate-500 hover:text-red-400 text-xs"><i class="fas fa-trash"></i></button>` : ''}
                     </div>
-                    <p class="text-sm text-slate-200 mt-1 break-words">${escapeHtml(msg.text)}</p>
+                    <p class="text-sm text-slate-200 mt-1 break-words community-message">${escapeHtml(msg.text)}</p>
                     ${imageHtml}${reactionsHtml}
                     <div class="flex gap-3 mt-2"><button onclick="addCommunityReaction(${originalIdx}, '👍')" class="text-xs text-slate-400 hover:text-blue-400">👍 Like</button><button onclick="addCommunityReaction(${originalIdx}, '❤️')" class="text-xs text-slate-400 hover:text-red-400">❤️ Love</button><button onclick="addCommunityReaction(${originalIdx}, '🔥')" class="text-xs text-slate-400 hover:text-orange-400">🔥 Fire</button><button onclick="addCommunityReaction(${originalIdx}, '😂')" class="text-xs text-slate-400 hover:text-yellow-400">😂 Haha</button>${currentCommunityUser && currentCommunityUser.isAdmin ? `<button onclick="banCommunityUser('${msg.username}')" class="text-xs text-red-400 hover:text-red-300 ml-auto">🚫 Ban User</button>` : ''}</div>
                 `;
@@ -705,38 +691,46 @@
         
         function previewCommunityImage(input) { const preview = document.getElementById("communityImagePreview"); if(input.files && input.files[0]) { const reader = new FileReader(); reader.onload = function(e) { preview.innerHTML = `<div class="relative inline-block"><img src="${e.target.result}" class="max-w-[100px] max-h-[100px] rounded-lg"><button onclick="clearCommunityImage()" class="absolute -top-2 -right-2 bg-red-500 rounded-full w-6 h-6 text-xs">×</button></div>`; preview.classList.remove("hidden"); communityCurrentImage = e.target.result; }; reader.readAsDataURL(input.files[0]); } }
         function clearCommunityImage() { communityCurrentImage = null; document.getElementById("communityImagePreview").innerHTML = ''; document.getElementById("communityImagePreview").classList.add("hidden"); document.getElementById("communityImageInput").value = ''; }
-        function updateCommunityOnlineCount() { const span = document.getElementById("communityOnlineCount"); if(span) span.innerText = `${Math.floor(Math.random() * 15) + 1} online`; }
         function showCommunityImageModal(src) { const modal = document.getElementById("imageModal"); if(!modal) { const div = document.createElement("div"); div.id = "imageModal"; div.className = "fixed inset-0 modal-overlay hidden flex items-center justify-center z-[1001] p-4"; div.innerHTML = `<div class="relative max-w-2xl max-h-[90vh]"><img id="modalImage" src="" class="rounded-2xl max-w-full max-h-[90vh] object-contain"><button onclick="closeImageModal()" class="absolute top-2 right-2 bg-black/50 w-10 h-10 rounded-full text-white text-2xl">&times;</button></div>`; document.body.appendChild(div); window.closeImageModal = function() { document.getElementById("imageModal").classList.add("hidden"); }; } const modalImg = document.getElementById("modalImage"); if(modalImg) modalImg.src = src; document.getElementById("imageModal").classList.remove("hidden"); }
         
         function initCommunity() {
             loadCommunityData();
-            if(!checkCommunityLogin()) { if(loginToCommunity()) location.reload(); return; }
-            if(currentCommunityUser && currentCommunityUser.isAdmin) { document.getElementById("communityAdminControls").classList.remove("hidden"); if(!communityChatEnabled) document.getElementById("communityChatDisabledMsg").classList.remove("hidden"); } else if(!communityChatEnabled) { document.getElementById("communityChatDisabledMsg").classList.remove("hidden"); }
+            if(!checkCommunityLogin()) { 
+                if(loginToCommunity()) { 
+                    // Force reload to ensure all users see same data
+                    location.reload(); 
+                }
+                return; 
+            }
+            if(currentCommunityUser && currentCommunityUser.isAdmin) { 
+                document.getElementById("communityAdminControls").classList.remove("hidden"); 
+                if(!communityChatEnabled) document.getElementById("communityChatDisabledMsg").classList.remove("hidden"); 
+            } else if(!communityChatEnabled) { 
+                document.getElementById("communityChatDisabledMsg").classList.remove("hidden"); 
+            }
             document.getElementById("communityImageInput").addEventListener("change", function(e) { previewCommunityImage(this); });
             document.getElementById("communityMessageInput").addEventListener("keypress", function(e) { if(e.key === "Enter") sendCommunityMessage(); });
             renderCommunityMessages();
-            updateCommunityOnlineCount();
-            setInterval(updateCommunityOnlineCount, 30000);
         }
         
-        // Original functions (keep as is)
+        // Original functions (keep as is from your code)
         function loadData(retryCount = 0) { updateProgress(30); const dbUrl = 'https://raw.githubusercontent.com/gunahokadevta/parmarxvivid/main/db.json?v=' + Date.now(); fetch(dbUrl).then(res => res.json()).then(data => { mainData = data; updateProgress(100); renderCourses(); updateNotificationBadge(); }).catch(err => { if(retryCount < 2) setTimeout(() => loadData(retryCount + 1), 1500); else document.getElementById("course-list").innerHTML = `<div class="glass-card p-10 text-center text-red-400 text-xs">⚠️ Failed to load courses. Please refresh.</div>`; }); }
         function updateNotificationBadge() { const navBadge = document.getElementById('nav-notif-badge'); const userNotifViewed = currentUser ? (currentUser.notifViewed || false) : false; const currentCount = mainData?.notifications?.length || 0; if(currentCount > 0 && !userNotifViewed) { navBadge.innerText = currentCount; navBadge.classList.remove('hidden'); } else navBadge.classList.add('hidden'); }
         function updateProgress(percent) { document.getElementById('progress-bar').style.width = percent + '%'; }
         function closeNotice() { document.getElementById('notice-modal').style.display = 'none'; updateProgress(20); }
-        function loadStorage() { let users = localStorage.getItem("vivid_users_final6"); if(users) window.allUsers = JSON.parse(users); else window.allUsers = {}; let chats = localStorage.getItem("vivid_chats_final6"); if(chats) userChats = JSON.parse(chats); else userChats = {}; let reactions = localStorage.getItem("vivid_reactions_final6"); if(reactions) notifReactions = JSON.parse(reactions); let token = localStorage.getItem("vivid_token_final6"); if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); } }
-        function saveUsers() { localStorage.setItem("vivid_users_final6", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_final6", JSON.stringify(userChats)); }
-        function saveReactions() { localStorage.setItem("vivid_reactions_final6", JSON.stringify(notifReactions)); }
+        function loadStorage() { let users = localStorage.getItem("vivid_users_final7"); if(users) window.allUsers = JSON.parse(users); else window.allUsers = {}; let chats = localStorage.getItem("vivid_chats_final7"); if(chats) userChats = JSON.parse(chats); else userChats = {}; let reactions = localStorage.getItem("vivid_reactions_final7"); if(reactions) notifReactions = JSON.parse(reactions); let token = localStorage.getItem("vivid_token_final7"); if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); } }
+        function saveUsers() { localStorage.setItem("vivid_users_final7", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_final7", JSON.stringify(userChats)); }
+        function saveReactions() { localStorage.setItem("vivid_reactions_final7", JSON.stringify(notifReactions)); }
         function isValidUsername(username) { return /^(?=.*[0-9])[A-Za-z0-9]{7,13}$/.test(username); }
         function isUsernameTaken(username, excludeEmail = null) { for(let key in window.allUsers) { if(excludeEmail && key === excludeEmail) continue; if(window.allUsers[key] && window.allUsers[key].username === username) return true; } return false; }
-        function handleSignup() { let fullname = document.getElementById("signupFullname").value.trim().slice(0, 25); let username = document.getElementById("signupUsername").value.trim().toLowerCase(); let email = document.getElementById("signupEmail").value.trim().toLowerCase(); let pwd = document.getElementById("signupPassword").value.trim(); if(!fullname || !username || !email || !pwd) { alert("All fields required"); return; } if(!isValidUsername(username)) { alert("❌ Username must be 7-13 characters, letters and numbers only, and must include at least one number!\n\nExample: rahul123, student7, vivid2025"); return; } if(pwd.length < 5) { alert("Password min 5 characters"); return; } if(isUsernameTaken(username)) { alert("❌ Username '" + username + "' already taken! Please choose another unique username."); return; } if(window.allUsers[email]) { alert("Email already registered."); return; } window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd, notifViewed: false }; saveUsers(); currentUser = window.allUsers[email]; if(!userChats[email]) userChats[email] = []; saveChats(); localStorage.setItem("vivid_token_final6", email); showApp(); }
-        function handleLogin() { let identifier = document.getElementById("loginIdentifier").value.trim().toLowerCase(); let pwd = document.getElementById("loginPassword").value.trim(); let user = null; for(let key in window.allUsers) { if(window.allUsers[key].email === identifier || window.allUsers[key].username === identifier) { if(window.allUsers[key].password === pwd) user = window.allUsers[key]; break; } } if(!user) { alert("Invalid credentials. Please try again."); return; } currentUser = user; if(!userChats[currentUser.email]) userChats[currentUser.email] = []; saveChats(); localStorage.setItem("vivid_token_final6", currentUser.email); showApp(); }
+        function handleSignup() { let fullname = document.getElementById("signupFullname").value.trim().slice(0, 25); let username = document.getElementById("signupUsername").value.trim().toLowerCase(); let email = document.getElementById("signupEmail").value.trim().toLowerCase(); let pwd = document.getElementById("signupPassword").value.trim(); if(!fullname || !username || !email || !pwd) { alert("All fields required"); return; } if(!isValidUsername(username)) { alert("❌ Username must be 7-13 characters, letters and numbers only, and must include at least one number!\n\nExample: rahul123, student7, vivid2025"); return; } if(pwd.length < 5) { alert("Password min 5 characters"); return; } if(isUsernameTaken(username)) { alert("❌ Username '" + username + "' already taken! Please choose another unique username."); return; } if(window.allUsers[email]) { alert("Email already registered."); return; } window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd, notifViewed: false }; saveUsers(); currentUser = window.allUsers[email]; if(!userChats[email]) userChats[email] = []; saveChats(); localStorage.setItem("vivid_token_final7", email); showApp(); }
+        function handleLogin() { let identifier = document.getElementById("loginIdentifier").value.trim().toLowerCase(); let pwd = document.getElementById("loginPassword").value.trim(); let user = null; for(let key in window.allUsers) { if(window.allUsers[key].email === identifier || window.allUsers[key].username === identifier) { if(window.allUsers[key].password === pwd) user = window.allUsers[key]; break; } } if(!user) { alert("Invalid credentials. Please try again."); return; } currentUser = user; if(!userChats[currentUser.email]) userChats[currentUser.email] = []; saveChats(); localStorage.setItem("vivid_token_final7", currentUser.email); showApp(); }
         function resetPasswordHandler() { let email = document.getElementById("forgotEmail").value.trim().toLowerCase(); if(window.allUsers[email]) { let newPwd = prompt("Enter new password (min 5 chars):"); if(newPwd && newPwd.length >=5) { window.allUsers[email].password = newPwd; saveUsers(); alert("Password changed! Please login."); switchToLogin(); } } else alert("Email not registered."); }
         function showForgot() { document.getElementById("login-form").classList.add("hidden"); document.getElementById("signup-form").classList.add("hidden"); document.getElementById("forgot-form").classList.remove("hidden"); }
         function switchToSignup() { document.getElementById("login-form").classList.add("hidden"); document.getElementById("forgot-form").classList.add("hidden"); document.getElementById("signup-form").classList.remove("hidden"); }
         function switchToLogin() { document.getElementById("signup-form").classList.add("hidden"); document.getElementById("forgot-form").classList.add("hidden"); document.getElementById("login-form").classList.remove("hidden"); }
-        function logoutUser() { if(pollingInterval) clearInterval(pollingInterval); currentUser = null; localStorage.removeItem("vivid_token_final6"); document.getElementById("app-container").classList.add("hidden"); document.getElementById("auth-modal").classList.remove("hidden"); }
+        function logoutUser() { if(pollingInterval) clearInterval(pollingInterval); currentUser = null; localStorage.removeItem("vivid_token_final7"); document.getElementById("app-container").classList.add("hidden"); document.getElementById("auth-modal").classList.remove("hidden"); }
         function showApp() { document.getElementById("auth-modal").classList.add("hidden"); document.getElementById("app-container").classList.remove("hidden"); let displayName = currentUser.username || currentUser.name; document.getElementById("menuUserName").innerHTML = `@${displayName.substring(0,12)}`; document.getElementById("sideUserName").innerText = currentUser.name.substring(0,18); document.getElementById("sideUserEmail").innerText = currentUser.email.substring(0,22); loadData(); refreshChatBox(); startPollingForAdminReplies(); }
         function updateNavigationButtons(isHomePage) { const menuBtn = document.getElementById('menuButton'); const backBtn = document.getElementById('backButton'); if(isHomePage) { menuBtn.classList.remove('hidden'); backBtn.classList.add('hidden'); } else { menuBtn.classList.add('hidden'); backBtn.classList.remove('hidden'); } }
         function goBackToHome() { renderCourses(); }
@@ -773,7 +767,7 @@
         
         function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
         
-        let storedReactions = localStorage.getItem("vivid_reactions_final6");
+        let storedReactions = localStorage.getItem("vivid_reactions_final7");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
