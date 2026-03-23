@@ -315,10 +315,12 @@
             align-items: center;
             width: 100%;
         }
-        
-        /* Global community sync */
-        .community-message {
-            word-break: break-word;
+        .telegram-tag {
+            background: rgba(34,197,94,0.2);
+            font-size: 8px;
+            padding: 2px 6px;
+            border-radius: 12px;
+            margin-left: 6px;
         }
     </style>
 </head>
@@ -357,7 +359,7 @@
         </div>
     </div>
 
-    <!-- COMPACT NOTICE MODAL -->
+    <!-- NOTICE MODAL -->
     <div id="notice-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 z-[10002]">
         <div class="glass-card notice-modal-content text-center border-t-4 border-blue-500 animate-fade">
             <div class="w-14 h-14 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -370,12 +372,8 @@
                 <p>Ask for a refund immediately and report the matter to us. This is the only official platform managed by <span class="text-blue-400 font-bold">VIVID</span>.</p>
             </div>
             <div class="flex flex-col gap-2">
-                <a href="https://whatsapp.com/channel/0029VaVividAcademy" target="_blank" class="btn-video py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white hover:brightness-110 shadow-lg">
-                    🔔 JOIN OFFICIAL CHANNEL
-                </a>
-                <button onclick="closeNotice()" class="bg-slate-800/60 py-2 rounded-xl text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-white transition">
-                    I HAVE ALREADY JOINED
-                </button>
+                <a href="https://whatsapp.com/channel/0029VaVividAcademy" target="_blank" class="btn-video py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white hover:brightness-110 shadow-lg">🔔 JOIN OFFICIAL CHANNEL</a>
+                <button onclick="closeNotice()" class="bg-slate-800/60 py-2 rounded-xl text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-white transition">I HAVE ALREADY JOINED</button>
             </div>
         </div>
     </div>
@@ -385,10 +383,7 @@
         <div class="bg-gradient-to-r from-slate-900 to-slate-950 backdrop-blur-xl p-5 flex justify-between items-center border-b border-white/10">
             <div class="flex items-center gap-3">
                 <button onclick="closeInboxModal()" class="w-10 h-10 rounded-full bg-white/10 text-slate-400 text-xl hover:bg-white/20 transition"><i class="fas fa-arrow-left"></i></button>
-                <div>
-                    <h3 class="font-black text-xl"><i class="fas fa-bell text-blue-500 mr-2"></i> Announcements</h3>
-                    <p class="text-[9px] text-slate-500 mt-1">Stay updated with latest news</p>
-                </div>
+                <div><h3 class="font-black text-xl"><i class="fas fa-bell text-blue-500 mr-2"></i> Announcements</h3><p class="text-[9px] text-slate-500 mt-1">Stay updated with latest news</p></div>
             </div>
         </div>
         <div id="inbox-list" class="flex-1 overflow-y-auto p-6 space-y-5 max-w-3xl w-full mx-auto"></div>
@@ -436,59 +431,36 @@
 
         <!-- WhatsApp Banner -->
         <a href="https://whatsapp.com/channel/0029VaVividAcademy" target="_blank" class="glass-card p-4 mb-6 flex items-center gap-4 border-l-[6px] border-[#25D366] wa-pulse bg-gradient-to-r from-[#25D366]/10 to-transparent">
-            <div class="w-12 h-12 rounded-full bg-[#25D366]/20 flex items-center justify-center">
-                <i class="fab fa-whatsapp text-2xl text-[#25D366]"></i>
-            </div>
-            <div class="flex-1">
-                <p class="font-black text-xs uppercase tracking-wider">📢 JOIN OFFICIAL WHATSAPP CHANNEL</p>
-                <p class="text-[9px] text-slate-400">Daily updates, live quizzes & free notes</p>
-            </div>
+            <div class="w-12 h-12 rounded-full bg-[#25D366]/20 flex items-center justify-center"><i class="fab fa-whatsapp text-2xl text-[#25D366]"></i></div>
+            <div class="flex-1"><p class="font-black text-xs uppercase tracking-wider">📢 JOIN OFFICIAL WHATSAPP CHANNEL</p><p class="text-[9px] text-slate-400">Daily updates, live quizzes & free notes</p></div>
             <i class="fas fa-chevron-right text-slate-500 text-xs"></i>
         </a>
 
         <!-- Search -->
         <div id="search-container" class="mb-6">
-            <div class="glass-card flex items-center px-5 py-4">
-                <i class="fas fa-search text-blue-500 mr-3"></i>
-                <input type="text" id="courseSearch" placeholder="Search courses..." class="bg-transparent w-full outline-none text-white text-sm" onkeyup="filterCourses()">
-            </div>
+            <div class="glass-card flex items-center px-5 py-4"><i class="fas fa-search text-blue-500 mr-3"></i><input type="text" id="courseSearch" placeholder="Search courses..." class="bg-transparent w-full outline-none text-white text-sm" onkeyup="filterCourses()"></div>
         </div>
 
         <h2 id="view-title" class="text-[10px] font-black mb-4 uppercase tracking-wider text-blue-400 border-b border-blue-500/20 pb-2">AVAILABLE COURSES</h2>
         <div id="course-list" class="grid gap-4"></div>
         <div id="no-results" class="hidden text-center py-20 text-slate-500 italic">No course found.</div>
 
-        <div id="subject-section" class="hidden grid gap-4">
-            <div id="subject-list" class="grid gap-4"></div>
-            <button onclick="renderCourses()" class="mt-6 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase">BACK TO COURSES</button>
-        </div>
-
-        <div id="category-section" class="hidden grid gap-4">
-            <div id="category-list" class="grid gap-4"></div>
-            <button onclick="toggleSection('subject-section')" class="mt-4 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase text-center">BACK</button>
-        </div>
-
-        <div id="content-section" class="hidden grid gap-4 text-center">
-            <div id="chapter-list" class="grid gap-4"></div>
-            <button onclick="toggleSection('category-section')" class="mt-6 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase mb-10 text-center">BACK</button>
-        </div>
+        <div id="subject-section" class="hidden grid gap-4"><div id="subject-list" class="grid gap-4"></div><button onclick="renderCourses()" class="mt-6 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase">BACK TO COURSES</button></div>
+        <div id="category-section" class="hidden grid gap-4"><div id="category-list" class="grid gap-4"></div><button onclick="toggleSection('subject-section')" class="mt-4 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase text-center">BACK</button></div>
+        <div id="content-section" class="hidden grid gap-4 text-center"><div id="chapter-list" class="grid gap-4"></div><button onclick="toggleSection('category-section')" class="mt-6 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase mb-10 text-center">BACK</button></div>
         
-        <!-- COMMUNITY SECTION (Global - All users see same messages) -->
+        <!-- COMMUNITY SECTION (Synced via Telegram) -->
         <div id="community-section" class="hidden">
             <div class="mb-4"><button onclick="goBackToHomeFromCommunity()" class="p-3 glass-card inline-flex items-center gap-2 text-sm font-semibold"><i class="fas fa-arrow-left"></i> Back to Home</button></div>
             
-            <!-- Community Header -->
             <div class="glass-card p-4 mb-4 text-center">
                 <div class="flex items-center justify-center gap-3">
                     <i class="fas fa-users text-2xl text-blue-500"></i>
-                    <div>
-                        <h3 class="text-lg font-black">Vivid Community</h3>
-                        <p class="text-[9px] text-slate-400">Connect with fellow aspirants</p>
-                    </div>
+                    <div><h3 class="text-lg font-black">Vivid Community</h3><p class="text-[9px] text-slate-400">Connect with fellow aspirants</p></div>
                 </div>
             </div>
             
-            <!-- Admin Controls (only visible to admin) -->
+            <!-- Admin Controls -->
             <div id="communityAdminControls" class="glass-card p-3 mb-4 hidden">
                 <div class="flex flex-wrap gap-2 items-center justify-between">
                     <div class="flex gap-2">
@@ -502,7 +474,7 @@
             
             <!-- Messages Container -->
             <div id="communityMessagesContainer" class="glass-card h-[55vh] overflow-y-auto p-4 mb-4 space-y-3">
-                <div class="text-center text-slate-500 text-xs py-10"><i class="fas fa-comments text-3xl mb-2 opacity-30"></i><p>No messages yet. Be the first to say hello!</p></div>
+                <div class="text-center text-slate-500 text-xs py-10"><i class="fas fa-comments text-3xl mb-2 opacity-30"></i><p>Loading messages from Telegram...</p></div>
             </div>
             
             <!-- Message Input -->
@@ -563,16 +535,15 @@
         let currentImageFile = null;
         let currentLiveImageFile = null;
         
-        // Community Data - GLOBAL (shared across all users)
+        // Community Data - Synced via Telegram
         let communityMessages = [];
         let communityBannedUsers = [];
         let communityChatEnabled = true;
         let communityCurrentImage = null;
         let currentCommunityUser = null;
+        let communityPollingInterval = null;
         
         function loadCommunityData() {
-            const saved = localStorage.getItem("vivid_community_messages_global");
-            if(saved) communityMessages = JSON.parse(saved);
             const banned = localStorage.getItem("vivid_community_banned_global");
             if(banned) communityBannedUsers = JSON.parse(banned);
             const chatState = localStorage.getItem("vivid_community_chat_enabled_global");
@@ -580,16 +551,76 @@
         }
         
         function saveCommunityData() {
-            localStorage.setItem("vivid_community_messages_global", JSON.stringify(communityMessages));
             localStorage.setItem("vivid_community_banned_global", JSON.stringify(communityBannedUsers));
             localStorage.setItem("vivid_community_chat_enabled_global", communityChatEnabled);
         }
         
-        function sendToTelegramGroup(username, message) {
-            const text = `${username === ADMIN_USERNAME ? "👑 ADMIN" : "👤"} ${username}: ${message.substring(0, 800)}`;
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}`, { mode: 'no-cors' }).catch(e => console.log(e));
-            const img = new Image();
-            img.src = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}`;
+        // Send message to Telegram Group
+        async function sendToTelegramGroup(username, message, imageData = null) {
+            try {
+                const userDisplay = username === ADMIN_USERNAME ? `👑 ADMIN ${username}` : `👤 ${username}`;
+                let text = `💬 ${userDisplay}: ${message.substring(0, 800)}`;
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}`, { mode: 'no-cors' });
+                if(imageData) {
+                    const blob = await fetch(imageData).then(r => r.blob());
+                    const formData = new FormData();
+                    formData.append('chat_id', GROUP_ID);
+                    formData.append('photo', blob, 'image.jpg');
+                    formData.append('caption', `📷 Image from ${username}`);
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
+                }
+            } catch(e) { console.error("Telegram send error:", e); }
+        }
+        
+        // Fetch messages from Telegram Group
+        async function fetchTelegramMessages() {
+            try {
+                const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId}&timeout=10`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if(data.ok && data.result && data.result.length > 0) {
+                    let newMessages = false;
+                    for(let update of data.result) {
+                        lastUpdateId = update.update_id + 1;
+                        const msg = update.message;
+                        if(msg && msg.text && msg.from) {
+                            if(msg.from.username === "vivid_academy_bot") continue;
+                            if(msg.text.startsWith("/")) continue;
+                            
+                            const senderName = msg.from.first_name || msg.from.username || msg.from.last_name || "User";
+                            const messageText = msg.text;
+                            const timestamp = new Date(msg.date * 1000).toISOString();
+                            const isAdmin = (senderName === ADMIN_USERNAME || msg.from.username === ADMIN_USERNAME);
+                            
+                            // Check if message already exists
+                            const alreadyExists = communityMessages.some(m => 
+                                m.text === messageText && 
+                                Math.abs(new Date(m.timestamp) - new Date(timestamp)) < 10000
+                            );
+                            
+                            if(!alreadyExists && messageText && messageText.trim().length > 0) {
+                                const newMsg = {
+                                    id: Date.now(),
+                                    username: senderName,
+                                    text: messageText,
+                                    timestamp: timestamp,
+                                    isAdmin: isAdmin,
+                                    reactions: {},
+                                    image: null,
+                                    fromTelegram: true
+                                };
+                                communityMessages.unshift(newMsg);
+                                newMessages = true;
+                                if(communityMessages.length > 200) communityMessages = communityMessages.slice(0, 200);
+                            }
+                        }
+                    }
+                    if(newMessages) {
+                        renderCommunityMessages();
+                    }
+                }
+            } catch(e) { console.error("Fetch telegram error:", e); }
         }
         
         function loginToCommunity() {
@@ -643,10 +674,10 @@
                 if(msg.image) imageHtml = `<div class="mt-2"><img src="${msg.image}" class="image-preview" onclick="showCommunityImageModal('${msg.image}')"></div>`;
                 div.innerHTML = `
                     <div class="flex justify-between items-start">
-                        <div class="flex items-center gap-2 flex-wrap"><span class="font-bold text-sm ${msg.isAdmin ? 'text-red-400' : 'text-blue-400'}">${escapeHtml(msg.username)}</span>${msg.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}<span class="text-[9px] text-slate-500">${new Date(msg.timestamp).toLocaleString()}</span></div>
+                        <div class="flex items-center gap-2 flex-wrap"><span class="font-bold text-sm ${msg.isAdmin ? 'text-red-400' : 'text-blue-400'}">${escapeHtml(msg.username)}</span>${msg.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}${msg.fromTelegram ? '<span class="telegram-tag"><i class="fab fa-telegram-plane mr-1"></i>TG</span>' : ''}<span class="text-[9px] text-slate-500">${new Date(msg.timestamp).toLocaleString()}</span></div>
                         ${canDelete ? `<button onclick="deleteCommunityMessage(${originalIdx})" class="text-slate-500 hover:text-red-400 text-xs"><i class="fas fa-trash"></i></button>` : ''}
                     </div>
-                    <p class="text-sm text-slate-200 mt-1 break-words community-message">${escapeHtml(msg.text)}</p>
+                    <p class="text-sm text-slate-200 mt-1 break-words">${escapeHtml(msg.text)}</p>
                     ${imageHtml}${reactionsHtml}
                     <div class="flex gap-3 mt-2"><button onclick="addCommunityReaction(${originalIdx}, '👍')" class="text-xs text-slate-400 hover:text-blue-400">👍 Like</button><button onclick="addCommunityReaction(${originalIdx}, '❤️')" class="text-xs text-slate-400 hover:text-red-400">❤️ Love</button><button onclick="addCommunityReaction(${originalIdx}, '🔥')" class="text-xs text-slate-400 hover:text-orange-400">🔥 Fire</button><button onclick="addCommunityReaction(${originalIdx}, '😂')" class="text-xs text-slate-400 hover:text-yellow-400">😂 Haha</button>${currentCommunityUser && currentCommunityUser.isAdmin ? `<button onclick="banCommunityUser('${msg.username}')" class="text-xs text-red-400 hover:text-red-300 ml-auto">🚫 Ban User</button>` : ''}</div>
                 `;
@@ -655,20 +686,23 @@
             container.scrollTop = container.scrollHeight;
         }
         
-        function sendCommunityMessage() {
+        async function sendCommunityMessage() {
             if(!currentCommunityUser) { alert("Please login first!"); location.reload(); return; }
             if(!communityChatEnabled && !currentCommunityUser.isAdmin) { alert("Chat is disabled!"); return; }
             const input = document.getElementById("communityMessageInput");
             const text = input.value.trim();
             if(!text && !communityCurrentImage) return;
-            const newMsg = { id: Date.now(), username: currentCommunityUser.username, text: text || "📷 Shared an image", timestamp: new Date().toISOString(), isAdmin: currentCommunityUser.isAdmin, reactions: {}, image: communityCurrentImage || null };
+            
+            let imageToSend = communityCurrentImage;
+            const newMsg = { id: Date.now(), username: currentCommunityUser.username, text: text || "📷 Shared an image", timestamp: new Date().toISOString(), isAdmin: currentCommunityUser.isAdmin, reactions: {}, image: communityCurrentImage || null, fromTelegram: false };
+            
             communityMessages.unshift(newMsg);
             if(communityMessages.length > 200) communityMessages = communityMessages.slice(0, 200);
-            saveCommunityData();
             renderCommunityMessages();
             input.value = "";
             if(communityCurrentImage) { communityCurrentImage = null; document.getElementById("communityImagePreview").innerHTML = ''; document.getElementById("communityImagePreview").classList.add("hidden"); document.getElementById("communityImageInput").value = ''; }
-            sendToTelegramGroup(currentCommunityUser.username, newMsg.text);
+            
+            await sendToTelegramGroup(currentCommunityUser.username, newMsg.text, imageToSend);
         }
         
         function addCommunityReaction(msgIdx, emoji) {
@@ -679,11 +713,11 @@
             if(!msg.reactions[emoji]) msg.reactions[emoji] = [];
             for(let e in msg.reactions) { const idx = msg.reactions[e].indexOf(currentCommunityUser.username); if(idx !== -1) msg.reactions[e].splice(idx, 1); }
             if(!msg.reactions[emoji].includes(currentCommunityUser.username)) msg.reactions[emoji].push(currentCommunityUser.username);
-            saveCommunityData(); renderCommunityMessages();
+            renderCommunityMessages();
         }
         
-        function deleteCommunityMessage(msgIdx) { if(currentCommunityUser && (currentCommunityUser.isAdmin || communityMessages[msgIdx].username === currentCommunityUser.username)) { communityMessages.splice(msgIdx, 1); saveCommunityData(); renderCommunityMessages(); } }
-        function banCommunityUser(username) { if(!currentCommunityUser?.isAdmin) return; if(username === ADMIN_USERNAME) return; if(!communityBannedUsers.includes(username)) { communityBannedUsers.push(username); saveCommunityData(); communityMessages = communityMessages.filter(m => m.username !== username); saveCommunityData(); renderCommunityMessages(); alert(`✅ User "${username}" banned!`); } }
+        function deleteCommunityMessage(msgIdx) { if(currentCommunityUser && (currentCommunityUser.isAdmin || communityMessages[msgIdx].username === currentCommunityUser.username)) { communityMessages.splice(msgIdx, 1); renderCommunityMessages(); } }
+        function banCommunityUser(username) { if(!currentCommunityUser?.isAdmin) return; if(username === ADMIN_USERNAME) return; if(!communityBannedUsers.includes(username)) { communityBannedUsers.push(username); saveCommunityData(); communityMessages = communityMessages.filter(m => m.username !== username); renderCommunityMessages(); alert(`✅ User "${username}" banned!`); } }
         function unbanCommunityUser(username) { const idx = communityBannedUsers.indexOf(username); if(idx !== -1) { communityBannedUsers.splice(idx, 1); saveCommunityData(); alert(`✅ User "${username}" unbanned!`); showCommunityBannedUsers(); } }
         function toggleCommunityChat() { if(!currentCommunityUser?.isAdmin) return; communityChatEnabled = !communityChatEnabled; saveCommunityData(); const btn = document.getElementById("communityToggleChatBtn"); const disabledMsg = document.getElementById("communityChatDisabledMsg"); if(communityChatEnabled) { btn.innerHTML = "✅ Chat Active"; btn.className = "text-xs px-3 py-1 rounded-full bg-green-500/20 text-green-400"; if(disabledMsg) disabledMsg.classList.add("hidden"); } else { btn.innerHTML = "⛔ Chat Disabled"; btn.className = "text-xs px-3 py-1 rounded-full bg-red-500/20 text-red-400"; if(disabledMsg) disabledMsg.classList.remove("hidden"); } }
         function showCommunityBannedUsers() { if(!currentCommunityUser?.isAdmin) return; const modal = document.getElementById("inbox-modal"); const list = document.getElementById("inbox-list"); list.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg">🚫 Banned Users</h3><button onclick="closeInboxModal()" class="text-2xl">&times;</button></div>`; if(communityBannedUsers.length === 0) list.innerHTML += '<div class="text-center text-slate-500 py-8">No banned users</div>'; else communityBannedUsers.forEach(user => { list.innerHTML += `<div class="flex justify-between items-center p-3 bg-white/5 rounded-xl"><span class="text-sm">🚫 ${escapeHtml(user)}</span><button onclick="unbanCommunityUser('${user}')" class="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full">Unban</button></div>`; }); modal.classList.remove("hidden"); }
@@ -697,7 +731,6 @@
             loadCommunityData();
             if(!checkCommunityLogin()) { 
                 if(loginToCommunity()) { 
-                    // Force reload to ensure all users see same data
                     location.reload(); 
                 }
                 return; 
@@ -710,27 +743,33 @@
             }
             document.getElementById("communityImageInput").addEventListener("change", function(e) { previewCommunityImage(this); });
             document.getElementById("communityMessageInput").addEventListener("keypress", function(e) { if(e.key === "Enter") sendCommunityMessage(); });
-            renderCommunityMessages();
+            
+            // Initial fetch
+            fetchTelegramMessages().then(() => renderCommunityMessages());
+            
+            // Start polling for new messages every 4 seconds
+            if(communityPollingInterval) clearInterval(communityPollingInterval);
+            communityPollingInterval = setInterval(fetchTelegramMessages, 4000);
         }
         
-        // Original functions (keep as is from your code)
+        // Original functions (keep as is)
         function loadData(retryCount = 0) { updateProgress(30); const dbUrl = 'https://raw.githubusercontent.com/gunahokadevta/parmarxvivid/main/db.json?v=' + Date.now(); fetch(dbUrl).then(res => res.json()).then(data => { mainData = data; updateProgress(100); renderCourses(); updateNotificationBadge(); }).catch(err => { if(retryCount < 2) setTimeout(() => loadData(retryCount + 1), 1500); else document.getElementById("course-list").innerHTML = `<div class="glass-card p-10 text-center text-red-400 text-xs">⚠️ Failed to load courses. Please refresh.</div>`; }); }
         function updateNotificationBadge() { const navBadge = document.getElementById('nav-notif-badge'); const userNotifViewed = currentUser ? (currentUser.notifViewed || false) : false; const currentCount = mainData?.notifications?.length || 0; if(currentCount > 0 && !userNotifViewed) { navBadge.innerText = currentCount; navBadge.classList.remove('hidden'); } else navBadge.classList.add('hidden'); }
         function updateProgress(percent) { document.getElementById('progress-bar').style.width = percent + '%'; }
         function closeNotice() { document.getElementById('notice-modal').style.display = 'none'; updateProgress(20); }
-        function loadStorage() { let users = localStorage.getItem("vivid_users_final7"); if(users) window.allUsers = JSON.parse(users); else window.allUsers = {}; let chats = localStorage.getItem("vivid_chats_final7"); if(chats) userChats = JSON.parse(chats); else userChats = {}; let reactions = localStorage.getItem("vivid_reactions_final7"); if(reactions) notifReactions = JSON.parse(reactions); let token = localStorage.getItem("vivid_token_final7"); if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); } }
-        function saveUsers() { localStorage.setItem("vivid_users_final7", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_final7", JSON.stringify(userChats)); }
-        function saveReactions() { localStorage.setItem("vivid_reactions_final7", JSON.stringify(notifReactions)); }
+        function loadStorage() { let users = localStorage.getItem("vivid_users_final8"); if(users) window.allUsers = JSON.parse(users); else window.allUsers = {}; let chats = localStorage.getItem("vivid_chats_final8"); if(chats) userChats = JSON.parse(chats); else userChats = {}; let reactions = localStorage.getItem("vivid_reactions_final8"); if(reactions) notifReactions = JSON.parse(reactions); let token = localStorage.getItem("vivid_token_final8"); if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); } }
+        function saveUsers() { localStorage.setItem("vivid_users_final8", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_final8", JSON.stringify(userChats)); }
+        function saveReactions() { localStorage.setItem("vivid_reactions_final8", JSON.stringify(notifReactions)); }
         function isValidUsername(username) { return /^(?=.*[0-9])[A-Za-z0-9]{7,13}$/.test(username); }
         function isUsernameTaken(username, excludeEmail = null) { for(let key in window.allUsers) { if(excludeEmail && key === excludeEmail) continue; if(window.allUsers[key] && window.allUsers[key].username === username) return true; } return false; }
-        function handleSignup() { let fullname = document.getElementById("signupFullname").value.trim().slice(0, 25); let username = document.getElementById("signupUsername").value.trim().toLowerCase(); let email = document.getElementById("signupEmail").value.trim().toLowerCase(); let pwd = document.getElementById("signupPassword").value.trim(); if(!fullname || !username || !email || !pwd) { alert("All fields required"); return; } if(!isValidUsername(username)) { alert("❌ Username must be 7-13 characters, letters and numbers only, and must include at least one number!\n\nExample: rahul123, student7, vivid2025"); return; } if(pwd.length < 5) { alert("Password min 5 characters"); return; } if(isUsernameTaken(username)) { alert("❌ Username '" + username + "' already taken! Please choose another unique username."); return; } if(window.allUsers[email]) { alert("Email already registered."); return; } window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd, notifViewed: false }; saveUsers(); currentUser = window.allUsers[email]; if(!userChats[email]) userChats[email] = []; saveChats(); localStorage.setItem("vivid_token_final7", email); showApp(); }
-        function handleLogin() { let identifier = document.getElementById("loginIdentifier").value.trim().toLowerCase(); let pwd = document.getElementById("loginPassword").value.trim(); let user = null; for(let key in window.allUsers) { if(window.allUsers[key].email === identifier || window.allUsers[key].username === identifier) { if(window.allUsers[key].password === pwd) user = window.allUsers[key]; break; } } if(!user) { alert("Invalid credentials. Please try again."); return; } currentUser = user; if(!userChats[currentUser.email]) userChats[currentUser.email] = []; saveChats(); localStorage.setItem("vivid_token_final7", currentUser.email); showApp(); }
+        function handleSignup() { let fullname = document.getElementById("signupFullname").value.trim().slice(0, 25); let username = document.getElementById("signupUsername").value.trim().toLowerCase(); let email = document.getElementById("signupEmail").value.trim().toLowerCase(); let pwd = document.getElementById("signupPassword").value.trim(); if(!fullname || !username || !email || !pwd) { alert("All fields required"); return; } if(!isValidUsername(username)) { alert("❌ Username must be 7-13 characters, letters and numbers only, and must include at least one number!\n\nExample: rahul123, student7, vivid2025"); return; } if(pwd.length < 5) { alert("Password min 5 characters"); return; } if(isUsernameTaken(username)) { alert("❌ Username '" + username + "' already taken! Please choose another unique username."); return; } if(window.allUsers[email]) { alert("Email already registered."); return; } window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd, notifViewed: false }; saveUsers(); currentUser = window.allUsers[email]; if(!userChats[email]) userChats[email] = []; saveChats(); localStorage.setItem("vivid_token_final8", email); showApp(); }
+        function handleLogin() { let identifier = document.getElementById("loginIdentifier").value.trim().toLowerCase(); let pwd = document.getElementById("loginPassword").value.trim(); let user = null; for(let key in window.allUsers) { if(window.allUsers[key].email === identifier || window.allUsers[key].username === identifier) { if(window.allUsers[key].password === pwd) user = window.allUsers[key]; break; } } if(!user) { alert("Invalid credentials. Please try again."); return; } currentUser = user; if(!userChats[currentUser.email]) userChats[currentUser.email] = []; saveChats(); localStorage.setItem("vivid_token_final8", currentUser.email); showApp(); }
         function resetPasswordHandler() { let email = document.getElementById("forgotEmail").value.trim().toLowerCase(); if(window.allUsers[email]) { let newPwd = prompt("Enter new password (min 5 chars):"); if(newPwd && newPwd.length >=5) { window.allUsers[email].password = newPwd; saveUsers(); alert("Password changed! Please login."); switchToLogin(); } } else alert("Email not registered."); }
         function showForgot() { document.getElementById("login-form").classList.add("hidden"); document.getElementById("signup-form").classList.add("hidden"); document.getElementById("forgot-form").classList.remove("hidden"); }
         function switchToSignup() { document.getElementById("login-form").classList.add("hidden"); document.getElementById("forgot-form").classList.add("hidden"); document.getElementById("signup-form").classList.remove("hidden"); }
         function switchToLogin() { document.getElementById("signup-form").classList.add("hidden"); document.getElementById("forgot-form").classList.add("hidden"); document.getElementById("login-form").classList.remove("hidden"); }
-        function logoutUser() { if(pollingInterval) clearInterval(pollingInterval); currentUser = null; localStorage.removeItem("vivid_token_final7"); document.getElementById("app-container").classList.add("hidden"); document.getElementById("auth-modal").classList.remove("hidden"); }
+        function logoutUser() { if(pollingInterval) clearInterval(pollingInterval); if(communityPollingInterval) clearInterval(communityPollingInterval); currentUser = null; localStorage.removeItem("vivid_token_final8"); document.getElementById("app-container").classList.add("hidden"); document.getElementById("auth-modal").classList.remove("hidden"); }
         function showApp() { document.getElementById("auth-modal").classList.add("hidden"); document.getElementById("app-container").classList.remove("hidden"); let displayName = currentUser.username || currentUser.name; document.getElementById("menuUserName").innerHTML = `@${displayName.substring(0,12)}`; document.getElementById("sideUserName").innerText = currentUser.name.substring(0,18); document.getElementById("sideUserEmail").innerText = currentUser.email.substring(0,22); loadData(); refreshChatBox(); startPollingForAdminReplies(); }
         function updateNavigationButtons(isHomePage) { const menuBtn = document.getElementById('menuButton'); const backBtn = document.getElementById('backButton'); if(isHomePage) { menuBtn.classList.remove('hidden'); backBtn.classList.add('hidden'); } else { menuBtn.classList.add('hidden'); backBtn.classList.remove('hidden'); } }
         function goBackToHome() { renderCourses(); }
@@ -767,7 +806,7 @@
         
         function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
         
-        let storedReactions = localStorage.getItem("vivid_reactions_final7");
+        let storedReactions = localStorage.getItem("vivid_reactions_final8");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
