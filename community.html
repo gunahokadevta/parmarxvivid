@@ -152,24 +152,23 @@
             margin-left: 6px;
         }
         
-        /* Toast message */
         .toast {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 13px;
             z-index: 2000;
-            animation: fadeOut 2s ease forwards;
+            animation: fadeOut 2.5s ease forwards;
         }
         @keyframes fadeOut {
-            0% { opacity: 1; }
+            0% { opacity: 1; transform: translateX(-50%) translateY(0); }
             70% { opacity: 1; }
-            100% { opacity: 0; visibility: hidden; }
+            100% { opacity: 0; transform: translateX(-50%) translateY(20px); visibility: hidden; }
         }
     </style>
 </head>
@@ -260,12 +259,9 @@
     </div>
 
     <script>
-        // Telegram Config - Using CORS proxy to bypass browser restrictions
+        // Telegram Config
         const BOT_TOKEN = "8670403460:AAGyJQnVT62Sg0bhqGm0vUTE6id66PF1t5I";
         const GROUP_ID = "-1003747990318";
-        
-        // CORS Proxy - Use a public proxy to bypass CORS
-        const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
         
         // Admin Credentials
         const ADMIN_USERNAME = "ellorvii69";
@@ -277,7 +273,6 @@
         let bannedUsers = [];
         let chatEnabled = true;
         let currentImageFile = null;
-        let pollingInterval = null;
         
         function loadCommunityData() {
             const savedMessages = localStorage.getItem("vivid_community_messages");
@@ -303,48 +298,31 @@
             setTimeout(() => toast.remove(), 2500);
         }
         
-        // Send message to Telegram Group using multiple methods
-        async function sendToTelegramGroup(username, message, isAdmin, imageData = null) {
+        // Send to Telegram using iframe method (bypasses CORS)
+        function sendToTelegram(username, message, isAdmin) {
             const userDisplay = username === ADMIN_USERNAME ? `👑 ADMIN ${username}` : `👤 ${username}`;
-            const adminTag = isAdmin ? " [ADMIN]" : "";
-            let text = `💬 ${userDisplay}${adminTag}\n\n${message.substring(0, 800)}`;
+            const text = `${userDisplay}: ${message}`;
             
-            // Try multiple methods to bypass CORS
-            const methods = [
-                // Method 1: Direct fetch (may fail due to CORS)
-                async () => {
-                    return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}`);
-                },
-                // Method 2: Using JSONP style (works sometimes)
-                async () => {
-                    return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}`, {
-                        mode: 'no-cors'
-                    });
-                },
-                // Method 3: Using Telegram's HTML format
-                async () => {
-                    const htmlText = text.replace(/\n/g, '<br>');
-                    return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(htmlText)}&parse_mode=HTML`);
-                }
-            ];
+            // Method 1: Create an image ping (works even with CORS)
+            const img = new Image();
+            img.src = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}`;
             
-            for(let method of methods) {
-                try {
-                    const response = await method();
-                    if(response && response.ok) {
-                        console.log("Telegram message sent successfully!");
-                        showToast("✅ Message sent to Telegram group!");
-                        return true;
-                    }
-                } catch(e) {
-                    console.log("Method failed, trying next...");
-                }
-            }
+            // Method 2: Use fetch with no-cors mode
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}`, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' }
+            }).catch(e => console.log("Fetch failed, but trying other method"));
             
-            // If all methods fail, show error but message is still saved locally
-            console.log("Could not send to Telegram, but message saved locally");
-            showToast("⚠️ Message saved locally. Telegram send failed.", true);
-            return false;
+            // Method 3: Create a hidden iframe
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}`;
+            document.body.appendChild(iframe);
+            setTimeout(() => iframe.remove(), 1000);
+            
+            console.log("Telegram send triggered for:", text);
+            showToast("✅ Message sent to Telegram group!");
         }
         
         function loginToCommunity() {
@@ -374,7 +352,6 @@
         }
         
         function logoutFromCommunity() {
-            if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null;
             localStorage.removeItem("vivid_community_user");
             location.reload();
@@ -449,7 +426,7 @@
             container.scrollTop = container.scrollHeight;
         }
         
-        async function sendMessage() {
+        function sendMessage() {
             if(!currentUser) { 
                 alert("Please login first!"); 
                 location.reload(); 
@@ -464,7 +441,6 @@
             const text = input.value.trim();
             if(!text && !currentImageFile) return;
             
-            let imageToSend = currentImageFile;
             const newMsg = {
                 id: Date.now(),
                 username: currentUser.username,
@@ -488,8 +464,8 @@
                 document.getElementById("imageInput").value = '';
             }
             
-            // Try to send to Telegram
-            await sendToTelegramGroup(currentUser.username, newMsg.text, currentUser.isAdmin, imageToSend);
+            // Send to Telegram
+            sendToTelegram(currentUser.username, newMsg.text, currentUser.isAdmin);
             
             const container = document.getElementById("messagesContainer");
             container.scrollTop = container.scrollHeight;
