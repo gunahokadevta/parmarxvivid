@@ -112,7 +112,6 @@
         }
         .animate-fade { animation: fadeIn 0.3s ease; }
         
-        /* Message input container - mobile friendly */
         .message-input-container {
             display: flex;
             gap: 8px;
@@ -122,6 +121,7 @@
         .message-input-container input {
             flex: 1;
             min-width: 0;
+            height: 48px;
         }
         .message-input-container button {
             flex-shrink: 0;
@@ -130,12 +130,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            border: none;
+            cursor: pointer;
         }
         .btn-video {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             border-radius: 28px;
             font-weight: bold;
             transition: transform 0.1s;
+            color: white;
         }
         .btn-video:active {
             transform: scale(0.95);
@@ -163,7 +166,7 @@
             </div>
         </div>
         
-        <!-- Admin Controls (only visible to admin) -->
+        <!-- Admin Controls -->
         <div id="adminControls" class="glass-card p-3 mb-4 hidden">
             <div class="flex flex-wrap gap-2 items-center justify-between">
                 <div class="flex gap-2">
@@ -185,13 +188,13 @@
             </div>
         </div>
         
-        <!-- Message Input - Fixed for mobile -->
+        <!-- Message Input -->
         <div id="messageInputArea" class="glass-card p-3">
             <div class="message-input-container">
                 <label class="file-input-label" for="imageInput"><i class="fas fa-image text-lg"></i></label>
                 <input type="file" id="imageInput" accept="image/*" class="hidden">
                 <input type="text" id="messageInput" placeholder="Type your message..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500 w-full">
-                <button onclick="sendMessage()" class="btn-video text-white"><i class="fas fa-paper-plane"></i></button>
+                <button onclick="sendMessage()" class="btn-video"><i class="fas fa-paper-plane"></i></button>
             </div>
             <div id="imagePreview" class="mt-2 hidden"></div>
             <div id="chatDisabledMsg" class="text-center text-xs text-red-400 mt-2 hidden">
@@ -199,7 +202,7 @@
             </div>
         </div>
         
-        <!-- Banned Users Modal -->
+        <!-- Modals -->
         <div id="bannedModal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[1000] p-4">
             <div class="glass-card p-6 max-w-md w-full">
                 <div class="flex justify-between items-center mb-4">
@@ -210,7 +213,6 @@
             </div>
         </div>
         
-        <!-- Members Modal -->
         <div id="membersModal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[1000] p-4">
             <div class="glass-card p-6 max-w-md w-full">
                 <div class="flex justify-between items-center mb-4">
@@ -221,7 +223,6 @@
             </div>
         </div>
         
-        <!-- Image Preview Modal -->
         <div id="imageModal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[1001] p-4">
             <div class="relative max-w-2xl max-h-[90vh]">
                 <img id="modalImage" src="" class="rounded-2xl max-w-full max-h-[90vh] object-contain">
@@ -231,7 +232,7 @@
     </div>
 
     <script>
-        // Telegram Config - Send all messages to channel
+        // Telegram Config
         const BOT_TOKEN = "8670403460:AAGyJQnVT62Sg0bhqGm0vUTE6id66PF1t5I";
         const CHANNEL_ID = "-1003723477120";
         
@@ -246,14 +247,11 @@
         let chatEnabled = true;
         let currentImageFile = null;
         
-        // Load from localStorage
         function loadCommunityData() {
             const savedMessages = localStorage.getItem("vivid_community_messages");
             if(savedMessages) messages = JSON.parse(savedMessages);
-            
             const savedBanned = localStorage.getItem("vivid_community_banned");
             if(savedBanned) bannedUsers = JSON.parse(savedBanned);
-            
             const savedChatState = localStorage.getItem("vivid_community_chat_enabled");
             if(savedChatState !== null) chatEnabled = savedChatState === "true";
         }
@@ -264,59 +262,44 @@
             localStorage.setItem("vivid_community_chat_enabled", chatEnabled);
         }
         
-        // Send message to Telegram Channel
         async function sendToTelegramChannel(username, message, imageData = null) {
             try {
                 const userDisplay = username === ADMIN_USERNAME ? `👑 ${username} (Admin)` : `👤 ${username}`;
                 let text = `📢 *VIVID COMMUNITY* 📢\n\n${userDisplay}:\n${message.substring(0, 800)}`;
-                
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHANNEL_ID}&text=${encodeURIComponent(text)}&parse_mode=Markdown`);
-                
                 if(imageData) {
-                    // Send image to channel
                     const formData = new FormData();
                     formData.append('chat_id', CHANNEL_ID);
-                    formData.append('photo', imageData);
+                    const blob = await fetch(imageData).then(r => r.blob());
+                    formData.append('photo', blob, 'image.jpg');
                     formData.append('caption', `📷 Image from ${username}`);
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
                 }
-            } catch(e) {
-                console.error("Telegram send error:", e);
-            }
+            } catch(e) { console.error("Telegram error:", e); }
         }
         
-        // Login
         function loginToCommunity() {
-            const username = prompt("Enter your username (3-15 chars, letters/numbers):");
+            let username = prompt("Enter your username (3-15 chars, letters/numbers):");
             if(!username) return false;
-            
+            username = username.trim();
             const usernameRegex = /^[A-Za-z0-9]{3,15}$/;
             if(!usernameRegex.test(username)) {
                 alert("Username must be 3-15 characters, letters and numbers only!");
                 return loginToCommunity();
             }
-            
             if(bannedUsers.includes(username.toLowerCase())) {
                 alert("❌ You are banned from this community!");
                 return false;
             }
-            
             const isAdmin = (username === ADMIN_USERNAME);
-            let password = null;
             if(isAdmin) {
-                password = prompt("Enter admin password:");
+                let password = prompt("Enter admin password:");
                 if(password !== ADMIN_PASSWORD) {
                     alert("Wrong admin password!");
                     return false;
                 }
             }
-            
-            currentUser = {
-                username: username,
-                isAdmin: isAdmin,
-                joinedAt: new Date().toISOString()
-            };
-            
+            currentUser = { username: username, isAdmin: isAdmin, joinedAt: new Date().toISOString() };
             localStorage.setItem("vivid_community_user", JSON.stringify(currentUser));
             return true;
         }
@@ -331,9 +314,7 @@
             const savedUser = localStorage.getItem("vivid_community_user");
             if(savedUser) {
                 currentUser = JSON.parse(savedUser);
-                if(currentUser.username === ADMIN_USERNAME && !currentUser.isAdmin) {
-                    currentUser.isAdmin = true;
-                }
+                if(currentUser.username === ADMIN_USERNAME && !currentUser.isAdmin) currentUser.isAdmin = true;
                 return true;
             }
             return false;
@@ -345,46 +326,33 @@
             return div.innerHTML;
         }
         
-        // Render messages
         function renderMessages() {
             const container = document.getElementById("messagesContainer");
             if(!container) return;
-            
             if(messages.length === 0) {
-                container.innerHTML = `<div class="text-center text-slate-500 text-xs py-10">
-                    <i class="fas fa-comments text-3xl mb-2 opacity-30"></i>
-                    <p>No messages yet. Be the first to say hello!</p>
-                </div>`;
+                container.innerHTML = `<div class="text-center text-slate-500 text-xs py-10"><i class="fas fa-comments text-3xl mb-2 opacity-30"></i><p>No messages yet. Be the first to say hello!</p></div>`;
                 return;
             }
-            
             container.innerHTML = "";
             messages.forEach((msg, idx) => {
                 const isCurrentUser = currentUser && msg.username === currentUser.username;
                 const canDelete = (currentUser && (currentUser.isAdmin || isCurrentUser));
-                
                 const msgDiv = document.createElement("div");
                 msgDiv.className = `message-card p-3 rounded-2xl ${isCurrentUser ? 'bg-blue-500/10 border-l-4 border-blue-500' : 'bg-white/5'} animate-fade`;
-                msgDiv.id = `msg-${idx}`;
-                
                 let reactionsHtml = '';
                 if(msg.reactions && Object.keys(msg.reactions).length > 0) {
                     reactionsHtml = '<div class="flex gap-2 mt-2 flex-wrap">';
                     for(let [emoji, users] of Object.entries(msg.reactions)) {
                         if(users.length > 0) {
-                            reactionsHtml += `<button onclick="addReaction(${idx}, '${emoji}')" class="reaction-btn text-xs flex items-center gap-1 ${users.includes(currentUser?.username) ? 'reaction-active' : ''}">
-                                ${emoji} <span class="text-[10px]">${users.length}</span>
-                            </button>`;
+                            reactionsHtml += `<button onclick="addReaction(${idx}, '${emoji}')" class="reaction-btn text-xs flex items-center gap-1 ${users.includes(currentUser?.username) ? 'reaction-active' : ''}">${emoji} <span class="text-[10px]">${users.length}</span></button>`;
                         }
                     }
                     reactionsHtml += '</div>';
                 }
-                
                 let imageHtml = '';
                 if(msg.image) {
                     imageHtml = `<div class="mt-2"><img src="${msg.image}" class="image-preview" onclick="showImageModal('${msg.image}')"></div>`;
                 }
-                
                 msgDiv.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div class="flex items-center gap-2 flex-wrap">
@@ -410,22 +378,18 @@
             container.scrollTop = container.scrollHeight;
         }
         
-        // Send message
         async function sendMessage() {
-            if(!currentUser) {
-                alert("Please login first!");
-                location.reload();
-                return;
-            }
-            
-            if(!chatEnabled && !currentUser.isAdmin) {
-                alert("Chat is currently disabled by admin!");
-                return;
-            }
+            if(!currentUser) { alert("Please login first!"); location.reload(); return; }
+            if(!chatEnabled && !currentUser.isAdmin) { alert("Chat is currently disabled by admin!"); return; }
             
             const input = document.getElementById("messageInput");
             const text = input.value.trim();
             if(!text && !currentImageFile) return;
+            
+            let imageToSend = null;
+            if(currentImageFile) {
+                imageToSend = currentImageFile;
+            }
             
             const newMsg = {
                 id: Date.now(),
@@ -434,122 +398,77 @@
                 timestamp: new Date().toISOString(),
                 isAdmin: currentUser.isAdmin,
                 reactions: {},
-                image: null
+                image: currentImageFile || null
             };
-            
-            let imageToSend = null;
-            if(currentImageFile) {
-                newMsg.image = currentImageFile;
-                imageToSend = currentImageFile;
-                currentImageFile = null;
-                document.getElementById("imagePreview").innerHTML = '';
-                document.getElementById("imagePreview").classList.add("hidden");
-                document.getElementById("imageInput").value = '';
-            }
             
             messages.push(newMsg);
             saveCommunityData();
             renderMessages();
             input.value = "";
             
-            // Send to Telegram Channel
-            await sendToTelegramChannel(currentUser.username, newMsg.text, imageToSend);
+            if(currentImageFile) {
+                currentImageFile = null;
+                document.getElementById("imagePreview").innerHTML = '';
+                document.getElementById("imagePreview").classList.add("hidden");
+                document.getElementById("imageInput").value = '';
+            }
             
+            await sendToTelegramChannel(currentUser.username, newMsg.text, imageToSend);
             const container = document.getElementById("messagesContainer");
             container.scrollTop = container.scrollHeight;
         }
         
-        // Add reaction
         function addReaction(messageIndex, emoji) {
             if(!currentUser) return;
-            if(!chatEnabled && !currentUser.isAdmin) {
-                alert("Chat is disabled!");
-                return;
-            }
-            
+            if(!chatEnabled && !currentUser.isAdmin) { alert("Chat is disabled!"); return; }
             const msg = messages[messageIndex];
             if(!msg) return;
-            
             if(!msg.reactions) msg.reactions = {};
             if(!msg.reactions[emoji]) msg.reactions[emoji] = [];
-            
             const userReacted = msg.reactions[emoji].includes(currentUser.username);
-            
             for(let e in msg.reactions) {
                 const index = msg.reactions[e].indexOf(currentUser.username);
-                if(index !== -1) {
-                    msg.reactions[e].splice(index, 1);
-                }
+                if(index !== -1) msg.reactions[e].splice(index, 1);
             }
-            
-            if(!userReacted) {
-                msg.reactions[emoji].push(currentUser.username);
-                // Send reaction to Telegram
-                sendToTelegramChannel("System", `${currentUser.username} reacted ${emoji} to: ${msg.text.substring(0, 50)}`);
-            }
-            
+            if(!userReacted) msg.reactions[emoji].push(currentUser.username);
             saveCommunityData();
             renderMessages();
         }
         
-        // Delete message
         function deleteMessage(messageIndex) {
             if(!currentUser) return;
             const msg = messages[messageIndex];
             if(!msg) return;
-            
             if(currentUser.isAdmin || msg.username === currentUser.username) {
                 messages.splice(messageIndex, 1);
                 saveCommunityData();
                 renderMessages();
-                sendToTelegramChannel("System", `Message from ${msg.username} was deleted by ${currentUser.username}`);
-            } else {
-                alert("You can only delete your own messages!");
-            }
+            } else { alert("You can only delete your own messages!"); }
         }
         
-        // Ban user
         function banUser(username) {
-            if(!currentUser || !currentUser.isAdmin) {
-                alert("Only admin can ban users!");
-                return;
-            }
-            
-            if(username === ADMIN_USERNAME) {
-                alert("Cannot ban the admin!");
-                return;
-            }
-            
-            if(bannedUsers.includes(username)) {
-                alert("User is already banned!");
-                return;
-            }
-            
+            if(!currentUser || !currentUser.isAdmin) { alert("Only admin can ban users!"); return; }
+            if(username === ADMIN_USERNAME) { alert("Cannot ban the admin!"); return; }
+            if(bannedUsers.includes(username)) { alert("User is already banned!"); return; }
             bannedUsers.push(username);
             saveCommunityData();
-            
             messages = messages.filter(msg => msg.username !== username);
             saveCommunityData();
             renderMessages();
-            
-            sendToTelegramChannel("System", `User ${username} has been banned by admin`);
             alert(`✅ User "${username}" has been banned!`);
         }
         
-        // Unban user
         function unbanUser(username) {
             if(!currentUser || !currentUser.isAdmin) return;
             const index = bannedUsers.indexOf(username);
             if(index !== -1) {
                 bannedUsers.splice(index, 1);
                 saveCommunityData();
-                sendToTelegramChannel("System", `User ${username} has been unbanned`);
                 alert(`✅ User "${username}" has been unbanned!`);
                 showBannedUsers();
             }
         }
         
-        // Toggle group chat
         function toggleGroupChat() {
             if(!currentUser || !currentUser.isAdmin) return;
             chatEnabled = !chatEnabled;
@@ -560,65 +479,48 @@
                 btn.innerHTML = "✅ Chat Active";
                 btn.className = "text-xs px-3 py-1 rounded-full bg-green-500/20 text-green-400";
                 if(disabledMsg) disabledMsg.classList.add("hidden");
-                sendToTelegramChannel("System", "Chat has been enabled by admin");
                 alert("Chat has been enabled!");
             } else {
                 btn.innerHTML = "⛔ Chat Disabled";
                 btn.className = "text-xs px-3 py-1 rounded-full bg-red-500/20 text-red-400";
                 if(disabledMsg) disabledMsg.classList.remove("hidden");
-                sendToTelegramChannel("System", "Chat has been disabled by admin");
                 alert("Chat has been disabled!");
             }
         }
         
-        // Show banned users
         function showBannedUsers() {
             if(!currentUser || !currentUser.isAdmin) return;
             const modal = document.getElementById("bannedModal");
             const listDiv = document.getElementById("bannedList");
-            
-            if(bannedUsers.length === 0) {
-                listDiv.innerHTML = '<div class="text-center text-slate-500 py-8">No banned users</div>';
-            } else {
+            if(bannedUsers.length === 0) { listDiv.innerHTML = '<div class="text-center text-slate-500 py-8">No banned users</div>'; }
+            else {
                 listDiv.innerHTML = '';
                 bannedUsers.forEach(user => {
                     const div = document.createElement("div");
                     div.className = "flex justify-between items-center p-3 bg-white/5 rounded-xl";
-                    div.innerHTML = `
-                        <span class="text-sm">🚫 ${escapeHtml(user)}</span>
-                        <button onclick="unbanUser('${user}')" class="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full">Unban</button>
-                    `;
+                    div.innerHTML = `<span class="text-sm">🚫 ${escapeHtml(user)}</span><button onclick="unbanUser('${user}')" class="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full">Unban</button>`;
                     listDiv.appendChild(div);
                 });
             }
             modal.classList.remove("hidden");
         }
         
-        // Show all members
         function showAllMembers() {
             if(!currentUser || !currentUser.isAdmin) return;
             const modal = document.getElementById("membersModal");
             const listDiv = document.getElementById("membersList");
-            
             const uniqueUsers = new Set();
             messages.forEach(msg => uniqueUsers.add(msg.username));
             const membersList = Array.from(uniqueUsers);
-            
-            if(membersList.length === 0) {
-                listDiv.innerHTML = '<div class="text-center text-slate-500 py-8">No members yet</div>';
-            } else {
+            if(membersList.length === 0) { listDiv.innerHTML = '<div class="text-center text-slate-500 py-8">No members yet</div>'; }
+            else {
                 listDiv.innerHTML = '';
                 membersList.forEach(user => {
                     const isBanned = bannedUsers.includes(user);
                     const div = document.createElement("div");
                     div.className = `flex justify-between items-center p-3 bg-white/5 rounded-xl ${isBanned ? 'opacity-50' : ''}`;
                     div.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-user-circle text-blue-400"></i>
-                            <span class="text-sm">${escapeHtml(user)}</span>
-                            ${user === ADMIN_USERNAME ? '<span class="text-[9px] bg-red-500/20 px-2 py-0.5 rounded-full">ADMIN</span>' : ''}
-                            ${isBanned ? '<span class="text-[9px] bg-red-500/20 px-2 py-0.5 rounded-full">BANNED</span>' : ''}
-                        </div>
+                        <div class="flex items-center gap-2"><i class="fas fa-user-circle text-blue-400"></i><span class="text-sm">${escapeHtml(user)}</span>${user === ADMIN_USERNAME ? '<span class="text-[9px] bg-red-500/20 px-2 py-0.5 rounded-full">ADMIN</span>' : ''}${isBanned ? '<span class="text-[9px] bg-red-500/20 px-2 py-0.5 rounded-full">BANNED</span>' : ''}</div>
                         ${user !== ADMIN_USERNAME ? `<button onclick="banUser('${user}')" class="text-xs bg-red-500/20 text-red-400 px-3 py-1 rounded-full">Ban</button>` : ''}
                     `;
                     listDiv.appendChild(div);
@@ -627,26 +529,11 @@
             modal.classList.remove("hidden");
         }
         
-        function closeBannedModal() {
-            document.getElementById("bannedModal").classList.add("hidden");
-        }
+        function closeBannedModal() { document.getElementById("bannedModal").classList.add("hidden"); }
+        function closeMembersModal() { document.getElementById("membersModal").classList.add("hidden"); }
+        function showImageModal(imgSrc) { document.getElementById("modalImage").src = imgSrc; document.getElementById("imageModal").classList.remove("hidden"); }
+        function closeImageModal() { document.getElementById("imageModal").classList.add("hidden"); }
         
-        function closeMembersModal() {
-            document.getElementById("membersModal").classList.add("hidden");
-        }
-        
-        function showImageModal(imgSrc) {
-            const modal = document.getElementById("imageModal");
-            const modalImg = document.getElementById("modalImage");
-            modalImg.src = imgSrc;
-            modal.classList.remove("hidden");
-        }
-        
-        function closeImageModal() {
-            document.getElementById("imageModal").classList.add("hidden");
-        }
-        
-        // Image preview
         function previewImage(input) {
             const preview = document.getElementById("imagePreview");
             if(input.files && input.files[0]) {
@@ -667,48 +554,28 @@
             document.getElementById("imageInput").value = '';
         }
         
-        // Update online count
         function updateOnlineCount() {
             const onlineSpan = document.getElementById("onlineCount");
-            if(onlineSpan) {
-                const onlineCount = Math.floor(Math.random() * 15) + 1;
-                onlineSpan.innerText = `${onlineCount} online`;
-            }
+            if(onlineSpan) { onlineSpan.innerText = `${Math.floor(Math.random() * 15) + 1} online`; }
         }
         
-        // Initialize
         function init() {
             loadCommunityData();
-            
             if(!checkLogin()) {
-                if(loginToCommunity()) {
-                    location.reload();
-                } else {
+                if(loginToCommunity()) { location.reload(); }
+                else {
                     document.body.innerHTML = '<div class="flex items-center justify-center h-screen"><div class="glass-card p-8 text-center"><i class="fas fa-lock text-4xl mb-4 text-red-400"></i><p class="text-sm">Login required to join community</p><button onclick="location.reload()" class="mt-4 btn-video px-6 py-2 rounded-xl text-sm">Try Again</button></div></div>';
                 }
                 return;
             }
-            
             if(currentUser && currentUser.isAdmin) {
                 document.getElementById("adminControls").classList.remove("hidden");
-                const disabledMsg = document.getElementById("chatDisabledMsg");
-                if(!chatEnabled && disabledMsg) disabledMsg.classList.remove("hidden");
+                if(!chatEnabled) document.getElementById("chatDisabledMsg").classList.remove("hidden");
             } else if(!chatEnabled) {
                 document.getElementById("chatDisabledMsg").classList.remove("hidden");
             }
-            
-            const imageInput = document.getElementById("imageInput");
-            if(imageInput) {
-                imageInput.addEventListener("change", function(e) { previewImage(this); });
-            }
-            
-            const messageInput = document.getElementById("messageInput");
-            if(messageInput) {
-                messageInput.addEventListener("keypress", function(e) {
-                    if(e.key === "Enter") sendMessage();
-                });
-            }
-            
+            document.getElementById("imageInput").addEventListener("change", function(e) { previewImage(this); });
+            document.getElementById("messageInput").addEventListener("keypress", function(e) { if(e.key === "Enter") sendMessage(); });
             renderMessages();
             updateOnlineCount();
             setInterval(updateOnlineCount, 30000);
