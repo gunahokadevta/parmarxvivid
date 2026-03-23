@@ -432,7 +432,7 @@
                 </div>
                 <div id="live-chat-box" class="h-96 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
                 <div class="p-4 bg-slate-900/60 chat-input-container">
-                    <label class="file-input-label"><i class="fas fa-image"></i></label>
+                    <label class="file-input-label" for="liveImageInput"><i class="fas fa-image"></i></label>
                     <input type="file" id="liveImageInput" accept="image/*" class="hidden">
                     <input type="text" id="liveChatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500">
                     <button onclick="sendLiveQuery()" class="btn-video rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
@@ -449,7 +449,7 @@
             </div>
             <div id="chat-box" class="h-80 overflow-y-auto p-4 flex flex-col bg-black/20"></div>
             <div class="p-4 bg-slate-900/60 chat-input-container">
-                <label class="file-input-label"><i class="fas fa-image"></i></label>
+                <label class="file-input-label" for="chatImageInput"><i class="fas fa-image"></i></label>
                 <input type="file" id="chatImageInput" accept="image/*" class="hidden">
                 <input type="text" id="chatInput" placeholder="Ask your doubt..." class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white outline-none focus:border-blue-500">
                 <button onclick="sendUserQuery()" class="btn-video rounded-2xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
@@ -518,19 +518,19 @@
         function updateProgress(percent) { document.getElementById('progress-bar').style.width = percent + '%'; }
         function closeNotice() { document.getElementById('notice-modal').style.display = 'none'; updateProgress(20); }
         
-        // User Management with strict username uniqueness
+        // User Management with strict username uniqueness (cross-device)
         function loadStorage() {
-            let users = localStorage.getItem("vivid_users_final2");
+            let users = localStorage.getItem("vivid_users_final3");
             if(users) window.allUsers = JSON.parse(users);
             else window.allUsers = {};
-            let chats = localStorage.getItem("vivid_chats_final2");
+            let chats = localStorage.getItem("vivid_chats_final3");
             if(chats) userChats = JSON.parse(chats);
             else userChats = {};
-            let token = localStorage.getItem("vivid_token_final2");
+            let token = localStorage.getItem("vivid_token_final3");
             if(token && window.allUsers[token]) { currentUser = window.allUsers[token]; showApp(); }
         }
-        function saveUsers() { localStorage.setItem("vivid_users_final2", JSON.stringify(window.allUsers)); }
-        function saveChats() { localStorage.setItem("vivid_chats_final2", JSON.stringify(userChats)); }
+        function saveUsers() { localStorage.setItem("vivid_users_final3", JSON.stringify(window.allUsers)); }
+        function saveChats() { localStorage.setItem("vivid_chats_final3", JSON.stringify(userChats)); }
         
         function isValidUsername(username) { return /^[A-Za-z0-9]{3,12}$/.test(username); }
         
@@ -550,7 +550,7 @@
             if(!fullname || !username || !email || !pwd) { alert("All fields required"); return; }
             if(!isValidUsername(username)) { alert("Username must be 3-12 characters, letters and numbers only!"); return; }
             if(pwd.length < 5) { alert("Password min 5 characters"); return; }
-            if(isUsernameTaken(username)) { alert("❌ Username already taken! Please choose another unique username."); return; }
+            if(isUsernameTaken(username)) { alert("❌ Username '" + username + "' already taken! Please choose another unique username."); return; }
             if(window.allUsers[email]) { alert("Email already registered."); return; }
             
             window.allUsers[email] = { name: fullname, username: username, email: email, password: pwd, notifViewed: false };
@@ -558,7 +558,7 @@
             currentUser = window.allUsers[email];
             if(!userChats[email]) userChats[email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_final2", email);
+            localStorage.setItem("vivid_token_final3", email);
             showApp();
         }
         
@@ -576,7 +576,7 @@
             currentUser = user;
             if(!userChats[currentUser.email]) userChats[currentUser.email] = [];
             saveChats();
-            localStorage.setItem("vivid_token_final2", currentUser.email);
+            localStorage.setItem("vivid_token_final3", currentUser.email);
             showApp();
         }
         
@@ -600,7 +600,7 @@
         function logoutUser() { 
             if(pollingInterval) clearInterval(pollingInterval);
             currentUser = null; 
-            localStorage.removeItem("vivid_token_final2"); 
+            localStorage.removeItem("vivid_token_final3"); 
             document.getElementById("app-container").classList.add("hidden"); 
             document.getElementById("auth-modal").classList.remove("hidden"); 
         }
@@ -675,7 +675,7 @@
             document.getElementById('liveImageInput').value = '';
         }
         
-        // File input listeners
+        // File input listeners - using for attribute and separate event listeners
         document.getElementById('chatImageInput')?.addEventListener('change', function(e) { previewChatImage(this); });
         document.getElementById('liveImageInput')?.addEventListener('change', function(e) { previewLiveImage(this); });
         
@@ -1023,7 +1023,7 @@
             if(!notifReactions[nid]) notifReactions[nid] = { like: 0, love: 0, fire: 0 };
             notifReactions[nid][type] += 1;
             document.getElementById(`${nid}_${type}`).innerText = notifReactions[nid][type];
-            localStorage.setItem("vivid_reactions_final2", JSON.stringify(notifReactions));
+            localStorage.setItem("vivid_reactions_final3", JSON.stringify(notifReactions));
         }
         
         function navAction(type) { 
@@ -1041,10 +1041,10 @@
             else { if(document.getElementById('search-container').style.display !== 'none') document.getElementById('menuButton').classList.remove('hidden'); }
         }
         
-        let storedReactions = localStorage.getItem("vivid_reactions_final2");
+        let storedReactions = localStorage.getItem("vivid_reactions_final3");
         if(storedReactions) notifReactions = JSON.parse(storedReactions);
         loadStorage();
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-    </html>
+                        </html>
