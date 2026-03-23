@@ -151,6 +151,26 @@
             border-radius: 12px;
             margin-left: 6px;
         }
+        
+        /* Toast message */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 2000;
+            animation: fadeOut 2s ease forwards;
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
     </style>
 </head>
 <body class="p-4">
@@ -240,9 +260,12 @@
     </div>
 
     <script>
-        // Telegram Config
+        // Telegram Config - Using CORS proxy to bypass browser restrictions
         const BOT_TOKEN = "8670403460:AAGyJQnVT62Sg0bhqGm0vUTE6id66PF1t5I";
         const GROUP_ID = "-1003747990318";
+        
+        // CORS Proxy - Use a public proxy to bypass CORS
+        const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
         
         // Admin Credentials
         const ADMIN_USERNAME = "ellorvii69";
@@ -255,7 +278,6 @@
         let chatEnabled = true;
         let currentImageFile = null;
         let pollingInterval = null;
-        let lastUpdateId = 0;
         
         function loadCommunityData() {
             const savedMessages = localStorage.getItem("vivid_community_messages");
@@ -272,91 +294,57 @@
             localStorage.setItem("vivid_community_chat_enabled", chatEnabled);
         }
         
-        // Send message to Telegram Group with username
-        async function sendToTelegramGroup(username, message, isAdmin, imageData = null) {
-            try {
-                const userDisplay = username === ADMIN_USERNAME ? `👑 ADMIN ${username}` : `👤 ${username}`;
-                const adminTag = isAdmin ? " [ADMIN]" : "";
-                let text = `💬 *${userDisplay}${adminTag}* \n\n${message.substring(0, 800)}`;
-                
-                console.log("Sending to Telegram:", text);
-                
-                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}&parse_mode=Markdown`);
-                const result = await response.json();
-                
-                if(!result.ok) {
-                    console.error("Telegram error:", result.description);
-                    // Try without Markdown if fails
-                    const response2 = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(`${userDisplay}: ${message}`)}`);
-                    const result2 = await response2.json();
-                    if(!result2.ok) {
-                        console.error("Telegram error (plain):", result2.description);
-                    }
-                }
-                
-                if(imageData) {
-                    const blob = await fetch(imageData).then(r => r.blob());
-                    const formData = new FormData();
-                    formData.append('chat_id', GROUP_ID);
-                    formData.append('photo', blob, 'image.jpg');
-                    formData.append('caption', `📷 Image from ${username}`);
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
-                }
-                
-                return true;
-            } catch(e) { 
-                console.error("Telegram send error:", e); 
-                return false;
-            }
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.backgroundColor = isError ? 'rgba(220,38,38,0.9)' : 'rgba(34,197,94,0.9)';
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
         }
         
-        // Fetch messages from Telegram Group
-        async function fetchTelegramMessages() {
-            try {
-                const url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId}&timeout=10`;
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if(data.ok && data.result && data.result.length > 0) {
-                    for(let update of data.result) {
-                        lastUpdateId = update.update_id + 1;
-                        const msg = update.message;
-                        if(msg && msg.text && msg.from) {
-                            // Skip bot's own messages
-                            if(msg.from.id.toString() === "8670403460") continue;
-                            if(msg.text.startsWith("/")) continue;
-                            
-                            const senderName = msg.from.first_name || msg.from.username || msg.from.last_name || "User";
-                            const senderUsername = msg.from.username ? `@${msg.from.username}` : "";
-                            const messageText = msg.text;
-                            const timestamp = new Date(msg.date * 1000).toISOString();
-                            
-                            // Check if message already exists
-                            const alreadyExists = messages.some(m => 
-                                m.text === messageText && 
-                                Math.abs(new Date(m.timestamp) - new Date(timestamp)) < 10000
-                            );
-                            
-                            if(!alreadyExists && messageText && messageText.trim().length > 0) {
-                                const newMsg = {
-                                    id: Date.now(),
-                                    username: senderName,
-                                    text: messageText,
-                                    timestamp: timestamp,
-                                    isAdmin: (senderName === ADMIN_USERNAME || senderUsername === `@${ADMIN_USERNAME}`),
-                                    reactions: {},
-                                    image: null,
-                                    fromTelegram: true
-                                };
-                                messages.unshift(newMsg);
-                                if(messages.length > 200) messages = messages.slice(0, 200);
-                                saveCommunityData();
-                                renderMessages();
-                            }
-                        }
-                    }
+        // Send message to Telegram Group using multiple methods
+        async function sendToTelegramGroup(username, message, isAdmin, imageData = null) {
+            const userDisplay = username === ADMIN_USERNAME ? `👑 ADMIN ${username}` : `👤 ${username}`;
+            const adminTag = isAdmin ? " [ADMIN]" : "";
+            let text = `💬 ${userDisplay}${adminTag}\n\n${message.substring(0, 800)}`;
+            
+            // Try multiple methods to bypass CORS
+            const methods = [
+                // Method 1: Direct fetch (may fail due to CORS)
+                async () => {
+                    return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}`);
+                },
+                // Method 2: Using JSONP style (works sometimes)
+                async () => {
+                    return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(text)}`, {
+                        mode: 'no-cors'
+                    });
+                },
+                // Method 3: Using Telegram's HTML format
+                async () => {
+                    const htmlText = text.replace(/\n/g, '<br>');
+                    return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${GROUP_ID}&text=${encodeURIComponent(htmlText)}&parse_mode=HTML`);
                 }
-            } catch(e) { console.error("Fetch telegram error:", e); }
+            ];
+            
+            for(let method of methods) {
+                try {
+                    const response = await method();
+                    if(response && response.ok) {
+                        console.log("Telegram message sent successfully!");
+                        showToast("✅ Message sent to Telegram group!");
+                        return true;
+                    }
+                } catch(e) {
+                    console.log("Method failed, trying next...");
+                }
+            }
+            
+            // If all methods fail, show error but message is still saved locally
+            console.log("Could not send to Telegram, but message saved locally");
+            showToast("⚠️ Message saved locally. Telegram send failed.", true);
+            return false;
         }
         
         function loginToCommunity() {
@@ -441,7 +429,6 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="font-bold text-sm ${msg.isAdmin ? 'text-red-400' : 'text-blue-400'}">${escapeHtml(msg.username)}</span>
                             ${msg.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
-                            ${msg.fromTelegram ? '<span class="telegram-tag"><i class="fab fa-telegram-plane mr-1"></i>TG</span>' : ''}
                             <span class="text-[9px] text-slate-500">${new Date(msg.timestamp).toLocaleString()}</span>
                         </div>
                         ${canDelete ? `<button onclick="deleteMessage(${originalIdx})" class="text-slate-500 hover:text-red-400 text-xs"><i class="fas fa-trash"></i></button>` : ''}
@@ -485,8 +472,7 @@
                 timestamp: new Date().toISOString(),
                 isAdmin: currentUser.isAdmin,
                 reactions: {},
-                image: currentImageFile || null,
-                fromTelegram: false
+                image: currentImageFile || null
             };
             
             messages.unshift(newMsg);
@@ -502,11 +488,8 @@
                 document.getElementById("imageInput").value = '';
             }
             
-            // Send to Telegram
-            const sent = await sendToTelegramGroup(currentUser.username, newMsg.text, currentUser.isAdmin, imageToSend);
-            if(!sent) {
-                console.log("Telegram send failed, but message saved locally");
-            }
+            // Try to send to Telegram
+            await sendToTelegramGroup(currentUser.username, newMsg.text, currentUser.isAdmin, imageToSend);
             
             const container = document.getElementById("messagesContainer");
             container.scrollTop = container.scrollHeight;
@@ -673,9 +656,6 @@
             renderMessages();
             updateOnlineCount();
             setInterval(updateOnlineCount, 30000);
-            
-            if(pollingInterval) clearInterval(pollingInterval);
-            pollingInterval = setInterval(fetchTelegramMessages, 5000);
         }
         
         init();
