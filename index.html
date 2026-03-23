@@ -438,7 +438,7 @@
             <button onclick="toggleSection('category-section')" class="mt-6 p-4 glass-card w-full font-bold text-slate-400 text-sm tracking-widest uppercase mb-10 text-center">BACK</button>
         </div>
         
-        <!-- Community Section - Now loads external community.html -->
+        <!-- Community Section - Loads external community.html -->
         <div id="community-section" class="hidden">
             <div class="mb-4">
                 <button onclick="goBackToHomeFromCommunity()" class="p-3 glass-card inline-flex items-center gap-2 text-sm font-semibold"><i class="fas fa-arrow-left"></i> Back to Home</button>
@@ -806,19 +806,24 @@
             if(communityContent) {
                 communityContent.innerHTML = `<div class="text-center py-12"><div class="loader-spinner mx-auto mb-4"></div><p class="text-sm text-slate-400">Loading community...</p></div>`;
                 
-                // Load community.html from GitHub
-                fetch('https://raw.githubusercontent.com/gunahokadevta/parmarxvivid/main/community.html?v=' + Date.now())
+                // Load community.html from GitHub - THIS IS THE CORRECT URL
+                const communityUrl = 'https://raw.githubusercontent.com/gunahokadevta/parmarxvivid/main/community.html?v=' + Date.now();
+                fetch(communityUrl)
                     .then(res => {
                         if(!res.ok) throw new Error("Community page not found");
                         return res.text();
                     })
                     .then(html => {
                         communityContent.innerHTML = html;
-                        // Inject any scripts if needed
+                        // Execute any scripts in the loaded HTML
                         const scripts = communityContent.querySelectorAll('script');
                         scripts.forEach(oldScript => {
                             const newScript = document.createElement('script');
-                            newScript.textContent = oldScript.textContent;
+                            if(oldScript.src) {
+                                newScript.src = oldScript.src;
+                            } else {
+                                newScript.textContent = oldScript.textContent;
+                            }
                             document.body.appendChild(newScript);
                         });
                     })
@@ -1125,4 +1130,4 @@
         if(!currentUser) document.getElementById("auth-modal").classList.remove("hidden");
     </script>
 </body>
-    </html>
+                                                                                                                                          </html>
